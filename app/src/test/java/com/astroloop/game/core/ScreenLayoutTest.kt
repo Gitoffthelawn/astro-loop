@@ -89,4 +89,79 @@ class ScreenLayoutTest {
         assertEquals(1200f, l.full.width, 0.01f)
         assertEquals(2000f, l.full.height, 0.01f)
     }
+
+    // ── The transposed design space ──────────────────────────────────────────
+
+    private val landscapeAspect = GameConfig.DESIGN_HEIGHT / GameConfig.DESIGN_WIDTH // 2142/960
+
+    @Test
+    fun `a landscape design aspect gives a wide content band`() {
+        // 1080p panel in design units: 2142 x 1205. The band is the full width and 960 tall,
+        // centred vertically — the transpose of the portrait column.
+        val l = ScreenLayout.compute(
+            width = 2142f, height = 1205f, designAspect = landscapeAspect
+        )
+        assertEquals(2142f, l.content.width, 0.5f)
+        assertEquals(960f, l.content.height, 0.5f)
+        assertEquals(1205f / 2f, l.content.centerY, 0.01f)
+    }
+
+    @Test
+    fun `an ultra-wide landscape screen pillarboxes the band instead of stretching it`() {
+        // 21:9 in design units: 2276 x 960. Width is now the slack axis.
+        val l = ScreenLayout.compute(
+            width = 2276f, height = 960f, designAspect = landscapeAspect
+        )
+        assertEquals(2142f, l.content.width, 1f)
+        assertEquals(960f, l.content.height, 0.5f)
+        assertEquals(2276f / 2f, l.content.centerX, 0.01f)
+    }
+
+    @Test
+    fun `content keeps the landscape design aspect on any size`() {
+        for (w in listOf(2142f, 2276f, 3427f, 4808f)) {
+            for (h in listOf(960f, 1205f, 1339f, 2066f)) {
+                val l = ScreenLayout.compute(width = w, height = h, designAspect = landscapeAspect)
+                assertEquals(
+                    "aspect wrong at ${w}x$h",
+                    landscapeAspect,
+                    l.content.width / l.content.height,
+                    0.001f
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `shortEdge is the device's own portrait design width in either orientation`() {
+        // renderScale is rotation-invariant: portrait takes min(w/960, h/2142) and landscape
+        // min(w/2142, h/960), and rotating swaps w and h — the same two divisions, the same min.
+        // So both sides below are shortEdge / renderScale with identical operands, and agree
+        // bit-for-bit rather than to a tolerance. Zero delta is the point of the test.
+        val profiles = listOf(
+            1080f to 2400f,   // Pixel 9 Pro
+            1080f to 2424f,   // Pixel 9 Pro, taller variant
+            1080f to 1920f,   // 16:9 phone / TV 1080p
+            2160f to 3840f,   // TV 4K
+            1600f to 2560f,   // tablet
+            2076f to 2152f,   // fold inner, near-square
+            1022f to 2400f    // shotbox surface (system bars carved out)
+        )
+        for ((short, long) in profiles) {
+            val portraitWidth = DesignSpace.metricsFor(short, long).width
+
+            assertEquals(
+                "portrait ${short}x$long",
+                portraitWidth,
+                DesignSpace.metricsFor(short, long).layout.shortEdge,
+                0f
+            )
+            assertEquals(
+                "landscape ${long}x$short",
+                portraitWidth,
+                DesignSpace.metricsFor(long, short).layout.shortEdge,
+                0f
+            )
+        }
+    }
 }

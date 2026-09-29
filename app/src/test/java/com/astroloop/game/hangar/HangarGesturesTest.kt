@@ -1,5 +1,6 @@
 package com.astroloop.game.hangar
 
+import com.astroloop.game.input.Direction
 import org.junit.Assert.*
 import org.junit.Test
 
@@ -98,5 +99,141 @@ class HangarGesturesTest {
         assertTrue("a tile is much wider than the swipe slop", tolerated > slop)
         assertTrue(HangarGestures.holdSurvivesDrift(
             x = tolerated, y = tolerated, left = 0f, top = 0f, right = 200f, bottom = 200f))
+    }
+
+    // ── The intro cinematic's one hop ───────────────────────────────────────
+
+    @Test
+    fun `the intro allows only the hop a swipe allows`() {
+        // The swipe release permits currentPage++ from the bar while the cinematic holds, and
+        // nothing else. A controller gets exactly that and no more.
+        assertTrue(HangarGestures.introPageHopAllowed(introCinematic = true, currentPage = 0, target = 1))
+        assertFalse(HangarGestures.introPageHopAllowed(introCinematic = true, currentPage = 1, target = 2))
+        assertFalse(HangarGestures.introPageHopAllowed(introCinematic = true, currentPage = 1, target = 0))
+    }
+
+    @Test
+    fun `outside the intro every page change is allowed`() {
+        assertTrue(HangarGestures.introPageHopAllowed(introCinematic = false, currentPage = 2, target = 0))
+    }
+
+    // ── The ship carousel ───────────────────────────────────────────────────
+
+    @Test
+    fun `left and right work the carousel while the ship is focused`() {
+        assertEquals(1, HangarGestures.shipCarouselStep("ship", Direction.RIGHT))
+        assertEquals(-1, HangarGestures.shipCarouselStep("ship", Direction.LEFT))
+    }
+
+    @Test
+    fun `up and down still move focus off the ship`() {
+        // Down is how the nav row is reached; making it a carousel move would strand the player.
+        assertEquals(0, HangarGestures.shipCarouselStep("ship", Direction.DOWN))
+        assertEquals(0, HangarGestures.shipCarouselStep("ship", Direction.UP))
+    }
+
+    @Test
+    fun `every other target navigates as usual`() {
+        assertEquals(0, HangarGestures.shipCarouselStep("nav:1", Direction.RIGHT))
+        assertEquals(0, HangarGestures.shipCarouselStep(null, Direction.LEFT))
+    }
+
+    // ── The controller launch ───────────────────────────────────────────────
+
+    @Test
+    fun `the pad launch starts at rest and arrives at the halo`() {
+        assertEquals(1800f, HangarGestures.padLaunchY(0f, restingY = 1800f, haloY = 1200f), 0.01f)
+        assertEquals(1200f, HangarGestures.padLaunchY(HangarGestures.PAD_LAUNCH_RISE, 1800f, 1200f), 0.01f)
+    }
+
+    @Test
+    fun `the ship holds in the halo rather than passing through it`() {
+        // Half a second of holding is the point: the player asked to see the launch happen.
+        val held = HangarGestures.padLaunchY(HangarGestures.PAD_LAUNCH_RISE + 0.25f, 1800f, 1200f)
+
+        assertEquals(1200f, held, 0.01f)
+    }
+
+    @Test
+    fun `the rise only ever moves upward`() {
+        var previous = Float.MAX_VALUE
+        var t = 0f
+        while (t <= HangarGestures.PAD_LAUNCH_RISE) {
+            val y = HangarGestures.padLaunchY(t, 1800f, 1200f)
+            assertTrue("y must not fall back down at $t", y <= previous + 0.01f)
+            previous = y
+            t += 0.01f
+        }
+    }
+
+    @Test
+    fun `the launch fires after the rise and the hold, not before`() {
+        assertFalse(HangarGestures.padLaunchDone(HangarGestures.PAD_LAUNCH_RISE))
+        assertFalse(HangarGestures.padLaunchDone(HangarGestures.PAD_LAUNCH_RISE + HangarGestures.PAD_LAUNCH_HOLD - 0.01f))
+        assertTrue(HangarGestures.padLaunchDone(HangarGestures.PAD_LAUNCH_RISE + HangarGestures.PAD_LAUNCH_HOLD))
+    }
+
+    // ── The drag fade every piece of launch chrome shares ────────────────────
+
+    @Test
+    fun `the drag fade is full at rest and gone at the fade end`() {
+        assertEquals(1f, HangarGestures.shipDragFade(1800f, restingY = 1800f, fadeEnd = 1200f), 0.0001f)
+        assertEquals(0f, HangarGestures.shipDragFade(1200f, restingY = 1800f, fadeEnd = 1200f), 0.0001f)
+    }
+
+    @Test
+    fun `it is half way across at the midpoint`() {
+        assertEquals(0.5f, HangarGestures.shipDragFade(1500f, restingY = 1800f, fadeEnd = 1200f), 0.0001f)
+    }
+
+    @Test
+    fun `it clamps rather than going negative past the end`() {
+        assertEquals(0f, HangarGestures.shipDragFade(900f, restingY = 1800f, fadeEnd = 1200f), 0.0001f)
+        assertEquals(1f, HangarGestures.shipDragFade(1900f, restingY = 1800f, fadeEnd = 1200f), 0.0001f)
+    }
+
+    @Test
+    fun `a degenerate range stays visible rather than dividing by zero`() {
+        // shipRestingY is 0 until the first layout pass, and the intro title's variant can put the
+        // fade end on top of the resting position.
+        assertEquals(1f, HangarGestures.shipDragFade(0f, restingY = 1200f, fadeEnd = 1200f), 0.0001f)
+    }
+
+    // ── The codex sequence ───────────────────────────────────────────────────
+
+    private fun enter(vararg directions: Direction): Int {
+        var progress = 0
+        for (d in directions) progress = HangarGestures.codexSequenceStep(progress, d)
+        return progress
+    }
+
+    @Test
+    fun `the whole sequence completes`() {
+        val progress = enter(
+            Direction.UP, Direction.UP, Direction.DOWN, Direction.DOWN,
+            Direction.LEFT, Direction.RIGHT, Direction.LEFT, Direction.RIGHT
+        )
+
+        assertEquals(HangarGestures.CODEX_SEQUENCE.size, progress)
+    }
+
+    @Test
+    fun `a wrong direction resets`() {
+        // Navigating the shop must not creep toward the secret by accident.
+        assertEquals(0, enter(Direction.UP, Direction.UP, Direction.LEFT))
+    }
+
+    @Test
+    fun `a fumbled start restarts on the up rather than dropping it`() {
+        // Someone reaching for the sequence presses up three times. The third up is a fresh first
+        // press, not a miss that throws the run away.
+        assertEquals(1, enter(Direction.UP, Direction.UP, Direction.UP))
+    }
+
+    @Test
+    fun `the sequence does not re-trigger on the next press`() {
+        val complete = HangarGestures.CODEX_SEQUENCE.size
+        // Already open; a stray direction afterwards must not read as another completion.
+        assertEquals(0, HangarGestures.codexSequenceStep(complete, Direction.DOWN))
     }
 }

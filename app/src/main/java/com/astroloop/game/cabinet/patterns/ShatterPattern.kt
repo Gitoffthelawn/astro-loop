@@ -23,7 +23,7 @@ import kotlin.math.sin
  * *Can you survive without shooting, then punish the quiet?* Last in the teaching order,
  * because it asks for nerve rather than a technique.
  *
- * **This is what proves the no-window design.** §8: it is a phase where shooting is
+ * **This is what proves the no-window design.** The spec: it is a phase where shooting is
  * genuinely off the table, followed by one where it is free — *"and no invulnerability
  * flag is involved anywhere. The pattern's own density does the work a state machine
  * would have done."* If a future change makes this survivable while shooting, the whole
@@ -61,7 +61,7 @@ class ShatterPattern : ReckoningPattern {
         t: Float, dt: Float, tighten: Float, m: CabinetMetrics, shipX: Float, shipY: Float
     ): List<CabinetBullet> {
         val out = ArrayList<CabinetBullet>()
-        // Every slot fires — decision 88. The long silence is gone.
+        // Every slot fires — a design decision. The long silence is gone.
         forEachTick(t, dt, CLUSTER_INTERVAL * tighten) { _, _ ->
             cluster(m, shipX, shipY, out)
         }
@@ -77,7 +77,7 @@ class ShatterPattern : ReckoningPattern {
         val sp = speed(m)
         val life = crossingLife(m, sp)
         val step = 2f * PI.toFloat() / COUNT
-        // AIMED, as of device pass 7: every cluster puts one bullet exactly on the ship's
+        // AIMED, as of a device pass: every cluster puts one bullet exactly on the ship's
         // bearing. Owner: "it's easy to just camp and easily damage the crystal."
         //
         // A cluster is COUNT bullets evenly spread over the full circle, so it is rotation
@@ -118,7 +118,7 @@ class ShatterPattern : ReckoningPattern {
         /**
          * Bullets to a cluster.
          *
-         * Nine until device pass 7, where shrinking `CabinetCrystal.RADIUS_FRAC` to 0.05
+         * Nine until a device pass, where shrinking `CabinetCrystal.RADIUS_FRAC` to 0.05
          * lengthened every bullet's flight — a smaller body means more of the field to
          * cross — and pushed one more cluster onto the screen at lap 4. Declared density
          * went to 126 against a ceiling of 120, so the count comes down to hold rule 3.

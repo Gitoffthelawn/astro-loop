@@ -38,7 +38,7 @@ class BandanaAwardCeremonyTest {
         }
     }
 
-    // Decision 13: the desert-town hints and Tobar's twelfth beat were deleted as signposting —
+    // A design decision: the desert-town hints and Tobar's twelfth beat were deleted as signposting —
     // the destination is already signposted, directively, in the corrupted bar chatter. These
     // literal strings are the deleted content itself (the production symbols that held them are
     // gone), kept here only so a regression that resurrects the text — under any symbol name —

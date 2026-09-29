@@ -12,9 +12,7 @@ enum class GamePhase {
     DESERT,
     DESERT_FAREWELL,
     TIMELINE_SHIFT,
-    WAKE_UP,
-    GAME_OVER,
-    GAME_BRICKED
+    GAME_OVER
 }
 
 class GameState {
@@ -38,7 +36,6 @@ class GameState {
     var debugDeadPilotCount: Int = 0
     var debugCrystalUnlocked: Boolean = false
     var debugArcCompleted: Boolean = false
-    var debugCrystalBroken: Boolean = false
     var debugStoryLoop: Int = 1
     var debugDesertCompleted: Boolean = false
     var storyLoop: Int = 1
@@ -125,6 +122,13 @@ class GameState {
     var momentumDamageBonus: Float = 0f      // Momentum Drive: +8% per stack while moving
     var cryoSlowPercent: Float = 0f          // Cryo Field: flat 50% slow
     var cryoRadiusMultiplier: Float = 1f     // Cryo Field: +25% radius per stack
+
+    /**
+     * Whole-stream opacity for the effect rings: 1 while alive, ramping to 0 through the death
+     * play-out. Nothing in this game may simply vanish, and the cryo ring used to blink off the
+     * frame health hit zero.
+     */
+    var effectRingFadeAlpha: Float = 1f
     // revengeDamageBonus removed — revenge now doubles fire rate, not damage
     var maxShieldCap: Float = Float.MAX_VALUE // Glass Cannon: shield cap
     var shieldRegenDisabled: Boolean = false  // Glass Cannon: disable shield regen
@@ -352,6 +356,19 @@ class GameState {
     fun getMagnetRangeMultiplier(): Float = 1f + permanentMagnetLevel * 0.15f
     fun getMagnetSpeedMultiplier(): Float = 1f + permanentMagnetLevel * 0.2f
 
+    /**
+     * Where power-ups start being pulled in — the single source of truth for the magnet radius.
+     *
+     * The collision call site and the Magnet Field ring both read this. They used to be the same
+     * expression written twice, which is how a ring ends up marking a boundary where pickups are
+     * not actually collected.
+     */
+    fun getPickupRange(): Float =
+        GameConfig.POWERUP_MAGNET_BASE_RANGE * pickupRangeMultiplier * getMagnetRangeMultiplier()
+
+    /** Cryo Field's slow radius. Same single-source rule as [getPickupRange]. */
+    fun getCryoRadius(): Float = GameConfig.CRYO_BASE_RADIUS * cryoRadiusMultiplier
+
     fun reset() {
         phase = GamePhase.PLAYING
         survivalTime = 0f
@@ -449,6 +466,7 @@ class GameState {
         momentumDamageBonus = 0f
         cryoSlowPercent = 0f
         cryoRadiusMultiplier = 1f
+        effectRingFadeAlpha = 1f
         maxShieldCap = Float.MAX_VALUE
         shieldRegenDisabled = false
         hasLuckyStar = false

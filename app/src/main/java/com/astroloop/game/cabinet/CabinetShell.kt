@@ -56,7 +56,7 @@ class CabinetShell(
     var reckoning: ReckoningRun? = null
         private set
 
-    /** How long the crystal has been holding the paused screen. Decision 90. */
+    /** How long the crystal has been holding the paused screen. A design decision. */
     var pauseDenial: Float = 0f
         private set
 
@@ -69,7 +69,7 @@ class CabinetShell(
     /**
      * Whether the crystal refuses the player a pause — **the genuine ending only**.
      *
-     * Decision 90 is about the ending: there is no pausing and no quitting it, "if the player
+     * A design decision is about the ending: there is no pausing and no quitting it, "if the player
      * wants out they either beat it or die." A replay from the menu's ??? entry is not the
      * ending. It writes nothing but a record, it is entered deliberately from a menu, and it is
      * a fight the player has already won — holding them in it enforces a rule whose reason has
@@ -88,7 +88,7 @@ class CabinetShell(
     /**
      * Begin the ending. Does not itself touch the coin economy — the debug jump calls this
      * directly and must stay free, while [beginRun] calls it too but only after it has
-     * already spent a credit. Decision 60 retired the free retry; the charge lives in that
+     * already spent a credit. A design decision retired the free retry; the charge lives in that
      * ordering, not here.
      *
      * @param startPhase 0 plays the authored opening; 1..5 drop into that pattern.
@@ -112,7 +112,7 @@ class CabinetShell(
 
     /**
      * The MENU's fourth entry: replay a beaten ending. Only reachable from MENU, and priced
-     * like every other run — decision 60 retired the free finale for the real ending, and
+     * like every other run — a design decision retired the free finale for the real ending, and
      * this is not a special case of it.
      *
      * @return false if not on MENU or there was no credit to spend; nothing changes either way.
@@ -144,7 +144,7 @@ class CabinetShell(
                     if (run != null && run.outcome == ReckoningRun.Outcome.WON) {
                         if (sim.debris.isEmpty()) requestExit = true
                     } else {
-                        // Decision 49: the ending never writes to the per-pilot table the
+                        // A design decision: the ending never writes to the per-pilot table the
                         // stage 3 gate reads. "Cannot" beats "happens not to".
                         if (!isReckoning && !scoreRecorded) {
                             recordScore(sim.score); scoreRecorded = true
@@ -161,7 +161,7 @@ class CabinetShell(
             // score. No input is passed: the pilot is dead and the gun is silent.
             CabinetScreen.OVER -> sim.update(dt, 0f, 0f, false)
             // PAUSE does not. Holding the clock is the entire point of pause — except in
-            // the reckoning, where the crystal does not grant one. Decision 90: it takes the
+            // the reckoning, where the crystal does not grant one. A design decision: it takes the
             // menu, answers it, and hands the fight back. The sim still does not advance
             // while it is up; what advances is only the denial's own clock, so the pause is
             // real for as long as it lasts and the player loses nothing but the beat.
@@ -190,7 +190,7 @@ class CabinetShell(
     }
 
     private fun beginRun(): Boolean {
-        // Spend FIRST, then decide which run this is. Decision 60 retired the free finale,
+        // Spend FIRST, then decide which run this is. A design decision retired the free finale,
         // so both kinds cost a credit now and there is one economy in the machine.
         //
         // The order is load-bearing and the tempting edit is a bug: deleting the isReckoning
@@ -219,11 +219,26 @@ class CabinetShell(
         return true
     }
 
+    /**
+     * The screen under an open cabinet changed size — a rotation, in practice. Every screen
+     * lays out from [m] each frame, so resizing it is all the menus need; the two fields'
+     * contents are moved proportionally so nothing is left outside the new bounds.
+     */
+    fun resize(newWidth: Float, newHeight: Float) {
+        if (newWidth <= 0f || newHeight <= 0f) return
+        if (newWidth == m.width && newHeight == m.height) return
+        val sx = newWidth / m.width
+        val sy = newHeight / m.height
+        m.resize(newWidth, newHeight)
+        sim.rescale(sx, sy)
+        attract.sim.rescale(sx, sy)
+    }
+
     fun onScores() { if (screen == CabinetScreen.MENU) screen = CabinetScreen.SCORES }
 
     fun onBack() {
         // From OVER during the reckoning, "back" means out of the machine, not into its
-        // attract menu — the same destination decision 55 rejected for QUIT.
+        // attract menu — the same destination decision rejected for QUIT.
         if (screen == CabinetScreen.OVER && isReckoning) {
             reckoning = null
             requestExit = true
@@ -254,13 +269,13 @@ class CabinetShell(
      * Leave a paused run.
      *
      * In free play that means the cabinet's own menu. **In the reckoning it means the
-     * hangar** (decision 55) — the attract demo is no place to drop somebody out of an
+     * hangar** — the attract demo is no place to drop somebody out of an
      * ending. The ending is not consumed either way: `crystal_released` is written only
      * on a win, so losing already permits a retry and quitting matches it.
      */
     fun onQuit() {
         if (screen != CabinetScreen.PAUSE) return
-        // THERE IS NO QUITTING THE RECKONING. Decision 90 amends decision 55: it used to
+        // THERE IS NO QUITTING THE RECKONING. A later decision amends an earlier one: it used to
         // drop you back in the hangar on the grounds that the attract demo was no place to
         // leave somebody out of an ending. The owner's answer is that there is no leaving
         // at all — "if the player wants out they either beat it or die."

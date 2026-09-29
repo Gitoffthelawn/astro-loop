@@ -13,8 +13,7 @@ import com.astroloop.game.weapon.Weapon
 
 class HomingMissiles : Weapon(
     id = "homing_missiles",
-    name = "Homing Missiles",
-    description = "Lock-on projectiles"
+    name = "Homing Missiles"
 ) {
     override val baseDamage = 35f
     override val baseCooldown = 1.0f

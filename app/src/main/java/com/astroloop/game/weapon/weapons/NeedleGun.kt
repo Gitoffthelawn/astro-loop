@@ -9,8 +9,7 @@ import com.astroloop.game.weapon.Weapon
 
 class NeedleGun : Weapon(
     id = "needle_gun",
-    name = "Needle Gun",
-    description = "Rapid piercing needles"
+    name = "Needle Gun"
 ) {
     override val baseDamage = 5f
     override val baseCooldown = 0.25f

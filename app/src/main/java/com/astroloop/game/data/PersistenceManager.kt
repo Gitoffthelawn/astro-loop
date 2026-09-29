@@ -122,14 +122,13 @@ class PersistenceManager(context: Context) {
         editor.putStringSet("dead_ships", emptySet())
         editor.putBoolean("crystal_unlocked", false)
         editor.putBoolean("crystal_purchased", false)
-        editor.putBoolean("crystal_broken", false)
         // Bandanas (finale chunk 1)
         editor.putStringSet("earned_bandanas", emptySet())
         editor.remove("pending_bandana_pilot")
         editor.putBoolean("crystal_released", false)
         editor.putBoolean("reckoning_attempted", false)
         editor.putBoolean("reckoning_just_won", false)
-        // Retired with the round counter (decision 79). REMOVED, not merely left unwritten:
+        // Retired with the round counter. REMOVED, not merely left unwritten:
         // any device that ran an earlier build still carries these in SharedPreferences, and
         // a reset that leaves them behind means a later feature reusing one of the names
         // inherits a value from a superseded design.
@@ -425,13 +424,13 @@ class PersistenceManager(context: Context) {
         return true
     }
 
-    // --- The reckoning's one number - decision 112 -----------------------------
+    // --- The reckoning's one number - a design decision -----------------------------
     // A TIME, not a score, and the distinction is the whole reason it is allowed to
     // exist. The fight stopped paying points because shooting the opening's seeded
     // rocks had nothing to do with the crystal; how long the crystal took to release
     // is a record OF the fight. It is a cabinet artifact and nothing else reads it:
     // the bar never mentions it and TB-26 never mentions it, which is the same
-    // separation decision 96 draws when it forbids the pilot from reporting on the
+    // separation decision draws when it forbids the pilot from reporting on the
     // fight at all.
     //
     // Seconds, whole, because three digits is all the machine has.
@@ -502,7 +501,7 @@ class PersistenceManager(context: Context) {
 
     /** One-shot flag: set when the reckoning fight is won; cleared after the bar chatter fires.
      *  The only reckoning outcome flag there is — a LOSS writes nothing and is answered with
-     *  silence (decision 79), so there is no losing counterpart to pair this with. */
+     *  silence, so there is no losing counterpart to pair this with. */
     fun isReckoningJustWon(): Boolean = prefs.getBoolean("reckoning_just_won", false)
     fun setReckoningJustWon(v: Boolean) { prefs.edit().putBoolean("reckoning_just_won", v).apply() }
 
@@ -514,10 +513,6 @@ class PersistenceManager(context: Context) {
 
     fun isAwaitingCrystalReveal(): Boolean = prefs.getBoolean("awaiting_crystal_reveal", false)
     fun setAwaitingCrystalReveal(awaiting: Boolean) { prefs.edit().putBoolean("awaiting_crystal_reveal", awaiting).apply() }
-
-    fun isCrystalBroken(): Boolean = prefs.getBoolean("crystal_broken", false)
-    fun setCrystalBroken() { prefs.edit().putBoolean("crystal_broken", true).apply() }
-    fun clearCrystalBroken() { prefs.edit().putBoolean("crystal_broken", false).apply() }
 
     fun isAstroLoopFirstEntry(): Boolean = prefs.getBoolean(KEY_ASTRO_LOOP_FIRST_ENTRY, false)
     fun setAstroLoopFirstEntry() { prefs.edit().putBoolean(KEY_ASTRO_LOOP_FIRST_ENTRY, true).apply() }

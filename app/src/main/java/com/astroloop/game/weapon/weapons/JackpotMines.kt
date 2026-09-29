@@ -14,8 +14,7 @@ import kotlin.random.Random
 
 class JackpotMines : Weapon(
     id = "jackpot_mines",
-    name = "Gambler's Mines",
-    description = "Mines with random bonus effects"
+    name = "Gambler's Mines"
 ) {
     override val baseDamage = 90f
     override val baseCooldown = 2.0f

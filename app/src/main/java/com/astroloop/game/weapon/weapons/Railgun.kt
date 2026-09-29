@@ -9,8 +9,7 @@ import com.astroloop.game.weapon.Weapon
 
 class Railgun : Weapon(
     id = "railgun",
-    name = "Railgun",
-    description = "Piercing sniper shot"
+    name = "Railgun"
 ) {
     companion object {
         const val PIERCE_COUNT = 10

@@ -13,8 +13,7 @@ import kotlin.math.PI
 
 class StormCannon : Weapon(
     id = "storm_cannon",
-    name = "Storm Cannon",
-    description = "Rotating bullet storm — fills space in a persistent spiral"
+    name = "Storm Cannon"
 ) {
     override val baseDamage = 18f
     override val baseCooldown = 0.25f

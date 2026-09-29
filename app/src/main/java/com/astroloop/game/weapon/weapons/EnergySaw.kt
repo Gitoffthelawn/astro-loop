@@ -12,8 +12,7 @@ import kotlin.math.sin
 
 class EnergySaw : Weapon(
     id = "energy_saw",
-    name = "Energy Saw",
-    description = "Spinning energy disc that shreds on contact"
+    name = "Energy Saw"
 ) {
     override val baseDamage = 8f
     override val baseCooldown = 0.1f  // Damage tick rate

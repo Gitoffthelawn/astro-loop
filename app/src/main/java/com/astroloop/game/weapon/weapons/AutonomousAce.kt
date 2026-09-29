@@ -13,8 +13,7 @@ import com.astroloop.game.weapon.Weapon
 
 class AutonomousAce : Weapon(
     id = "autonomous_ace",
-    name = "Autonomous Ace",
-    description = "Supercharged homing missiles with drone AI upgrade"
+    name = "Autonomous Ace"
 ) {
     override val baseDamage = 45f
     override val baseCooldown = 1.0f

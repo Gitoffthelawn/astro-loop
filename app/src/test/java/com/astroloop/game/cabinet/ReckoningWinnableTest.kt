@@ -16,7 +16,7 @@ import kotlin.random.Random
  * injected `Random`, and settled.
  *
  * [perfectFire] is deliberately IMPOSSIBLE: parked on the firing line, immune, never
- * needing to turn. It establishes the UPPER bound, and it is what device pass 6 proved
+ * needing to turn. It establishes the UPPER bound, and it is what a device pass proved
  * this file was missing — the old ceiling test was arithmetic, and the arithmetic was
  * wrong, so the crystal died before CURTAIN on a first attempt and two authored patterns
  * had never been seen.
@@ -35,9 +35,9 @@ class ReckoningWinnableTest {
      * at up to 626 px/s crosses a 74.5px panic radius in 0.119s, and at VELOCITY_LERP 1.5
      * the ship builds 3.03px of lateral clearance in that time against the 17.8px it
      * needs. Off by 6x. The cabinet's ship is floaty by design - "more momentum" was the
-     * whole point of device pass 2 - so anyone flying it must ANTICIPATE, and widening the
+     * whole point of a device pass - so anyone flying it must ANTICIPATE, and widening the
      * threshold until a reactive dodge passes would be fitting the robot to the test,
-     * which decision 53 explicitly rejected.
+     * which decision explicitly rejected.
      *
      * The one scale it does carry is derived, not chosen: repulsion balances the crystal's
      * pull at exactly [ReckoningFairness.spacingFloor], the distance the contract itself
@@ -102,7 +102,7 @@ class ReckoningWinnableTest {
             "lands 11% of its shots because it holds range and dodges rather than aiming, " +
             "so it cannot finish the crystal in two laps while an ordinary human " +
             "does it in one. That gap is the pilot's aim, and closing it means writing a " +
-            "pilot that aims — which is a real decision, not a tuning knob. Device pass 6 " +
+            "pilot that aims — which is a real decision, not a tuning knob. A device pass " +
             "then settled which side the risk is on: the first player to fly it WON on " +
             "their first attempt, before CURTAIN, so this pilot was never evidence about " +
             "players and the fight was never in danger of being unwinnable. Kept rather " +
@@ -113,7 +113,7 @@ class ReckoningWinnableTest {
         //
         // The instruction here used to read "if this is ever un-ignored and fails,
         // CRYSTAL_HP comes DOWN - never the fairness numbers". That was written when the
-        // fear was an unwinnable fight, and device pass 6 measured the opposite: a first-
+        // fear was an unwinnable fight, and a device pass measured the opposite: a first-
         // time player won before CURTAIN and two authored patterns had never been seen.
         // So a failure here is NOT a licence to lower CRYSTAL_HP — read it off
         // ReckoningOpening rather than quoting a figure here, which is how this comment
@@ -175,10 +175,10 @@ class ReckoningWinnableTest {
         //
         // It has been three different tests. First arithmetic — MAX_BULLETS /
         // BULLET_LIFETIME — which was false, because the bullet cap never binds and the
-        // cadence does. Then a check that decision 74's HP bands held a pilot back until
+        // cadence does. Then a check that decision's HP bands held a pilot back until
         // the last pattern started.
         //
-        // Decision 92 makes both unnecessary: the pattern follows the crystal's health, one
+        // A design decision makes both unnecessary: the pattern follows the crystal's health, one
         // per fifth, so the last fifth is unreachable without crossing the four before it.
         // The guarantee is structural, and this asserts the structure rather than a rate.
         val (seen, shots) = perfectFire()
@@ -201,7 +201,7 @@ class ReckoningWinnableTest {
         // NARROWED, deliberately. This used to assert the run was still RUNNING, which
         // conflates two different failures: the crystal dying fast (what the comment above
         // describes, and what this test is for) and the PILOT dying fast (which is fairness
-        // rule 5's business, and is covered by aPilotThatNeverAttacksDies). Decision 88
+        // rule 5's business, and is covered by aPilotThatNeverAttacksDies). A design decision
         // retired the lull and this pilot now dies at 15.9s, so the old form failed for a
         // reason it was never written to detect. Asserting on the crystal says what the
         // comment always claimed.

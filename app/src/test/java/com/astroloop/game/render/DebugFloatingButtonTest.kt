@@ -49,7 +49,7 @@ class DebugFloatingButtonTest {
         b.applyLoaded(400f, 900f, 1080f, 2400f)
         assertEquals(DebugFloatingButton.Outcome.IGNORED, b.press(50f, 50f, atMs = 0L))
         // A release with no arming press must not report a tap — the same phantom-tap hole
-        // device pass 2 Task 2 found in CabinetInput.up().
+        // a device pass found in CabinetInput.up().
         assertEquals(DebugFloatingButton.Outcome.IGNORED, b.release(atMs = 100L))
     }
 
@@ -77,7 +77,7 @@ class DebugFloatingButtonTest {
         // sub-slop nudge here only tracks the button if move() already flipped `promoted`.
         b.move(405f, 900f, atMs = DebugFloatingButton.HOLD_MS + 2L, viewW = 1080f, viewH = 2400f)
         assertEquals(405f, b.cx, 0.01f)
-        // Slop alone would still call this a tap. Task 13's rule is slop OR elapsed.
+        // Slop alone would still call this a tap. The rule is slop OR elapsed.
         assertEquals(DebugFloatingButton.Outcome.CONSUMED,
             b.release(atMs = DebugFloatingButton.HOLD_MS + 20L))
     }

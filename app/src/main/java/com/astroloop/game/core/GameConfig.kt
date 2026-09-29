@@ -52,6 +52,8 @@ object GameConfig {
     const val SALVAGE_BASE_RATE = 0.5f
     const val POWERUP_SIZE = 20f
     const val POWERUP_MAGNET_BASE_RANGE = 80f
+    /** Cryo Field's radius before the per-stack multiplier. Read via GameState.getCryoRadius(). */
+    const val CRYO_BASE_RADIUS = 100f
     const val POWERUP_COLLECT_RANGE = 30f
     const val POWERUP_PULL_SPEED = 400f
 

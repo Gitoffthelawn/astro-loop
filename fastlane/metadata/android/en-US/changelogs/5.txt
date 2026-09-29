@@ -1,0 +1,9 @@
+Controller support: gamepads and keyboards work throughout. The bottom face button confirms, the right one goes back, Start pauses, the shoulders change page.
+
+Landscape: turn your phone and the game turns with it, with nothing resized.
+
+Magnet Field, Vampiric Core and Nova Blast show their reach with a ring, like Cryo Field.
+
+Steering by touch now shows a faint circle for the stick under your finger.
+
+Fixed: dying while picking up an upgrade no longer leaves your ship invisible.

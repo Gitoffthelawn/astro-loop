@@ -19,7 +19,7 @@ class CabinetHostileBulletTest {
     }
 
     @Test fun aHostileBulletDoesNotWrap() {
-        // §8: crystal bullets do not wrap. It bounds their lifetime to one playfield crossing
+        // The spec: crystal bullets do not wrap. It bounds their lifetime to one playfield crossing
         // and reads in-fiction as the crystal not obeying the cabinet's rules.
         val b = CabinetBullet(5f, 100f, -600f, 0f, 1.2f, hostile = true)
         b.update(1f / 60f, m)
@@ -40,7 +40,7 @@ class CabinetHostileBulletTest {
     }
 
     @Test fun theCrystalBulletHitboxIsHalfTheShipRadius() {
-        // Decision 44. Derived from SHIP_RADIUS_FRAC rather than restated, so the two
+        // A design decision. Derived from SHIP_RADIUS_FRAC rather than restated, so the two
         // cannot drift if the ship is ever resized.
         assertEquals(m.shipRadius * 0.5f, m.crystalBulletHitRadius, 0.001f)
         assertEquals(12.42f, m.crystalBulletHitRadius, 0.01f)
@@ -62,7 +62,7 @@ class CabinetHostileBulletTest {
         s.clearRocksForTest()
         val ship = s.ship
         // 20px out: inside the OLD 1.0r hitbox (24.84 + 5.40 = 30.24) and outside the new
-        // one. This test is the whole point of decision 44 — it fails if the hitbox is
+        // one. This test is the whole point of a design decision — it fails if the hitbox is
         // ever quietly restored to the rock radius.
         s.addHostileBullet(CabinetBullet(ship.x + 20f, ship.y, 0f, 0f, 999f, hostile = true))
         s.update(1f / 60f, 0f, 0f, false)

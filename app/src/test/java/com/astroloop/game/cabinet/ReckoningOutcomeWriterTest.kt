@@ -61,7 +61,7 @@ class ReckoningOutcomeWriterTest {
         // first and returns — would leave the loss standing to fire on some LATER bar return,
         // handing the player the retry script for a fight they had already ended.
         //
-        // Decision 79 deleted the losing flag outright, so a loss now leaves nothing behind for a
+        // A design decision deleted the losing flag outright, so a loss now leaves nothing behind for a
         // win to supersede. The property was NOT dropped: its precondition was. What is asserted
         // here is the surviving half — that a preceding loss cannot spoil the win that follows it.
         ReckoningOutcomeWriter.apply(ReckoningRun.Outcome.LOST, isReplay = false, seconds = 90, p)

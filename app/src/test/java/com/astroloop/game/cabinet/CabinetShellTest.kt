@@ -261,7 +261,7 @@ class CabinetShellTest {
 
     @Test fun theAttractDemoHoldsOnItsWreckBeforeRestarting() {
         // It used to restart in the same frame it died, which read as a glitch rather
-        // than a loop. Task 7's debris gives it a beat to hold on.
+        // than a loop. The debris gives it a beat to hold on.
         val (s, _) = shell()
         // Kill the demo outright by parking its ship on a rock.
         val rock = s.attractSim.rocks.first()
@@ -322,7 +322,7 @@ class CabinetShellTest {
     @Test fun startReckoningItselfNeverSpendsACredit() {
         // startReckoning() is the shared primitive: the debug jump calls it directly and
         // must stay free (it is a developer tool, not PLAY), while beginRun() calls it
-        // too but only after spendCredit() has already run there. Decision 60 moved the
+        // too but only after spendCredit() has already run there. A design decision moved the
         // charge into beginRun's ordering; this primitive was never what charged and
         // still isn't.
         val (s, wallet) = shell(credits = 0)
@@ -384,7 +384,7 @@ class CabinetShellTest {
 
         assertTrue(s.onAgain())
         assertTrue("AGAIN? must restart the FIGHT, not a free-play run", s.isReckoning)
-        assertEquals("decision 60: AGAIN? charges too", 2, spent)
+        assertEquals("a design decision: AGAIN? charges too", 2, spent)
     }
 
     @Test fun aBrokePlayerCannotRetryTheReckoning() {
@@ -431,7 +431,7 @@ class CabinetShellTest {
     }
 
     @Test fun theReckoningNeverWritesAnArcadeScore() {
-        // Decision 49. The stage 3 gate reads that table; "cannot" beats "happens not to".
+        // A design decision. The stage 3 gate reads that table; "cannot" beats "happens not to".
         var recorded = -1
         val sh = CabinetShell(
             CabinetMetrics(1080f, 2400f), Random(2),
@@ -448,7 +448,7 @@ class CabinetShellTest {
     }
 
     @Test fun thereIsNoQuittingTheReckoning() {
-        // INVERTED. Decision 90 amends decision 55, which used to drop you back in the
+        // INVERTED. A later decision amends an earlier one, which used to drop you back in the
         // hangar because the attract menu was no place to leave somebody out of an ending.
         // The owner's answer is that there is no leaving at all: "if the player wants out
         // they either beat it or die."
@@ -493,7 +493,7 @@ class CabinetShellTest {
     }
 
     @Test fun theCrystalHandsTheFightBackOnItsOwn() {
-        // Decision 90. The pause is real for a beat, so the refusal reads as a refusal
+        // A design decision. The pause is real for a beat, so the refusal reads as a refusal
         // rather than as a dropped input — then the crystal takes the menu and resumes it.
         val (s, _) = shell(credits = 0)
         s.startReckoning(startPhase = 1)
@@ -528,7 +528,7 @@ class CabinetShellTest {
     }
 
     @Test fun pauseStillPausesInTheReckoning() {
-        // Decision 29's "as everywhere else" must not break in the fight that most
+        // A design decision's "as everywhere else" must not break in the fight that most
         // needs a breather.
         val (s, _) = shell(credits = 0)
         s.startReckoning(startPhase = 1)

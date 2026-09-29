@@ -5,7 +5,7 @@ import com.astroloop.game.data.PersistenceManager
 /**
  * The debug menu's read-only view of persistence.
  *
- * `GameState`'s nine `debug*` fields are a mirror, not run state — their own declaration comment
+ * `GameState`'s eight `debug*` fields are a mirror, not run state — their own declaration comment
  * says "updated each frame from persistence". Lifting the population out of `GameSurfaceView` is
  * what lets `HangarSurfaceView` host the same menu without owning a run.
  *
@@ -18,7 +18,6 @@ object DebugMirror {
         state.debugDeadPilotCount = p.getDeadPilots().size
         state.debugCrystalUnlocked = p.isCrystalUnlocked()
         state.debugArcCompleted = StoryStateManager.hasLoopedBefore(p)
-        state.debugCrystalBroken = p.isCrystalBroken()
         state.debugDesertCompleted = p.isDesertCompleted()
         state.debugDesertGoodEnding = p.hasDesertGoodEnding()
         state.debugStoryLoop = p.getStoryLoop()

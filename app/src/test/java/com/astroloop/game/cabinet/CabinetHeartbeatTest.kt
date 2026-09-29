@@ -43,7 +43,7 @@ class CabinetHeartbeatTest {
     }
 
     @Test fun everyWaveOpensOnTheLowTone() {
-        // Decision 105. update() flips BEFORE it reports, so a reset leaving isHighTone
+        // A design decision. update() flips BEFORE it reports, so a reset leaving isHighTone
         // false made the first beat of every wave the HIGH one — backwards from the machine
         // this descends from, and audible at the top of all eight waves of a run.
         val h = CabinetHeartbeat()

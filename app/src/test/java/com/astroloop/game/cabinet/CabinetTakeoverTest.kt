@@ -9,7 +9,7 @@ import org.junit.Test
  * The takeover's schedule and jitter.
  *
  * The drawing is view code and the project does not unit-test that. **When to glitch is
- * not view code** — it is the half of decision 84 that carries the taste constraint
+ * not view code** — it is the half of a design decision that carries the taste constraint
  * ("restraint is the effect") and the frame-time constraint, and both are
  * properties an assertion can hold onto.
  */

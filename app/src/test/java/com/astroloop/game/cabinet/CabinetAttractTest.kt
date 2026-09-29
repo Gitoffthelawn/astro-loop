@@ -56,7 +56,7 @@ class CabinetAttractTest {
         // attract loop — lengthening a beat already signed off on hardware ("holds on its
         // own wreck before restarting") without failing anything.
         //
-        // Device pass 6 asked for a slower fade and got one (0.6s -> 0.8s). This is the
+        // A device pass asked for a slower fade and got one (0.6s -> 0.8s). This is the
         // headroom that request has left.
         assertTrue(
             "debris lifetime ${CabinetDebris.LIFETIME}s must stay under the " +

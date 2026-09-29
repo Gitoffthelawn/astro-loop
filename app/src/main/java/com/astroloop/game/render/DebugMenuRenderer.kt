@@ -122,7 +122,6 @@ class DebugMenuRenderer {
     private var killAllRect = RectF()
     private var unlockCrystalRect = RectF()
     private var resetStoryRect = RectF()
-    private var unbrickRect = RectF()
     private var grantBandRect = RectF()
     private var clrBandRect = RectF()
     // Desert debug buttons
@@ -162,8 +161,7 @@ class DebugMenuRenderer {
      * `debug*` persistence mirrors, which the hangar populates itself.
      *
      * Those two pages draw dimmed and inert rather than being hidden. Labelled, not hidden: it is
-     * the same treatment UNBRICK already uses for "Not bricked" at :459, and the one stage 1
-     * Task 15 reused for the dimmed ARCADE buttons.
+     * the treatment already used for the dimmed ARCADE buttons.
      */
     var runContext: Boolean = true
 
@@ -401,9 +399,7 @@ class DebugMenuRenderer {
         val phaseName = when (state.debugStoryPhase) { 0 -> "NORMAL"; 1 -> "CORRUPT"; 2 -> "ASTRO"; else -> "?" }
         canvas.drawText("Stage: $phaseName | Dead: ${state.debugDeadPilotCount}/11 | Crystal: ${if (state.debugCrystalUnlocked) "Y" else "N"}", screenWidth / 2f, y, infoPaint)
         y += 16f
-        val loopText = "Loop: ${state.debugStoryLoop}"
-        val brickText = if (state.debugCrystalBroken) " | BRICKED" else ""
-        canvas.drawText("$loopText$brickText", screenWidth / 2f, y, infoPaint)
+        canvas.drawText("Loop: ${state.debugStoryLoop}", screenWidth / 2f, y, infoPaint)
         y += 14f
         // Desert info line
         val desertStatus = when {
@@ -453,14 +449,7 @@ class DebugMenuRenderer {
 
         y += btnHeight + gap
 
-        // Row 5: UNBRICK + CLR DESERT
-        unbrickRect = RectF(leftX, y, leftX + btnWidth, y + btnHeight)
-        if (state.debugCrystalBroken) {
-            drawPhase4Button(canvas, unbrickRect, "UNBRICK", "Clear crystal_broken", 0xFF224422.toInt(), 0xFF44AA44.toInt())
-        } else {
-            drawPhase4Button(canvas, unbrickRect, "UNBRICK", "Not bricked", 0xFF1a1a1a.toInt(), 0xFF333333.toInt())
-        }
-
+        // Row 5: CLR DESERT
         clrDesertRect = RectF(rightX, y, rightX + btnWidth, y + btnHeight)
         drawPhase4Button(canvas, clrDesertRect, "CLR DESERT", "Clear all desert", 0xFF442222.toInt(), 0xFFAA4444.toInt())
 
@@ -604,7 +593,7 @@ class DebugMenuRenderer {
         y += 28f
 
         // Six small buttons: 0 plays the authored opening, 1..5 drop into that phase.
-        // This is the action §9 of the design says to build before the patterns — a
+        // This is the action the design says to build before the patterns — a
         // pattern reachable only by surviving the four before it gets tuned twice a day.
         val phaseW = (screenWidth * 0.86f - gap * 5f) / 6f
         val phaseX0 = screenWidth * 0.07f
@@ -1017,7 +1006,6 @@ class DebugMenuRenderer {
         if (killAllRect.contains(ex, ey)) return "KILL_ALL"
         if (unlockCrystalRect.contains(ex, ey)) return "BUY_CRYSTAL"
         if (resetStoryRect.contains(ex, ey)) return "RESET_STORY"
-        if (unbrickRect.contains(ex, ey)) return "UNBRICK"
         if (grantBandRect.contains(ex, ey)) return "GRANT_BANDANAS"
         if (clrBandRect.contains(ex, ey)) return "CLEAR_BANDANAS"
         // Desert buttons

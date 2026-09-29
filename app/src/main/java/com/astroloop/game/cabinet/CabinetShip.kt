@@ -17,7 +17,7 @@ import kotlin.math.sin
  *
  * Pure: no Canvas, no Android. The one behaviour worth stating plainly is that this
  * ship does NOT stop when you let go — [CabinetMetrics.drag] is roughly a fifth of the
- * main game's, and the resulting glide is the cabinet's whole character. Device pass 2
+ * main game's, and the resulting glide is the cabinet's whole character. A device pass
  * replaced the steering above it and deliberately left the glide alone.
  */
 class CabinetShip(private val m: CabinetMetrics) {

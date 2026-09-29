@@ -1,25 +1,48 @@
 package com.astroloop.game
 
 import android.os.Bundle
+import android.view.KeyEvent
+import android.view.MotionEvent
 import android.view.View
+import android.view.RoundedCorner
 import android.view.WindowInsets
 import android.view.WindowInsetsController
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
-import com.astroloop.game.core.BrickScreenView
 import com.astroloop.game.core.GameSurfaceView
 import com.astroloop.game.core.SoundManager
 import com.astroloop.game.core.StoryStateManager
 import com.astroloop.game.data.PersistenceManager
 import com.astroloop.game.hangar.HangarSurfaceView
+import com.astroloop.game.input.InputModeState
+import com.astroloop.game.input.InputRouter
+import com.astroloop.game.input.InputSurface
+import com.astroloop.game.input.shouldPauseOnDisconnect
 import com.astroloop.game.render.FontManager
 
 class MainActivity : ComponentActivity() {
 
     private var hangarView: HangarSurfaceView? = null
     private var gameView: GameSurfaceView? = null
+
+    private val inputRouter = InputRouter()
+
+    /**
+     * Held so it can be unregistered. InputManager keeps a strong reference to its listeners,
+     * so an anonymous one registered and forgotten outlives the Activity that owns the router.
+     */
+    private var deviceListener: android.hardware.input.InputManager.InputDeviceListener? = null
+
+    /** Every view swap already assigns this, so pointing the router here catches every site
+     *  at once — and the reset drops any direction still held by the outgoing screen,
+     *  which would otherwise arrive at the new one as a phantom press. */
     private var currentView: View? = null
+        set(value) {
+            field = value
+            inputRouter.reset()
+            inputRouter.surface = value as? InputSurface
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,11 +54,28 @@ class MainActivity : ComponentActivity() {
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 if (hangarView?.onBackPressedFromActivity() == true) return
+                // Back during a run pauses rather than leaving the game. On a TV remote Back is
+                // the only spare button, so the old fall-through dropped the player out of a run.
+                if (inputRouter.surface?.onCancel() == true) return
                 isEnabled = false
                 onBackPressedDispatcher.onBackPressed()
                 isEnabled = true
             }
         })
+
+        // Losing the controller you were playing with pauses the run, so a flat battery mid-run
+        // is a pause rather than a death. Nothing else disconnecting may interrupt anyone.
+        val inputManager = getSystemService(INPUT_SERVICE) as android.hardware.input.InputManager
+        deviceListener = object : android.hardware.input.InputManager.InputDeviceListener {
+            override fun onInputDeviceAdded(deviceId: Int) {}
+            override fun onInputDeviceChanged(deviceId: Int) {}
+            override fun onInputDeviceRemoved(deviceId: Int) {
+                if (shouldPauseOnDisconnect(deviceId == inputRouter.lastDeviceId, InputModeState.mode)) {
+                    inputRouter.reset()
+                    inputRouter.surface?.onPause()
+                }
+            }
+        }.also { inputManager.registerInputDeviceListener(it, null) }
 
         // Keep screen on
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
@@ -60,11 +100,7 @@ class MainActivity : ComponentActivity() {
         persistence.healDesertGoodEnding()
         SoundManager.activeSet = StoryStateManager.stageMusicSet(persistence)
 
-        // Route to the appropriate screen based on persistence state
-        when {
-            persistence.isCrystalBroken() -> showBrickScreen()
-            else -> showHangar()
-        }
+        showHangar()
 
         // Fullscreen immersive mode (must be after setContentView)
         setupFullscreen()
@@ -87,17 +123,6 @@ class MainActivity : ComponentActivity() {
         if (com.astroloop.game.data.PersistenceManager(this).isIntroDone()) {
             SoundManager.playAmbient("bgm_${SoundManager.activeSet}_hangar")
         }
-    }
-
-    private fun showBrickScreen() {
-        gameView?.pause()
-        gameView = null
-        hangarView?.pause()
-        hangarView = null
-
-        val brickView = BrickScreenView(this)
-        setContentView(brickView)
-        currentView = brickView
     }
 
     private fun launchGame(shipId: String, pilotId: String) {
@@ -186,11 +211,35 @@ class MainActivity : ComponentActivity() {
                 val r = maxOf(cutout.right, bars.right).toFloat()
                 val b = maxOf(cutout.bottom, bars.bottom).toFloat()
                 (v as? GameSurfaceView)?.applyInsets(l, t, r, b)
-                (v as? HangarSurfaceView)?.applyInsets(l, t, r, b)
+                (v as? HangarSurfaceView)?.applyInsets(l, t, r, b, roundedCornerRadius(insets))
             }
             insets
         }
         target.requestApplyInsets()
+    }
+
+    /**
+     * The display's rounded-corner radius in pixels — the largest of the four — or 0 where the
+     * platform does not report them (below API 31) or the display has square corners.
+     *
+     * The largest rather than the top-right one specifically: every phone this matters for has
+     * four equal corners, so they agree, and taking the max means a display that somehow differs
+     * errs toward keeping chrome further in rather than clipping it. Only the hangar's yen counter
+     * consumes this — see `ScreenLayout.cornerSafeRight` for why a corner is not an inset.
+     *
+     * Android reports corners in the CURRENT rotation's coordinate space, which is the same space
+     * the surface is measured in, so this needs no rotation handling of its own — it is re-read on
+     * every inset delivery, and a rotation always delivers.
+     */
+    private fun roundedCornerRadius(insets: WindowInsets): Float {
+        if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.S) return 0f
+        val positions = intArrayOf(
+            RoundedCorner.POSITION_TOP_LEFT, RoundedCorner.POSITION_TOP_RIGHT,
+            RoundedCorner.POSITION_BOTTOM_RIGHT, RoundedCorner.POSITION_BOTTOM_LEFT
+        )
+        var radius = 0
+        for (p in positions) radius = maxOf(radius, insets.getRoundedCorner(p)?.radius ?: 0)
+        return radius.toFloat()
     }
 
     private fun setupFullscreen() {
@@ -224,6 +273,11 @@ class MainActivity : ComponentActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+        deviceListener?.let {
+            (getSystemService(INPUT_SERVICE) as android.hardware.input.InputManager)
+                .unregisterInputDeviceListener(it)
+        }
+        deviceListener = null
         SoundManager.release()
     }
 
@@ -243,5 +297,18 @@ class MainActivity : ComponentActivity() {
         if (hasFocus) {
             setupFullscreen()
         }
+    }
+
+    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        // Back keeps going through onBackPressedDispatcher, which the cabinet overlay already
+        // relies on to reach its pause screen rather than leaving the run.
+        if (event.keyCode == KeyEvent.KEYCODE_BACK) return super.dispatchKeyEvent(event)
+        if (inputRouter.onKey(event)) return true
+        return super.dispatchKeyEvent(event)
+    }
+
+    override fun onGenericMotionEvent(event: MotionEvent): Boolean {
+        if (inputRouter.onMotion(event)) return true
+        return super.onGenericMotionEvent(event)
     }
 }

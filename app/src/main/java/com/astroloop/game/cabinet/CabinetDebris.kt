@@ -48,7 +48,7 @@ class CabinetDebris(
         /**
          * How long a fragment takes to drift out and fade.
          *
-         * 0.6s until device pass 6, where the owner asked for the fade to be "a little
+         * 0.6s until a device pass, where the owner asked for the fade to be "a little
          * slower" — the exit was correct but too brief to read.
          *
          * ⚠️ TWO CEILINGS, and the tighter one binds:

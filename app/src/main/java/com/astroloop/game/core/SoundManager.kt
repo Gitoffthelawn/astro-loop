@@ -239,7 +239,7 @@ object SoundManager {
         "sfx_belt_coin",
         "sfx_belt_beat_lo",
         "sfx_belt_beat_hi",
-        // The crystal, in the machine's own idiom — decision 98.
+        // The crystal, in the machine's own idiom — a design decision.
         "sfx_belt_crystal_fire",
         "sfx_belt_crystal_hit",
         "sfx_belt_crystal_shatter"

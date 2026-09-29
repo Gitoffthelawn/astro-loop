@@ -18,12 +18,13 @@ import com.astroloop.game.data.CrystalCardBack
 import com.astroloop.game.data.PersistenceManager
 import com.astroloop.game.data.SlotOdds
 import com.astroloop.game.data.StoreUpgradeDefinitions
-import com.astroloop.game.render.CrystalOrbPath
 import com.astroloop.game.render.CrystalPalette
 import com.astroloop.game.render.FontManager
 import com.astroloop.game.render.IconCache
 import com.astroloop.game.render.TextWrap
 import com.astroloop.game.system.CrystalReckoning
+import com.astroloop.game.input.FocusRegistry
+import com.astroloop.game.input.FocusTarget
 import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.math.PI
 import kotlin.math.cos
@@ -37,20 +38,39 @@ class StorePageRenderer(
 ) {
     var screenWidth = 0f
 
-    /** Width of this room in design units. Equals screenWidth below sw600dp. */
+    /**
+     * Width of this room in design units. Equals screenWidth below sw600dp in portrait; rotated,
+     * it stays the device's PORTRAIT room width while the screen is much wider.
+     */
     var roomWidth = 0f
+
+    /**
+     * Whether the screen is rotated. The room keeps its portrait width either way — this says
+     * whether it is one of the two that lean toward the shipyard rather than filling the screen.
+     */
+    var landscape = false
 
     /** Room width with a fallback for the frame before dimensions arrive. */
     private val rw: Float get() = HangarMetrics.effectiveRoomWidth(roomWidth, screenWidth)
 
     /**
-     * The content column's edges in ROOM-local units — this page draws inside its room's
+     * The content column's left edge in ROOM-local units — this page draws inside its room's
      * translate, and `content` is a screen-space rect. Above the gate the room is the content
-     * column, so these are 0 and roomWidth; below the gate they are `content.left` / `.right`
-     * unchanged, which is why nothing moves on a phone.
+     * column, so this is 0; below the gate it is `content.left` unchanged, which is why nothing
+     * moves on a phone.
+     *
+     * PORTRAIT ONLY, since the landscape panels: its only two readers — the board and the machine — are both
+     * inside `if (!landscape)` now. That matters because `content` is the LANDSCAPE content rect
+     * when the screen is rotated while `roomWidth` is the device's PORTRAIT room width, and mixing
+     * the two put the in-room board a few hundred units off its own room. Rotated, nothing reads
+     * this at all; the panels measure against the portrait-shaped layout instead.
+     *
+     * In portrait with a SIDE cutout this is `content.left` including the cutout's offset, so the
+     * board sits centred in the content column rather than in the room — 48.2 design units right
+     * of room centre on a 128px left cutout. That is content-anchored layout doing its job, and
+     * the draw and the hit test both come through this one getter, so they agree.
      */
     private val contentLeftInRoom: Float get() = HangarMetrics.contentXInRoom(content.left, roomWidth, screenWidth)
-    private val contentRightInRoom: Float get() = HangarMetrics.contentXInRoom(content.right, roomWidth, screenWidth)
 
     var screenHeight = 0f
     var walkwayY = 0f
@@ -63,6 +83,32 @@ class StorePageRenderer(
     // tap (HangarSurfaceView.handleStoreTap, for the tile-9 hit test) — @Volatile so the touch
     // handler is guaranteed to see the current rect rather than a stale or torn one.
     @Volatile var crystalTileRect = RectF()
+
+    /**
+     * Where this room actually drew corrupted Astro's dot, in ROOM-LOCAL space, or `NaN` when it
+     * drew none. Rewritten on every [draw], which is every frame this room is on screen.
+     *
+     * A seam, in the same spirit as `HangarRenderer.drawnSelectedShipX` and for the same reason:
+     * the dot is handed to `HangarRenderer.drawCrystalReveal` for the duration of the flight, and
+     * the two failure modes of that handover — the room keeping its copy (the dot on screen twice
+     * at two alphas, once under the panel scrim and once over it) and the reveal never picking it
+     * up (a corkscrew that starts at nothing) — are both invisible to a test that can only see
+     * that the phases advanced. Reading NaN/not-NaN off both sides is what tells them apart.
+     *
+     * It also pins the handover's POSITION in portrait: the point the reveal draws at, mapped
+     * back through the store page's own origin, must be this exact point.
+     *
+     * Not `@Volatile`, unlike [crystalTileRect] just above: that field is read by the touch
+     * handler on the UI thread, a genuine cross-thread reader this one has none of — the only
+     * reader is `CrystalRevealPanelTest`, on the same thread as the render pass under Robolectric,
+     * exactly like `HangarRenderer.drawnSelectedShipX` / `drawnRevealSrcX,Y` / `drawnRevealDstX,Y`
+     * (matching the convention those seams already set rather than the
+     * other way around).
+     */
+    var drawnAstroDotX: Float = Float.NaN
+        private set
+    var drawnAstroDotY: Float = Float.NaN
+        private set
 
     private val bitmapPaint = Paint().apply {
         isFilterBitmap = true
@@ -116,28 +162,134 @@ class StorePageRenderer(
         upgradeRects.clear()
 
         // --- 3x3 black market upgrade grid ---
-        val cols = 3
-        val rows = 3
-        val gridPadding = 16f
-        // Room-local (see contentLeftInRoom): this page draws inside its room's translate, so a
-        // screen-space content.left would push the grid a room-offset to the right of its room.
-        val gridLeft = contentLeftInRoom + gridPadding
-        val gridRight = contentRightInRoom - gridPadding
-        val gridTop = 70f
-        val gridBottom = walkwayY - 20f
-        val cardGap = 10f
+        // In landscape the board is not in the room: the screen is too short for it at true tile
+        // size, so the SHOP panel owns it and HangarRenderer.drawPanelLayer calls drawUpgradeTiles
+        // below with the panel's own rects. Everything else the room holds — the decoration, the
+        // walkway props, Astro's dot — stays exactly where it is in both orientations.
+        if (!landscape) {
+            // Room-local (see contentLeftInRoom): this page draws inside its room's translate, so a
+            // screen-space content.left would push the grid a room-offset to the right of its room.
+            val gridBounds = GridGeometry.storeGridBounds(content, contentLeftInRoom, walkwayY)
+            drawUpgradeTiles(
+                canvas, state,
+                GridGeometry.storeTileRects(gridBounds, GridGeometry.STORE_COLS * GridGeometry.STORE_ROWS)
+            )
+        } else {
+            // Nothing drawn, nothing hit-testable — see clearRoomStoreRects.
+            crystalTileRect = RectF()
+        }
 
-        val totalGapX = cardGap * (cols - 1)
-        val totalGapY = cardGap * (rows - 1)
-        val maxTileWidth = (gridRight - gridLeft - totalGapX) / cols
-        val maxTileHeight = (gridBottom - gridTop - totalGapY) / rows
-        val tileSize = maxTileWidth.coerceAtMost(maxTileHeight)
+        // Miniature slot machine position on store walkway (always at base position).
+        // Read side of the walker band: HangarState.pilotWorldX(2, 0.1f) puts the pilot at page
+        // 2's origin plus `margin + 0.1f * walkable`, i.e. exactly here once this page's own
+        // translate has supplied that origin. Measured against the ROOM, like the write side,
+        // which measures page 2 against RoomAnchor.pageWidth(2) — the room width in either
+        // orientation. Below the gate in portrait roomWidth is the screen width, so this is the
+        // shipped `pilotScreenWidth` formula unchanged.
+        val margin = rw * 0.1f
+        val walkable = rw * 0.8f
+        val storeTargetX = margin + 0.1f * walkable
+        if (StoryStateManager.isAstroLoop(persistence)) {
+            CabinetBezelRenderer.drawWalkwayMini(canvas, storeTargetX, walkwayY)
+        } else {
+            drawMiniSlotMachine(canvas, storeTargetX, walkwayY)
+        }
 
-        // Center the grid in the content column, room-local
-        val gridWidth = cols * tileSize + totalGapX
-        val gridStartX = contentLeftInRoom + (content.width - gridWidth) / 2f
-        val gridHeight = rows * tileSize + totalGapY
-        val gridStartY = gridTop + (gridBottom - gridTop - gridHeight) / 2f
+        // Corrupted Astro at slot machine (auto-gambling during corruption)
+        drawnAstroDotX = Float.NaN
+        drawnAstroDotY = Float.NaN
+        if (state.astroAtSlotMachine) {
+            val astroX = storeTargetX
+            val astroY = walkwayY - 8f
+            val time = System.currentTimeMillis()
+
+            // Darkened Astro dot (Astro is red 0xFFDD3333, corrupted = 50% brightness)
+            //
+            // Handed to HangarRenderer.drawCrystalReveal for the flight: the orb has to read as
+            // leaving HIM, and in landscape the room sits under the panel's scrim while the orb
+            // flies above it. Drawn in both places it would be on screen twice at two alphas, so
+            // the room stands down rather than the reveal drawing a second copy. Only the dot
+            // moves up — the mini machine and the shield aura below stay behind the scrim, since
+            // they are the room's furniture and not part of the moment.
+            if (!state.crystalRevealInFlight()) {
+                val astroDotPaint = Paint().apply {
+                    color = StoryStateManager.corruptColor(0xFFDD3333.toInt())
+                    style = Paint.Style.FILL
+                }
+                canvas.drawCircle(astroX, astroY - 6f, 5f, astroDotPaint)
+                drawnAstroDotX = astroX
+                drawnAstroDotY = astroY - 6f
+            }
+
+            // Shield aura glow when crystal not yet unlocked or during reveal glow phase
+            if (!persistence.isCrystalUnlocked() || state.crystalRevealPhase == HangarState.CrystalRevealPhase.GLOW) {
+                val pulse = (0.4f + 0.6f * ((sin((time % 10000L) / 1000.0) + 1f) / 2f)).toFloat()
+                val glowPaint = Paint().apply {
+                    // color set per-ring below (MID outer / ICE inner)
+                    style = Paint.Style.STROKE
+                    strokeWidth = 2f
+                }
+                // Outer ring (shield boundary)
+                glowPaint.color = CrystalPalette.MID
+                glowPaint.alpha = (pulse * 120).toInt()
+                canvas.drawCircle(astroX, astroY - 6f, 10f + pulse * 2f, glowPaint)
+                // Inner ring (brighter)
+                glowPaint.color = CrystalPalette.ICE
+                glowPaint.alpha = (pulse * 200).toInt()
+                glowPaint.strokeWidth = 1.5f
+                canvas.drawCircle(astroX, astroY - 6f, 7f + pulse * 1f, glowPaint)
+            }
+
+            // The corkscrew and the burst used to be here. They moved to
+            // HangarRenderer.drawCrystalReveal, above the panel layer: in landscape the tile they
+            // fly to belongs to the SHOP panel and the walkway they leave belongs to the room, so
+            // the flight crosses two layers and can only be drawn from the one that owns both.
+        }
+
+        // Slot machine below walkway — in landscape it belongs to the SLOT panel, exactly as the
+        // board belongs to the SHOP panel above.
+        if (!landscape) {
+            val gridBounds = GridGeometry.storeGridBounds(content, contentLeftInRoom, walkwayY)
+            drawSlotMachineAt(
+                canvas, state, GridGeometry.machineFrame(gridBounds, walkwayY, screenHeight),
+                bezelSim, bezelRenderer, marqueeDrift
+            )
+        } else {
+            clearRoomStoreRects(state)
+        }
+
+        // Reset paints
+        textPaint.color = 0xFFFFFFFF.toInt()
+        textPaint.textAlign = Paint.Align.CENTER
+        canvas.restore()
+    }
+
+    /**
+     * Draws the nine upgrade tiles into [rects], in whatever space the caller's canvas is in:
+     * room-local for the in-room board, screen space for the landscape SHOP panel. One tile
+     * renderer, two placements — a second copy of this body would be the three-copy pilot grid all
+     * over again (see GridGeometry's own doc).
+     *
+     * [upgradeRects] is therefore "the tiles as drawn", in the space they were drawn in: empty in
+     * landscape with the panel shut, and screen space while it is open. `HangarSurfaceView.
+     * storeHitPoint` is the one place that decides which of those two spaces a hit test is in.
+     *
+     * Clears [upgradeRects] itself rather than trusting [draw]'s clear to have run first: the panel
+     * can call this on a frame where the shop room was culled off-screen and [draw] never ran at
+     * all — the same reason `BarPageRenderer.drawPilotCards` self-clears.
+     *
+     * The tile size is taken from the rects rather than re-derived: every tile in the board is a
+     * square of the same side, and `GridGeometry.storeTileRects` builds them from
+     * `GridGeometry.storeTileSize`, so the two agree bit-for-bit on every device profile (verified
+     * across the spec's landscape profiles, cutout and no cutout).
+     *
+     * [rects] carries one rect per tile in `StoreUpgradeDefinitions.tiles` order — that order IS
+     * the layout, as it has always been — so both callers pass all nine.
+     */
+    fun drawUpgradeTiles(canvas: Canvas, state: HangarState, rects: List<LayoutRect>) {
+        upgradeRects.clear()
+        crystalTileRect = RectF()
+        val tileSize = rects.firstOrNull()?.width ?: return
 
         val tileBgPaint = Paint().apply {
             color = 0xFF1A1A2E.toInt()
@@ -149,12 +301,8 @@ class StorePageRenderer(
         val tiles = StoreUpgradeDefinitions.tiles
 
         for ((index, tile) in tiles.withIndex()) {
-            val row = index / cols
-            val col = index % cols
-
-            val tx = gridStartX + col * (tileSize + cardGap)
-            val ty = gridStartY + row * (tileSize + cardGap)
-            val rect = RectF(tx, ty, tx + tileSize, ty + tileSize)
+            val lr = rects[index]
+            val rect = RectF(lr.left, lr.top, lr.right, lr.bottom)
 
             // Only add purchasable tiles to upgradeRects
             if (tile.isNgPlus) {
@@ -287,105 +435,6 @@ class StorePageRenderer(
                 }
             }
         }
-
-        // Miniature slot machine position on store walkway (always at base position).
-        // Read side of the walker band: HangarState.getPilotWorldTarget(2) puts the pilot at
-        // `2 * roomWidth + margin + 0.1f * walkable`, i.e. exactly here in room-local space.
-        // Measured against the ROOM, like the write side — below the gate roomWidth is the
-        // screen width, so this is the shipped `pilotScreenWidth` formula unchanged.
-        val margin = rw * 0.1f
-        val walkable = rw * 0.8f
-        val storeTargetX = margin + 0.1f * walkable
-        if (StoryStateManager.isAstroLoop(persistence)) {
-            CabinetBezelRenderer.drawWalkwayMini(canvas, storeTargetX, walkwayY)
-        } else {
-            drawMiniSlotMachine(canvas, storeTargetX, walkwayY)
-        }
-
-        // Corrupted Astro at slot machine (auto-gambling during corruption)
-        if (state.astroAtSlotMachine) {
-            val astroX = storeTargetX
-            val astroY = walkwayY - 8f
-            val time = System.currentTimeMillis()
-
-            // Darkened Astro dot (Astro is red 0xFFDD3333, corrupted = 50% brightness)
-            val astroDotPaint = Paint().apply {
-                color = StoryStateManager.corruptColor(0xFFDD3333.toInt())
-                style = Paint.Style.FILL
-            }
-            canvas.drawCircle(astroX, astroY - 6f, 5f, astroDotPaint)
-
-            // Shield aura glow when crystal not yet unlocked or during reveal glow phase
-            if (!persistence.isCrystalUnlocked() || state.crystalRevealPhase == HangarState.CrystalRevealPhase.GLOW) {
-                val pulse = (0.4f + 0.6f * ((sin((time % 10000L) / 1000.0) + 1f) / 2f)).toFloat()
-                val glowPaint = Paint().apply {
-                    // color set per-ring below (MID outer / ICE inner)
-                    style = Paint.Style.STROKE
-                    strokeWidth = 2f
-                }
-                // Outer ring (shield boundary)
-                glowPaint.color = CrystalPalette.MID
-                glowPaint.alpha = (pulse * 120).toInt()
-                canvas.drawCircle(astroX, astroY - 6f, 10f + pulse * 2f, glowPaint)
-                // Inner ring (brighter)
-                glowPaint.color = CrystalPalette.ICE
-                glowPaint.alpha = (pulse * 200).toInt()
-                glowPaint.strokeWidth = 1.5f
-                canvas.drawCircle(astroX, astroY - 6f, 7f + pulse * 1f, glowPaint)
-            }
-
-            // Orb travel animation: corkscrew from Astro up to the crystal tile
-            if (state.crystalRevealPhase == HangarState.CrystalRevealPhase.ORB_TRAVEL) {
-                val t = (state.crystalRevealTimer / CrystalOrbPath.TRAVEL_DURATION).coerceIn(0f, 1f)
-                val srcX = astroX
-                val srcY = astroY - 6f
-                val dstX = crystalTileRect.centerX()
-                val dstY = crystalTileRect.centerY()
-
-                val (orbX, orbY) = CrystalOrbPath.position(t, srcX, srcY, dstX, dstY)
-
-                val orbPulse = 0.7f + 0.3f * sin(time / 200.0).toFloat()
-                val orbPaint = Paint().apply {
-                    color = CrystalPalette.MID   // icy cyan
-                    style = Paint.Style.FILL
-                    isAntiAlias = true
-                }
-                // Trail: fading circles along the corkscrew behind the orb
-                for (i in 4 downTo 1) {
-                    val trailT = (t - i * 0.04f).coerceAtLeast(0f)
-                    val (trailX, trailY) = CrystalOrbPath.position(trailT, srcX, srcY, dstX, dstY)
-                    orbPaint.alpha = ((1f - i / 5f) * 60).toInt()
-                    canvas.drawCircle(trailX, trailY, 5f - i * 0.8f, orbPaint)
-                }
-                // Outer glow
-                orbPaint.alpha = (orbPulse * 100).toInt()
-                canvas.drawCircle(orbX, orbY, 8f, orbPaint)
-                // Core
-                orbPaint.alpha = (orbPulse * 220).toInt()
-                canvas.drawCircle(orbX, orbY, 3f, orbPaint)
-            }
-
-            // Flash burst on crystal tile when orb arrives
-            if (state.crystalRevealPhase == HangarState.CrystalRevealPhase.FLASH) {
-                val ft = (state.crystalRevealTimer / CrystalOrbPath.FLASH_DURATION).coerceIn(0f, 1f)
-                val flashRadius = 30f * ft
-                val flashAlpha = ((1f - ft) * 255).toInt()
-                val flashPaint = Paint().apply {
-                    color = 0xFFFFFFFF.toInt()
-                    alpha = flashAlpha
-                    style = Paint.Style.FILL
-                }
-                canvas.drawCircle(crystalTileRect.centerX(), crystalTileRect.centerY(), flashRadius, flashPaint)
-            }
-        }
-
-        // Slot machine below walkway
-        drawSlotMachine(canvas, state, bezelSim, bezelRenderer, marqueeDrift)
-
-        // Reset paints
-        textPaint.color = 0xFFFFFFFF.toInt()
-        textPaint.textAlign = Paint.Align.CENTER
-        canvas.restore()
     }
 
     /**
@@ -938,6 +987,59 @@ class StorePageRenderer(
     // Slot machine symbol IDs
     companion object {
         /**
+         * Every interactive control on the shop page, as focus targets.
+         *
+         * Optional rects are nullable because they genuinely come and go — the hatch only exists
+         * once drawn, and the mute buttons live on state rather than in a list. A null publishes
+         * nothing rather than an empty rect a player could land on.
+         *
+         * [originX] converts room-local to screen space, the same seam the bar page has: these
+         * rects are recorded inside the page's translate, while FocusNavigator and handleStoreTap
+         * both work in screen space. Below the gate it is zero and this is the identity.
+         *
+         * Actions tap the control's own centre through handleStoreTap, so the audio mode cycle,
+         * the vibration toggle and the purchase rules are all the existing code, reached the
+         * existing way.
+         *
+         * **The hatch is never published.** It is an unmarked panel that TB-26 only hints at
+         * sideways, and a ring landing on it drew brackets around the secret — the finding is the
+         * puzzle. A pad opens it with the directional sequence instead. Once open, the paper
+         * sticking out is published, because that is what a finger taps to read the codex.
+         *
+         * @return the id of the first control published, or null if the page had none. The
+         *   landscape SHOP/SLOT panels use it to put the ring on their first item when they open,
+         *   without a second copy of the id scheme above to drift from this one.
+         */
+        fun publishStoreTargets(
+            focus: FocusRegistry,
+            upgradeRects: List<RectF>,
+            buttonRects: List<RectF>,
+            audioRect: RectF?,
+            vibrationRect: RectF?,
+            paperRect: RectF?,
+            originX: Float,
+            onTap: (Float, Float) -> Unit
+        ): String? {
+            var firstId: String? = null
+            fun add(id: String, rect: RectF) {
+                val screenRect = RectF(
+                    rect.left + originX, rect.top,
+                    rect.right + originX, rect.bottom
+                )
+                focus.add(FocusTarget(id, screenRect) {
+                    onTap(screenRect.centerX(), screenRect.centerY())
+                })
+                if (firstId == null) firstId = id
+            }
+            for ((i, r) in upgradeRects.withIndex()) add("store:upgrade:$i", r)
+            for ((i, r) in buttonRects.withIndex()) add("store:button:$i", r)
+            audioRect?.let { add("store:audio", it) }
+            vibrationRect?.let { add("store:vibration", it) }
+            paperRect?.let { add("store:paper", it) }
+            return firstId
+        }
+
+        /**
          * The Emergency Shield's card back, in two paragraphs with a blank line between.
          *
          * **Shortened when the type grew.** This face used to set its body at `0.10f` of the tile
@@ -1029,6 +1131,41 @@ class StorePageRenderer(
 
     var spinButtonRect = RectF()
 
+    /**
+     * Retract every tap rect the room's machine publishes, for the frames it draws no machine.
+     *
+     * Nothing drawn means nothing hit-testable. Without this the machine's rects would simply keep
+     * whatever values the last draw left on them — the portrait ones from before a rotation, or the
+     * SLOT panel's screen-space ones after it closed — and `handleStoreTap` would still match them:
+     * a press on empty starfield spending 100¥ on a spin nobody can see, which is the bug a code review
+     * found behind the panel scrim, one layer further out.
+     *
+     * Ordering: the room draws first and the panel layer second, within one frame, so a SLOT panel
+     * open over this room clears here and republishes moments later in the same pass.
+     *
+     * `state.cabinetScreenRect` / `cabinetMarqueeRect` are deliberately NOT cleared: they are sizes
+     * for the attract sims, not hit targets, and `HangarSurfaceView.update` rebuilds off them only
+     * when the size changes.
+     *
+     * This only runs from inside [draw]'s landscape branch, so its "nothing drawn, nothing
+     * hit-testable" guarantee is only as good as [drawPageContent]'s own cull check that decides
+     * whether [draw] runs at all this frame — a store room scrolled
+     * far enough off-screen to fail that check skips this clear along with everything else `draw`
+     * would have done, and the rects above simply keep their last published values. Every profile
+     * this task and its predecessors have exercised keeps the store room inside that window
+     * whenever it matters, but a future caller relying on this method alone, off a cull window
+     * that has grown less forgiving, should not assume more than that.
+     */
+    private fun clearRoomStoreRects(state: HangarState) {
+        storeButtonRects.clear()
+        spinButtonRect = RectF()
+        state.hatchRect = null
+        state.paperRect = null
+        state.audioMuteButtonRect = null
+        state.vibrationMuteButtonRect = null
+        state.insertCoinRect = null
+    }
+
     private fun drawMiniSlotMachine(canvas: Canvas, pilotX: Float, walkwayY: Float) {
         val fillPaint = Paint().apply { style = Paint.Style.FILL }
         val linePaint = Paint().apply {
@@ -1071,9 +1208,24 @@ class StorePageRenderer(
         fillPaint.alpha = 255
     }
 
-    private fun drawSlotMachine(
+    /**
+     * The machine — the slot machine, or the BELT RUN cabinet in Astro Loop — drawn into [frame],
+     * in whatever space the caller's canvas is in: room-local under the room's walkway, screen
+     * space inside the landscape SLOT panel. Same contract as [drawUpgradeTiles].
+     *
+     * The frame is the caller's because the two placements measure it differently: the room hangs
+     * it off its own grid's bounds, while the panel hands it the PORTRAIT frame at the panel's own
+     * position — the machine is the size it is in portrait whichever way the device is held.
+     *
+     * Every rect this publishes for the tap path — [spinButtonRect], [storeButtonRects],
+     * `state.hatchRect`, `state.paperRect`, the two mute toggles and `state.insertCoinRect` — is in
+     * that same space, which is why the room clears them all ([clearRoomStoreRects]) on the frames
+     * it draws no machine at all.
+     */
+    fun drawSlotMachineAt(
         canvas: Canvas,
         state: HangarState,
+        frame: LayoutRect,
         bezelSim: CabinetSim?,
         bezelRenderer: CabinetRenderer?,
         marqueeDrift: CabinetMarqueeDrift? = null
@@ -1086,7 +1238,7 @@ class StorePageRenderer(
 
         val time = System.currentTimeMillis()
 
-        // Decision 84: once the gate is open the crystal is taking the machine over, and it
+        // A design decision: once the gate is open the crystal is taking the machine over, and it
         // has to be visible from the walkway — before the 100Y door, before PLAY. Until this
         // existed, nothing on the cabinet told a cleared board from an uncleared one, so a
         // player who had just cleared their twelfth pilot pressed PLAY and fell into the
@@ -1104,31 +1256,15 @@ class StorePageRenderer(
                 persistence.allPilotsCleared(), persistence.isCrystalReleased()
             )
         ) time else null
-        val machineTop = walkwayY + 15f
-        val machineBottom = screenHeight * 0.92f
-        val machineHeight = machineBottom - machineTop
-
-        // Replicate grid-left calculation so machine aligns with upgrade grid
-        val gridCols = 3
-        val gridRows = 3
-        val gridCardGap = 10f
-        val gridPadding = 16f
-        val gridAvailWidth = content.width - gridPadding * 2f
-        val gridTotalGapX = gridCardGap * (gridCols - 1)
-        val gridTotalGapY = gridCardGap * (gridRows - 1)
-        val gridMaxTileWidth = (gridAvailWidth - gridTotalGapX) / gridCols
-        val gridMaxTileHeight = ((walkwayY - 20f) - 70f - gridTotalGapY) / gridRows
-        val gridTileSize = gridMaxTileWidth.coerceAtMost(gridMaxTileHeight)
-        val gridTotalWidth = gridCols * gridTileSize + gridTotalGapX
-        // Room-local, matching the grid above — the machine is drawn inside the same translate.
-        val gridStartX = contentLeftInRoom + (content.width - gridTotalWidth) / 2f
-
-        val machineLeft = gridStartX
-        val machineRight = gridStartX + gridTotalWidth  // machine width == grid width, content-centered
+        val machineTop = frame.top
+        val machineBottom = frame.bottom
+        val machineHeight = frame.height
+        val machineLeft = frame.left
+        val machineRight = frame.right  // machine width == grid width, content-centered
 
         // Right panel (payout table) — scales with the machine, not the full screen,
         // so its proportion stays constant across aspect ratios.
-        val rightPanelWidth = gridTotalWidth * 0.15f
+        val rightPanelWidth = frame.width * 0.15f
 
         // Left gap for maintenance hatch panel
         val machineWidth = machineRight - machineLeft
@@ -1509,7 +1645,7 @@ class StorePageRenderer(
 
         if (isCabinet) {
             // CENTRED between the CRT's right edge and the cabinet's, rather than hung off
-            // the right edge. Device pass 7: "a little off center" — and it was, by 2.5px:
+            // the right edge. A device pass: "a little off center" — and it was, by 2.5px:
             // payoutLeft sits 9px right of reelAreaRight while payoutRight sits 4px left of
             // machineRight.
             //
@@ -1817,5 +1953,4 @@ class StorePageRenderer(
             )
         }
     }
-
 }

@@ -133,7 +133,6 @@ object DebugActionDispatch {
                 p.setCrystalUnlocked(false)
                 p.setCrystalPurchased(false)
                 p.clearDeadPilotsAndShips()
-                p.clearCrystalBroken()
                 DebugMirror.populate(state, p)
             }
             "GRANT_BANDANAS" -> {
@@ -181,12 +180,6 @@ object DebugActionDispatch {
             "ARCADE_RESET" -> {
                 p.resetArcade()
                 DebugMirror.populate(state, p)
-            }
-            "UNBRICK" -> {
-                if (p.isCrystalBroken()) {
-                    p.clearCrystalBroken()
-                    DebugMirror.populate(state, p)
-                }
             }
             "TOGGLE_ASTRO_LOOP" -> {
                 if (StoryStateManager.isAstroLoop(p)) {

@@ -4,16 +4,16 @@ import com.astroloop.game.data.CrystalFightLines
 import com.astroloop.game.system.CrystalPhase
 
 /**
- * What the crystal is saying, this frame — decision 81.
+ * What the crystal is saying, this frame — a design decision.
  *
  * Pure, and separated from the drawing for the reason this branch keeps relearning: a unit
  * test drives a unit, the host composes them, and the composition is what breaks. Three of
  * this feature's four escaped defects lived in a host where nothing could reach them. The
  * schedule is the part with edges in it, so the schedule is the part that gets tested.
  *
- * The gel strip is the crystal's own real estate — decision 35 made it red, and during the
+ * The gel strip is the crystal's own real estate — a design decision made it red, and during the
  * reckoning it already carries the crystal's health rather than a score. Speaking there is
- * the crystal using a surface it has taken, which is the same idea decision 84 puts on the
+ * the crystal using a surface it has taken, which is the same idea the takeover puts on the
  * cabinet itself.
  *
  * **Silence is authored, not absent.** Every branch here can return null, and most of a
@@ -32,7 +32,7 @@ object CrystalVoice {
     const val BEAT_HOLD = 3.5f
 
     /**
-     * Where in the lull the second half of a lure arrives — decision 94.
+     * Where in the lull the second half of a lure arrives — a design decision.
      *
      * The crystal speaks into the beat of quiet at the head of each pattern rather than
      * over the pattern itself. That beat is [ReckoningDirector.LULL_SECONDS] long and
@@ -124,7 +124,7 @@ object CrystalVoice {
     const val PLAYBACK = "PLAYBACK"
 
     private fun crystalLineFor(run: ReckoningRun): String? = when (run.outcome) {
-        // Decision 95. Into the hold the shell already takes while the shatter clears —
+        // A design decision. Into the hold the shell already takes while the shatter clears —
         // about three seconds at ENDING_TIME_SCALE, which until now played as dead air.
         ReckoningRun.Outcome.WON -> CrystalFightLines.farewell
         // A crystal that outlives you has nothing to thank you for.

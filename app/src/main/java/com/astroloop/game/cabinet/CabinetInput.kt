@@ -9,7 +9,7 @@ import kotlin.math.hypot
  * that origin to the finger — dead-zoned, clamped, normalised into direction x
  * magnitude. **The ship's position is never consulted.**
  *
- * That is the entire difference from what device pass 1 shipped, and it fixes three
+ * That is the entire difference from what a device pass shipped, and it fixes three
  * things at once. The ship no longer chases and then orbits a stationary finger. Thrust
  * no longer sags as the ship approaches the touch point. And a still finger inside the
  * dead zone now means genuinely nothing, which is what let the double-tap slop gate and
@@ -54,10 +54,20 @@ class CabinetInput(
      */
     val steering: Boolean get() = active && (x != 0f || y != 0f)
 
-    private var originX = 0f
-    private var originY = 0f
-    private var currentX = 0f
-    private var currentY = 0f
+    // Exposed read-only for StickReadoutRenderer, which draws where the finger planted the
+    // stick and where it has travelled to. Still only written in here.
+    var originX = 0f
+        private set
+    var originY = 0f
+        private set
+    var currentX = 0f
+        private set
+    var currentY = 0f
+        private set
+
+    /** The cabinet's stick is sized from CabinetMetrics, so the readout is told, not assuming. */
+    val deadZoneRadius: Float get() = deadZone
+    val stickRadius: Float get() = maxRadius
 
     fun down(px: Float, py: Float) {
         originX = px; originY = py
@@ -91,6 +101,35 @@ class CabinetInput(
     fun cancel() {
         active = false
         x = 0f; y = 0f
+    }
+
+    /**
+     * Drive the stick from a controller instead of a finger.
+     *
+     * Writes the same x/y the touch path computes, so BELT RUN's flight, its fairness maths and
+     * its pause detection are all untouched — this is a second way to fill one output, not a
+     * second control model.
+     */
+    fun setExternal(directionX: Float, directionY: Float, magnitude: Float) {
+        active = magnitude > 0f
+        x = directionX * magnitude
+        y = directionY * magnitude
+    }
+
+    /**
+     * Back to rest, and back to the finger.
+     *
+     * The drag origin is cleared along with the output: down() would otherwise measure the next
+     * finger against a stale origin and read as a full-radius deflection on the first move.
+     */
+    fun clearExternal() {
+        active = false
+        x = 0f
+        y = 0f
+        originX = 0f
+        originY = 0f
+        currentX = 0f
+        currentY = 0f
     }
 
     private fun recompute() {

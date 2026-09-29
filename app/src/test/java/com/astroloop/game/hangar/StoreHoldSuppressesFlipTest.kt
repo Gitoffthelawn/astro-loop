@@ -27,7 +27,7 @@ import org.robolectric.annotation.Config
  * Injecting a throwaway `RectF` into `upgradeRects` and calling the two handlers directly is the
  * highest seam available that still runs the actual suppression decision rather than a
  * reimplementation of it. The `ACTION_DOWN`/`ACTION_MOVE`/`ACTION_UP` wiring itself remains
- * verified only by code trace and a device check — see the Task 5 fix report.
+ * verified only by code trace and a device check.
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [28])

@@ -1,7 +1,7 @@
 package com.astroloop.game.cabinet
 
 /**
- * When the hangar bed gets out of the way — decision 111.
+ * When the hangar bed gets out of the way — a design decision.
  *
  * The hangar music is **not** silenced for the whole cabinet session, and it is not ducked
  * either. It plays on under the bezel and the machine's menu — which is where you are picking

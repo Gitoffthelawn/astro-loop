@@ -25,7 +25,7 @@ class ReckoningOpeningTest {
     }
 
     @Test fun theSeededFieldIsTheSameEveryTime() {
-        // The whole point of decision 52. A live run would put a different number of
+        // The whole point of a design decision. A live run would put a different number of
         // bodies into the crystal every time, so the entrance would look different -
         // and better or worse - depending on how the player had been flying.
         //
@@ -80,7 +80,7 @@ class ReckoningOpeningTest {
     }
 
     @Test fun theFieldFreezesWhileTheCrystalCrosses() {
-        // REPLACES "the rocks fly inward rather than vanishing". Decision 93: the rocks no
+        // REPLACES "the rocks fly inward rather than vanishing". A design decision: the rocks no
         // longer implode into a forming crystal — they hold still while the thing that is
         // coming for them crosses the field, which is what makes the crystal the only
         // moving object in its own entrance.
@@ -144,7 +144,7 @@ class ReckoningOpeningTest {
         // It used to be able to. The implosion ended when the last rock had been eaten, so
         // one the pull could not reach - clipped by a seam, or flung outward - would have
         // stranded the player in an entrance that never finished, and a timeout was the
-        // guarantee against it. Decision 93's crossing runs on a clock and simply ends, so
+        // guarantee against it. A design decision's crossing runs on a clock and simply ends, so
         // the hang is now unreachable by construction. Kept because that is worth pinning.
         val s = sim()
         val o = ReckoningOpening(m)

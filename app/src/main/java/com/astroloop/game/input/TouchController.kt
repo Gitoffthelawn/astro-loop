@@ -29,6 +29,10 @@ class TouchController {
     var renderScale: Float = 1f
 
     fun handleTouchEvent(event: MotionEvent): Boolean {
+        // The only edit the touch path is allowed to gain. Touch is the premium input and its
+        // hit-testing is deliberately left untouched by the focus work — see a design decision.
+        InputModeState.markTouch()
+
         when (event.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
                 // Start joystick at touch location

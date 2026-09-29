@@ -8,7 +8,7 @@ import kotlin.random.Random
  * The marquee plate's ambient rock drift — see `CabinetMarqueeDrift`'s own doc for why it
  * needs its own radii rather than `CabinetMetrics.rockRadius`.
  *
- * A real marquee plate is wide and short (§2 of the 2026-08-16 polish pass design), so
+ * A real marquee plate is wide and short (the 2026-08-16 polish pass design), so
  * these use a plate-shaped size — nothing like the square-ish playfield `CabinetRockTest`
  * exercises.
  */

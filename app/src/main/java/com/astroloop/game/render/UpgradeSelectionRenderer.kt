@@ -3,12 +3,14 @@ package com.astroloop.game.render
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.RectF
+import com.astroloop.game.core.DesignSpace
 import com.astroloop.game.core.GameConfig
 import com.astroloop.game.core.GameState
 import com.astroloop.game.core.ScreenLayout
 import com.astroloop.game.data.PassiveDefinitions
 import com.astroloop.game.data.WeaponDefinitions
-import com.astroloop.game.system.FallbackType
+import com.astroloop.game.input.FocusRegistry
+import com.astroloop.game.input.FocusTarget
 import com.astroloop.game.system.UpgradeOption
 import com.astroloop.game.system.UpgradeSystem
 import kotlin.math.sin
@@ -140,8 +142,96 @@ class UpgradeSelectionRenderer {
 
     val cardRects = mutableListOf<RectF>()
 
+    /**
+     * The icon size the last card actually drew at, `NaN` before the first render — a seam.
+     *
+     * Every card on a screen shares one size, so one field says it. Without it the portrait cap
+     * is only reachable through private helpers, and a call site that stopped applying it would
+     * fail nothing: the pure functions would still return the right numbers to nobody.
+     */
+    internal var drawnCardIconSize: Float = Float.NaN
+        private set
+
+    /** The same, for the evolution card's own icon. */
+    internal var drawnEvolutionIconSize: Float = Float.NaN
+        private set
+
+    /**
+     * Published alongside `cardRects`, not instead of it. Touch keeps its own hit-testing —
+     * the two are deliberately parallel, and UpgradeFocusParityTest asserts they agree at
+     * every target's own centre.
+     */
+    val focusRegistry = FocusRegistry()
+
+    /** Set by GameSurfaceView so an activated card takes the same path a tap takes. */
+    var onCardActivated: ((Int) -> Unit)? = null
+
+    companion object {
+        /** A card's share of the content rect. Read by the layout and by the portrait cap. */
+        const val CARD_W_FRACTION = 0.30f
+        const val CARD_H_FRACTION = 0.42f
+
+        /**
+         * An icon's size inside an upgrade card, measured against the card's SHORT side.
+         *
+         * Portrait cards are 288x900, where the short side IS the width, so this is exactly the
+         * `rect.width() * 0.45f` that shipped. Landscape cards are 643x403, where 45% of the width
+         * is a 289px icon in a 403px card and the name, level badge and description have nowhere
+         * left to go.
+         *
+         * The short side alone is not enough, though — see [portraitCardIconSize]. A landscape
+         * card's short side is its HEIGHT, and 45% of 403 is still 181 against portrait's 124, so
+         * the icon grew by half on rotation. Callers cap this against the portrait size.
+         */
+        fun cardIconSize(width: Float, height: Float): Float = minOf(width, height) * 0.45f
+
+        /** The evolved weapon's icon — the same rule at the evolution card's smaller weight. */
+        fun evolutionIconSize(width: Float, height: Float): Float = minOf(width, height) * 0.25f
+
+        /** The inline "→ evolves into" icon beside the evolution note, at its own weight. */
+        fun inlineIconSize(width: Float): Float = width * 0.12f
+    }
+
     fun initialize(layout: ScreenLayout) {
         this.layout = layout
+        portraitLayout = DesignSpace.portraitShaped(layout)
+    }
+
+    /**
+     * The device's own PORTRAIT design space, whichever way it is held — the same seam the hangar
+     * uses to keep an object's size off the orientation.
+     */
+    private var portraitLayout: ScreenLayout =
+        ScreenLayout.compute(GameConfig.DESIGN_WIDTH, GameConfig.DESIGN_HEIGHT)
+
+    /**
+     * The card this device would lay out in PORTRAIT, whichever way it is held.
+     *
+     * Not the card actually drawn: a landscape card is a different SHAPE (643x403 against
+     * 288x900) because the cards fan across a wide screen, and that is fine — what may not change
+     * with the orientation is how big the things INSIDE it are drawn. Owner, 2026-09-20: "I find
+     * the icons for weapon upgrades a tad big in landscape mode."
+     */
+    private fun portraitCardSize(): Pair<Float, Float> =
+        portraitLayout.content.width * CARD_W_FRACTION to
+            portraitLayout.content.height * CARD_H_FRACTION
+
+    /**
+     * The cap every icon in a card is held to: what it would be on this device in portrait.
+     *
+     * In portrait this is an IDENTITY rather than a reconstruction — `portraitShaped` returns the
+     * layout unchanged there, so the expression below is the same one the card itself is built
+     * from and the cap is bit-for-bit the size that already shipped. That is the whole safety
+     * argument, and it is the same one `DesignSpace.portraitShaped` makes for the hangar.
+     */
+    private fun portraitCardIconSize(): Float {
+        val (w, h) = portraitCardSize()
+        return cardIconSize(w, h)
+    }
+
+    private fun portraitEvolutionIconSize(): Float {
+        val (w, h) = portraitCardSize()
+        return evolutionIconSize(w, h)
     }
 
     fun render(canvas: Canvas, options: List<UpgradeOption>, state: GameState, upgradeSystem: UpgradeSystem? = null) {
@@ -154,8 +244,8 @@ class UpgradeSelectionRenderer {
         canvas.drawText(title, content.centerX, content.top + content.height * 0.12f, titlePaint)
 
         // Calculate card layout - bigger cards with comfortable spacing
-        val cardWidth = content.width * 0.30f
-        val cardHeight = content.height * 0.42f
+        val cardWidth = content.width * CARD_W_FRACTION
+        val cardHeight = content.height * CARD_H_FRACTION
         val numCards = options.size
         val spacing = content.width * 0.025f  // Tighter spacing since cards are bigger
         val totalCardsWidth = cardWidth * numCards + spacing * (numCards - 1)
@@ -163,17 +253,15 @@ class UpgradeSelectionRenderer {
         val cardY = content.top + content.height * 0.22f
 
         cardRects.clear()
+        focusRegistry.begin()
 
         for ((index, option) in options.withIndex()) {
             val cardX = startX + index * (cardWidth + spacing)
             val rect = RectF(cardX, cardY, cardX + cardWidth, cardY + cardHeight)
             cardRects.add(rect)
+            focusRegistry.add(FocusTarget("card:$index", rect) { onCardActivated?.invoke(index) })
 
             when {
-                option.isFallback -> {
-                    // Render fallback option card (health/gold)
-                    renderFallbackCard(canvas, rect, option, state)
-                }
                 option.isEvolution -> {
                     // Render special evolution card
                     renderEvolutionCard(canvas, rect, option, state)
@@ -183,6 +271,10 @@ class UpgradeSelectionRenderer {
                 }
             }
         }
+
+        focusRegistry.setDefault("card:0")
+        focusRegistry.commit()
+        if (focusRegistry.focusedId == null) focusRegistry.focusedId = "card:0"
 
         // Lucky Star: every card but the lit one is dimmed, at one weight, throughout.
         //
@@ -237,7 +329,8 @@ class UpgradeSelectionRenderer {
         }
 
         // --- ICON (larger, centered at top) ---
-        val iconSize = rect.width() * 0.45f
+        val iconSize = minOf(cardIconSize(rect.width(), rect.height()), portraitCardIconSize())
+        drawnCardIconSize = iconSize // seam — see this field's own doc
         val iconY = rect.top + cardPadding + iconSize / 2 + 10f
 
         cardPaint.style = Paint.Style.STROKE
@@ -349,7 +442,7 @@ class UpgradeSelectionRenderer {
             val evolveY = rect.bottom - 50f
 
             // Small icon
-            val smallIconSize = rect.width() * 0.12f
+            val smallIconSize = inlineIconSize(minOf(rect.width(), portraitCardSize().first))
             cardPaint.color = 0xFFFF44FF.toInt()
             IconRenderer.drawIcon(canvas, WeaponDefinitions.getWeaponIconId(evolutionId, state.activePilotId, state.astroLoopMode), true, centerX - 50f, evolveY, smallIconSize, cardPaint)
             cardPaint.color = GameConfig.COLOR_HUD
@@ -359,72 +452,6 @@ class UpgradeSelectionRenderer {
             evolutionPaint.textAlign = Paint.Align.LEFT
             canvas.drawText("→ $evolvedName", centerX - 30f, evolveY + 6f, evolutionPaint)
             evolutionPaint.textAlign = Paint.Align.CENTER
-        }
-    }
-
-    private fun renderFallbackCard(canvas: Canvas, rect: RectF, option: UpgradeOption, state: GameState) {
-        // Background
-        canvas.drawRect(rect, cardFillPaint)
-        canvas.drawRect(rect, cardPaint)
-
-        val centerX = rect.centerX()
-        var y = rect.top + 60f
-
-        // Icon based on fallback type
-        val iconSize = rect.width() * 0.3f
-        cardPaint.style = Paint.Style.STROKE
-
-        when (option.fallbackType) {
-            FallbackType.HEALTH_RESTORE -> {
-                // Heart/cross icon
-                cardPaint.color = 0xFF00FF00.toInt() // Green
-                cardPaint.strokeWidth = 4f
-                canvas.drawLine(centerX - iconSize * 0.3f, y, centerX + iconSize * 0.3f, y, cardPaint)
-                canvas.drawLine(centerX, y - iconSize * 0.3f, centerX, y + iconSize * 0.3f, cardPaint)
-                cardPaint.strokeWidth = 3f
-                cardPaint.color = GameConfig.COLOR_HUD
-
-                y += iconSize + 30f
-
-                // Title
-                textPaint.textSize = 26f
-                textPaint.color = GameConfig.COLOR_HUD
-                canvas.drawText("HEAL", centerX, y, textPaint)
-                y += 40f
-
-                // Description
-                smallTextPaint.textAlign = Paint.Align.CENTER
-                smallTextPaint.textSize = 22f
-                smallTextPaint.color = DESCRIPTION_GREY
-                canvas.drawText("Restore 20%", centerX, y, smallTextPaint)
-                y += 24f
-                canvas.drawText("of max health", centerX, y, smallTextPaint)
-            }
-            FallbackType.GOLD_BONUS -> {
-                // Coin/gold icon
-                cardPaint.color = 0xFFFFD700.toInt() // Gold
-                canvas.drawCircle(centerX, y, iconSize * 0.35f, cardPaint)
-                textPaint.textSize = 20f
-                textPaint.color = 0xFFFFD700.toInt()
-                canvas.drawText("¥", centerX, y + 8f, textPaint)
-                textPaint.color = GameConfig.COLOR_HUD
-                cardPaint.color = GameConfig.COLOR_HUD
-
-                y += iconSize + 30f
-
-                // Title
-                textPaint.textSize = 26f
-                textPaint.color = GameConfig.COLOR_HUD
-                canvas.drawText("¥ BONUS", centerX, y, textPaint)
-                y += 40f
-
-                // Description
-                smallTextPaint.textAlign = Paint.Align.CENTER
-                smallTextPaint.textSize = 22f
-                smallTextPaint.color = DESCRIPTION_GREY
-                canvas.drawText("+1% bonus yen", centerX, y, smallTextPaint)
-            }
-            null -> {}
         }
     }
 
@@ -488,7 +515,9 @@ class UpgradeSelectionRenderer {
         y += 30f
 
         // Icon area for evolved weapon
-        val iconSize = rect.width() * 0.25f
+        val iconSize =
+            minOf(evolutionIconSize(rect.width(), rect.height()), portraitEvolutionIconSize())
+        drawnEvolutionIconSize = iconSize // seam — see drawnCardIconSize's own doc
         cardPaint.style = Paint.Style.STROKE
         cardPaint.color = 0xFFFFD700.toInt() // Gold
         IconRenderer.drawIcon(canvas, WeaponDefinitions.getWeaponIconId(option.id, state.activePilotId, state.astroLoopMode), true, centerX, y + iconSize / 2, iconSize, cardPaint)

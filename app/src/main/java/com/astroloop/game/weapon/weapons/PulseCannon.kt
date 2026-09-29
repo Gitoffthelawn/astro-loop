@@ -15,8 +15,7 @@ import kotlin.math.PI
 
 class PulseCannon : Weapon(
     id = "pulse_cannon",
-    name = "Pulse Cannon",
-    description = "Auto-aiming energy bolts"
+    name = "Pulse Cannon"
 ) {
     override val baseDamage = 15f
     override val baseCooldown = 0.5f

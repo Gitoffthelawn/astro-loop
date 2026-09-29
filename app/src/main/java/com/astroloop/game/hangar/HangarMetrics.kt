@@ -3,7 +3,8 @@ package com.astroloop.game.hangar
 import com.astroloop.game.core.ScreenLayout
 
 /**
- * Horizontal metrics for the three-page hangar.
+ * Shared metrics for the three-page hangar — the room widths the pages tile at, and the nav row
+ * the three pages share.
  *
  * A room is normally the whole screen, and the three pages tile edge to edge one screen apart.
  * On large screens the room narrows to the content column instead, so the counter and the pilot
@@ -46,42 +47,6 @@ object HangarMetrics {
         if (roomWidth > 0f) roomWidth else screenWidth
 
     /**
-     * X of the current room's left edge, in screen space.
-     *
-     * The three rooms are centred on the screen as a block, so the current room starts half the
-     * leftover width in, less however far the page has been dragged. Below the gate
-     * [effectiveRoomWidth] returns the screen width, the leftover is zero, and the room's origin
-     * is the screen's origin (offset by the drag, exactly as before).
-     */
-    fun roomOriginX(roomWidth: Float, screenWidth: Float, pageScrollOffset: Float): Float =
-        (screenWidth - effectiveRoomWidth(roomWidth, screenWidth)) / 2f - pageScrollOffset
-
-    /**
-     * World X of the left screen edge — subtract it from a world X to get a screen X.
-     *
-     * Every drawing pass that places rooms, the walkway or the pilot walker needs this exact
-     * quantity; it was spelled out by hand in three places before, and each copy was one edit
-     * away from disagreeing with the others.
-     *
-     * Below the gate the stride is the screen width, so this is `currentPage * screenWidth +
-     * pageScrollOffset` — the original single-page-per-screen transform, unchanged.
-     */
-    fun viewportX(currentPage: Int, pageScrollOffset: Float, roomWidth: Float, screenWidth: Float): Float =
-        currentPage * effectiveRoomWidth(roomWidth, screenWidth) -
-            roomOriginX(roomWidth, screenWidth, pageScrollOffset)
-
-    /**
-     * Screen X → the current room's local X.
-     *
-     * Page renderers draw inside `canvas.translate(-xOffset, 0f)` and publish their tap rects in
-     * that room-local space, so every hit test against one of those rects has to cross into it
-     * first. Below the gate the room origin is 0 and the page is at rest when taps are handled,
-     * so this is the identity and hit testing is bit-for-bit what it always was.
-     */
-    fun toRoomX(screenX: Float, roomWidth: Float, screenWidth: Float, pageScrollOffset: Float): Float =
-        screenX - roomOriginX(roomWidth, screenWidth, pageScrollOffset)
-
-    /**
      * A screen-space content-column X (`layout.content.left` / `.right`) in room-local units.
      *
      * `ScreenLayout` centres the content column in the safe area, so its coordinates are screen
@@ -90,10 +55,37 @@ object HangarMetrics {
      * span the room. Below the gate the room is the whole screen, the offset is zero, and this is
      * the identity — the content-anchored layout phones ship today is untouched.
      *
-     * No scroll term: the page's own translate already carries it.
+     * No scroll term: the page's own translate already carries it. This is what the deleted
+     * `toRoomX(contentX, roomWidth, screenWidth, pageScrollOffset = 0f)` expanded to — that
+     * function's body less a scroll term that was passed as zero.
      */
     fun contentXInRoom(contentX: Float, roomWidth: Float, screenWidth: Float): Float =
-        toRoomX(contentX, roomWidth, screenWidth, pageScrollOffset = 0f)
+        contentX - (screenWidth - effectiveRoomWidth(roomWidth, screenWidth)) / 2f
+
+    /**
+     * Baseline Y of the nav row's `[CREW] [LAUNCH] [SHOP]` labels, in design units.
+     *
+     * Shared with [navBandTop] rather than written out at each draw site, so the row's position
+     * and the band that catches taps for it can never drift apart.
+     */
+    fun navLabelY(screenHeight: Float): Float = screenHeight * 0.95f
+
+    /** How far above [navLabelY] the nav row's tap band starts. */
+    private const val NAV_BAND_ABOVE_LABEL = 30f
+
+    /**
+     * Top of the nav row's tap band, in design units.
+     *
+     * One definition for a number four sites used to hand-copy: `HangarSurfaceView.handleTap`'s
+     * input gate, `HangarRenderer.drawPageIndicator`'s labels, `publishNavTargets`' focus rects
+     * and `HangarRenderer.panelAvailableHeight`. That last one is why this is a seam and not a
+     * comment: a PANEL'S ARRANGEMENT now depends on this line. The nav row is drawn on top of the
+     * panel layer, so a board allowed to grow into the band puts its bottom row underneath the
+     * lit labels — a press-and-hold there completing a purchase while a quick tap navigated away
+     * (found in review). Four literals agreeing by convention is not a defence against
+     * that recurring; one function is.
+     */
+    fun navBandTop(screenHeight: Float): Float = navLabelY(screenHeight) - NAV_BAND_ABOVE_LABEL
 
     /** Number of stools drawn along the counter. */
     const val STOOL_COUNT = 8

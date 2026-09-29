@@ -29,6 +29,17 @@ class CrystalRenderer {
         const val GRID_COLS = 8
         const val GRID_ROWS = 14
         const val GRID_JITTER = 0.7f
+
+        /**
+         * The crack grid, oriented to match the screen, as `(cols, rows)`.
+         *
+         * 8x14 gives roughly square cells on a portrait screen. Used unchanged on a landscape
+         * panel it gives 268x86 — a 3.1:1 stretch, on the visual every death and every pause goes
+         * through. Transposing restores about 1:1, which is the same move the design rect makes one
+         * layer up.
+         */
+        fun crackGrid(screenWidth: Float, screenHeight: Float): Pair<Int, Int> =
+            if (screenWidth > screenHeight) GRID_ROWS to GRID_COLS else GRID_COLS to GRID_ROWS
     }
 
     // Localized crystal zap state
@@ -40,6 +51,19 @@ class CrystalRenderer {
         private set
 
     private var segments: List<CrackSegment> = emptyList()
+
+    /**
+     * The crack pattern as it stands, for tests.
+     *
+     * A seam, like the hangar renderer's published rects: the pattern is absolute screen
+     * coordinates baked at activation, and "does it still cover the screen?" is not a question a
+     * Robolectric canvas can be asked after the fact.
+     */
+    internal val crackSegments: List<CrackSegment> get() = segments
+
+    /** Animation state, for tests that must prove a rotation did not restart it. */
+    internal val coverageForTest: Float get() = coverage
+    internal val textAlphaForTest: Float get() = textAlpha
     private var coverage: Float = 0f
     private var targetCoverage: Float = 0f
     private var textAlpha: Float = 0f
@@ -109,6 +133,36 @@ class CrystalRenderer {
         targetCoverage = PAUSE_COVERAGE_MAX
         isPause = true
         isActive = true
+        segments = generateCrackPattern(screenWidth, screenHeight)
+    }
+
+    /**
+     * Rebuild the crack pattern for a new screen size, leaving the animation exactly where it is.
+     *
+     * The pattern is ABSOLUTE screen coordinates, baked by [activatePause]/[activateDeath] and
+     * spanning the screen as it was at that instant. Rotate the device and those coordinates
+     * describe the old rectangle: the owner's report of 2026-09-20, a pause crystal that "is no
+     * longer full screen" — cracks confined to a portrait-shaped band with bare display either
+     * side of it. Everything else `GameSurfaceView.surfaceChanged` touches is re-initialised
+     * there; this was the one thing that was not.
+     *
+     * A no-op when nothing is frozen, because `surfaceChanged` also fires on every resume from
+     * background and must not conjure a crystal that was never activated.
+     *
+     * REGENERATED, not stretched, and not re-activated:
+     *  - stretching the old pattern would carry a portrait grid onto a landscape screen and put
+     *    back the 3.1:1 cells that [crackGrid]'s transposition exists to prevent;
+     *  - re-activating would call [resetState] and replay the freeze from zero coverage, which on
+     *    the death path would desync the sequence the beat is cut to.
+     * So the cracks re-shuffle at the moment of rotation. That is unavoidable — the aspect they
+     * describe has changed — and it happens under the rotation animation.
+     *
+     * Called inside `surfaceChanged`'s `synchronized(holder)` block, the same monitor the render
+     * loop holds, for the reason `pause()` states at its own call to [activatePause]: this
+     * replaces a list that `render` and `update` iterate.
+     */
+    fun resize(screenWidth: Float, screenHeight: Float) {
+        if (!isActive) return
         segments = generateCrackPattern(screenWidth, screenHeight)
     }
 
@@ -232,10 +286,11 @@ class CrystalRenderer {
     }
 
     private fun generateCrackPattern(screenWidth: Float, screenHeight: Float): List<CrackSegment> {
-        val cellW = screenWidth / GRID_COLS
-        val cellH = screenHeight / GRID_ROWS
-        val rows = GRID_ROWS + 1
-        val cols = GRID_COLS + 1
+        val (gridCols, gridRows) = crackGrid(screenWidth, screenHeight)
+        val cellW = screenWidth / gridCols
+        val cellH = screenHeight / gridRows
+        val rows = gridRows + 1
+        val cols = gridCols + 1
 
         // Generate jittered grid points
         val points = Array(rows) { row ->

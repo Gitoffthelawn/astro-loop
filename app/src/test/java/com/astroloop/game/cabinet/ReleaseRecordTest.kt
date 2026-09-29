@@ -9,12 +9,12 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
 /**
- * The one number the reckoning keeps — decision 112.
+ * The one number the reckoning keeps — a design decision.
  *
  * Not a score. The fight stopped paying points because shooting the opening's seeded rocks
  * had nothing to do with the crystal; a TIME is a record of the fight itself, which is the
  * opposite claim. It lives on the cabinet and nowhere else: the bar never mentions it and
- * TB-26 never mentions it, the same separation decision 96 draws when it forbids the pilot
+ * TB-26 never mentions it, the same separation decision draws when it forbids the pilot
  * from reporting on the fight at all.
  */
 @RunWith(RobolectricTestRunner::class)

@@ -15,8 +15,7 @@ import kotlin.random.Random
 
 class SpaceMines : Weapon(
     id = "space_mines",
-    name = "Space Mines",
-    description = "Dropped explosives"
+    name = "Space Mines"
 ) {
     override val baseDamage = 60f
     override val baseCooldown = 2f

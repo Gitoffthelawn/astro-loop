@@ -42,10 +42,10 @@ class CabinetSim(
     /**
      * The reckoning's target, or null in free play.
      *
-     * The original §4 boundary said this class must not know the crystal exists. That was
-     * dropped in decision 42 — §4's own architecture table already gave the director
-     * "writes bullets into it", and §8 then requires those bullets not to wrap and
-     * decision 35 requires them red, which IS the crystal's distinguishing properties
+     * The original spec boundary said this class must not know the crystal exists. That was
+     * dropped in a design decision — the spec's own architecture table already gave the director
+     * "writes bullets into it", and the spec then requires those bullets not to wrap and
+     * a design decision requires them red, which IS the crystal's distinguishing properties
      * living here. Keeping the boundary meant inventing generic APIs whose only purpose
      * was to avoid writing one word.
      */
@@ -197,14 +197,14 @@ class CabinetSim(
         }
 
         ship.update(dt, inputX, inputY, hasInput)
-        // Frozen during the crystal's arrival — decision 93. The field stops so the thing
+        // Frozen during the crystal's arrival — a design decision. The field stops so the thing
         // flying into it is the only thing moving, which is the whole image. Only the ROCKS
         // hold still: the ship still flies, its shots still travel and debris still fades,
         // because a player who cannot move while something approaches is being shown a
         // cutscene rather than an entrance.
         if (!rocksFrozen) _rocks.forEach { it.update(dt, m) }
 
-        // CORRECTED after device pass 6 — the comment here used to say "the cap and the
+        // CORRECTED after a device pass — the comment here used to say "the cap and the
         // bullet lifetime ARE the fire rate: 4 slots over a 1.2s life is 3.33 shots/sec
         // sustained... fireInterval survives only as a floor". **That model is wrong, and
         // believing it cost two authored patterns.** A bullet that HITS is consumed at the
@@ -227,7 +227,7 @@ class CabinetSim(
         // blocked is what keeps "one shot the moment a slot frees, not four" true: the gun
         // waits at zero rather than going into debt.
         //
-        // Counts the PLAYER's shots only. Decision 42 merged both kinds into one list, and
+        // Counts the PLAYER's shots only. A design decision merged both kinds into one list, and
         // this gate was left reading its size — so during the reckoning, where the crystal
         // keeps 14 to 88 bullets on the field, `size < 4` was almost never true and the
         // player's gun was effectively OFF. Measured: one shot in fifteen seconds, against
@@ -318,7 +318,7 @@ class CabinetSim(
 
     private fun resolveShipCollision() {
         if (!ship.alive) return
-        // The crystal is a body, not a hologram. §8 never said so, and left open the
+        // The crystal is a body, not a hologram. The spec never said so, and left open the
         // optimal strategy is to sit INSIDE it, where its bullets have not spread yet and
         // it cannot miss. It is in effect a very large rock, so it uses the rock
         // convention - the full shipRadius, not the smaller bullet hitbox.
@@ -472,6 +472,23 @@ class CabinetSim(
     fun placeCrystal(c: CabinetCrystal) { crystal = c }
 
     /**
+     * Moves everything in the field by the same proportion the screen just changed by, so a
+     * rotation keeps each thing where it was relative to the tube instead of stranding it
+     * outside the new bounds. Call it AFTER [CabinetMetrics.resize].
+     *
+     * Not a mid-run feature: a run holds the orientation it began in
+     * (HangarSurfaceView's cabinet orientation lock), so in practice this moves the attract
+     * demo and a finished run's leftovers. The crystal is left alone — it only exists inside a
+     * reckoning, which is a run.
+     */
+    fun rescale(sx: Float, sy: Float) {
+        ship.x *= sx; ship.y *= sy
+        for (r in _rocks) { r.x *= sx; r.y *= sy }
+        for (b in _bullets) { b.x *= sx; b.y *= sy }
+        for (d in _debris) { d.x *= sx; d.y *= sy }
+    }
+
+    /**
      * End the run without killing the ship — the win. [killShip] is the other way out,
      * and it is the one that leaves a wreck.
      */
@@ -581,7 +598,7 @@ class CabinetSim(
         spawnRockAwayFromShip(wave, safeRadius)
 
     companion object {
-        /** Three digits. It sticks rather than rolling over — see the design doc §6. */
+        /** Three digits. It sticks rather than rolling over — see the design doc. */
         const val SCORE_CAP = 999
 
         /** Wave 11 unbounded would be 77 simultaneous destructibles. */
@@ -591,7 +608,7 @@ class CabinetSim(
          * Four shots on screen, hard — the original's own limit.
          *
          * This is the ceiling; m.fireInterval is the floor. Together they are the whole
-         * fire-rate model, which is why device pass 2 reversed decision 20's "no bullet
+         * fire-rate model, which is why a device pass reversed a design decision's "no bullet
          * cap, pure cadence".
          */
         const val MAX_BULLETS = 4

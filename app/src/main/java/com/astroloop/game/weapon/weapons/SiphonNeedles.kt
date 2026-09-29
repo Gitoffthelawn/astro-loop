@@ -12,8 +12,7 @@ import com.astroloop.game.weapon.Weapon
 
 class SiphonNeedles : Weapon(
     id = "siphon_needles",
-    name = "Siphon Needles",
-    description = "Fast piercing needles that heal the ship on hit"
+    name = "Siphon Needles"
 ) {
     override val baseDamage = 9f
     override val baseCooldown = 0.25f

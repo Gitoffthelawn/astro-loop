@@ -28,10 +28,16 @@ import com.astroloop.game.data.RadioDefinitions
 import com.astroloop.game.data.EnemyType
 import com.astroloop.game.data.ShipDefinitions
 import com.astroloop.game.entity.*
+import com.astroloop.game.input.Direction
+import com.astroloop.game.input.DirectionalInput
+import com.astroloop.game.input.FocusNavigator
+import com.astroloop.game.input.InputModeState
+import com.astroloop.game.input.InputSurface
 import com.astroloop.game.input.TouchController
 import com.astroloop.game.render.*
 import com.astroloop.game.system.*
 import com.astroloop.game.util.Collision2D
+import com.astroloop.game.util.Vector2
 import com.astroloop.game.weapon.weapons.EnergySaw
 import com.astroloop.game.weapon.weapons.WarpSaw
 import kotlin.math.abs
@@ -46,11 +52,95 @@ class GameSurfaceView(
     private val startingShipId: String = "ship_blue",
     private val startingPilotId: String = "pilot_medic",
     private val onGameOver: (yenEarned: Int, fadeFromWhite: Boolean) -> Unit = { _, _ -> }
-) : SurfaceView(context), SurfaceHolder.Callback {
+) : SurfaceView(context), SurfaceHolder.Callback, InputSurface {
 
     private var gameThread: GameThread? = null
-    private val state = GameState()
+    // internal, not private: `StickReadoutRetreatTest` poses a retreat and drives real frames.
+    internal val state = GameState()
     private val touchController = TouchController()
+
+    /** The controller's half of the movement input. Filled by InputRouter on the UI thread,
+     *  read by the game loop — hence the snapshot in onDirectionalState rather than a
+     *  reference to the router's own instance. */
+    private val padInput = DirectionalInput()
+
+    /** Whichever source spoke last wins, so a finger and a stick can never fight. */
+    internal fun activeMoveDirection(): Vector2 =
+        if (InputModeState.isDirectional) padInput.direction else touchController.moveDirection
+
+    internal fun activeMoveMagnitude(): Float =
+        if (InputModeState.isDirectional) padInput.magnitude else touchController.moveMagnitude
+
+    override fun onDirectionalState(input: DirectionalInput) {
+        padInput.copyFrom(input)
+    }
+
+    /** The controller's equivalent of TouchController.hasTap — same cross-thread treatment. */
+    private val padActivate = java.util.concurrent.atomic.AtomicBoolean(false)
+
+    private val focusRing = FocusRingRenderer()
+    // internal, not private: `StickReadoutRetreatTest` drives real frames and reads the fade back.
+    internal val stickReadout = StickReadoutRenderer()
+
+    internal fun consumePadActivate(): Boolean = padActivate.getAndSet(false)
+
+    override fun onActivateDown(): Boolean {
+        // Deaf wherever a finger is deaf — the overlay check sits after this guard, not before it.
+        if (controllerInputBlocked(state.phase, state.isPaused)) return true
+        if (upgradeFocusActive()) return upgradeSelectionRenderer.focusRegistry.activate()
+        padActivate.set(true)
+        return true
+    }
+
+    /** The upgrade overlay is the only focus context in combat; everything else is flight. */
+    private fun upgradeFocusActive(): Boolean =
+        upgradeFocusActive(upgradeSystem.hasPendingOptions(), state.luckyStarAnimating)
+
+    override fun onDirectionalPress(direction: Direction): Boolean {
+        if (!upgradeFocusActive()) return false
+        val registry = upgradeSelectionRenderer.focusRegistry
+        FocusNavigator.next(registry.targets(), registry.focusedId, direction)?.let {
+            registry.focusedId = it
+        }
+        return true
+    }
+
+    override fun onPause(): Boolean {
+        when (pauseVerb(state.phase, state.isPaused, state.debugMenuOpen)) {
+            PauseVerb.PAUSE -> pauseFromController()
+            // The route Back already takes out of the pause screen: updatePaused consumes the pad
+            // activate flag and resumes.
+            PauseVerb.RESUME -> padActivate.set(true)
+            PauseVerb.NOTHING -> Unit
+        }
+        return true
+    }
+
+    /** Back and cancel are one verb resolved by context: during play it pauses, and while
+     *  paused it resumes. Anywhere else it is not consumed, so Back falls through to the
+     *  Activity and behaves exactly as it does today. */
+    override fun onCancel(): Boolean {
+        if (state.isPaused) {
+            padActivate.set(true)
+            return true
+        }
+        if (canPauseFromInput(state.phase, state.isPaused, state.debugMenuOpen)) {
+            pauseFromController()
+            return true
+        }
+        return false
+    }
+
+    private fun pauseFromController() {
+        if (!canPauseFromInput(state.phase, state.isPaused, state.debugMenuOpen)) return
+        // Same thread dance as the double-tap path: stop the thread, drain any pending
+        // activation while it is stopped so no race is possible, then restart.
+        pause()
+        touchController.consumeTap()
+        consumePadActivate()
+        resume()
+    }
+
     private val highScoreManager = HighScoreManager(context)
     private val telemetryManager = TelemetryManager(context)
 
@@ -81,7 +171,7 @@ class GameSurfaceView(
     private val debugButton = DebugFloatingButton(radiusPx = 54f)
     private var debugButtonLoaded = false
 
-    /** GameSurfaceView is always a live run — the hangar's implementation is Task 3's. */
+    /** GameSurfaceView is always a live run — the hangar has its own implementation. */
     private val debugHost = object : DebugActionHost {
         override fun isInRun(): Boolean = true
 
@@ -141,7 +231,9 @@ class GameSurfaceView(
             telemetryManager.clearLog()
         }
     }
-    private val crystalRenderer = CrystalRenderer()
+    // internal, not private: `CrystalRotationTest` drives a real rotation through
+    // surfaceChanged and reads back the crack pattern it left behind.
+    internal val crystalRenderer = CrystalRenderer()
     private val vibrator: Vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
         (context.getSystemService(android.content.Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager).defaultVibrator
     } else {
@@ -252,20 +344,6 @@ class GameSurfaceView(
     private var asteroidHitSoundCooldown = 0f
     private var bossAuraSoundCooldown = 0f
 
-    // Brick screen animation state
-    private var brickScreenTimer: Float = 0f
-    private var brickStatsRevealed = false
-    private var brickStatsTimer = 0f
-    private var brickSoundPlayed = false
-    // Cached brick screen stats (populated once on reveal)
-    private var cachedBrickPlaytime = 0f
-    private var cachedBrickKills = 0
-    private var cachedBrickDeaths = 0
-    private var cachedBrickYenEarned = 0
-    private var cachedBrickEvolutions = 0
-    private var cachedBrickCasinoSpins = 0
-    private var cachedBrickStatLines: List<Pair<String, String>> = emptyList()
-
     // Desert flashback tracking fields
     private var desertSpawnTimer = 0f
     private var desertFirstEnemiesSpawned = false
@@ -302,14 +380,31 @@ class GameSurfaceView(
     private var desertFarewellFadeStarted = false
     private var desertFarewellFadeTimer = 0f
     private val desertTankPaint = Paint().apply { isAntiAlias = true }
+
+    /**
+     * The player's tank in the flashback. The accent is what tells your tank from TB-26's, whose
+     * accent is blue — so it is the colour the stick readout wears there, and it is legible on
+     * sand in a way the olive hull is not.
+     */
+    private val desertPlayerHullColor = 0xFF556633.toInt()
+    private val desertPlayerAccentColor = 0xFFDD3333.toInt()
     data class VehicleTrack(val x: Float, val y: Float, val angle: Float, val width: Float, var age: Float = 0f)
     private val desertTracks = mutableListOf<VehicleTrack>()
     private var desertTrackSpawnTimer = 0f
     private val TRACK_LIFETIME = 15f
     private val MAX_TRACKS = 500
-    private val DESERT_CORRIDOR_LEFT = -400f
-    private val DESERT_CORRIDOR_RIGHT = 400f
-    private val DESERT_CORRIDOR_WIDTH = DESERT_CORRIDOR_RIGHT - DESERT_CORRIDOR_LEFT
+    private val DESERT_CORRIDOR_LEFT = -DESERT_CORRIDOR_HALF_WIDTH
+    private val DESERT_CORRIDOR_RIGHT = DESERT_CORRIDOR_HALF_WIDTH
+
+    /**
+     * The desert's yardstick for WORLD distances — beach, waterline, settlement placement. The
+     * device's long edge, which is `screenHeight` upright and `screenWidth` rotated, so every one
+     * of those distances is bit-identical to what portrait always used and does not move when the
+     * device turns. Owner, 2026-09-29: the story beats must play the same either way up. Things
+     * that are genuinely about the VIEW (spawning just off the top edge, "is it on screen", the
+     * drive-off leaving the frame) still read screenHeight.
+     */
+    private val desertSpan: Float get() = desertWorldSpan(screenWidth, screenHeight)
     data class DustParticle(var x: Float, var y: Float, var alpha: Float, var age: Float)
     private val desertDustParticles = mutableListOf<DustParticle>()
     private val desertMountainPath = Path()
@@ -356,9 +451,6 @@ class GameSurfaceView(
     private var desertPlayerHitWall = false  // Player reached crystal wall
     private var desertTbFiringAtCrystal = false  // TB shooting cosmetic shots at crystal
     private var desertTbFireAtCrystalTimer = 0f
-    private var desertWakeUpTimer = 0f
-    private val WAKE_UP_DURATION = 4.0f
-    private val WAKE_UP_SILENCE = 2.0f   // black silence before pull-back starts
 
     // Screen dimensions
     private var screenWidth: Float = 0f
@@ -445,6 +537,68 @@ class GameSurfaceView(
         fun desertDespawnDistance(screenHeight: Float): Float = screenHeight * 1.1f
 
         /**
+         * The despawn radius for an actual viewport. Measured on its LONG edge, so a landscape
+         * screen — whose half-diagonal is longer than 1.1 of its short height — never culls an
+         * enemy that is still on screen. Upright, the long edge is the height: unchanged.
+         */
+        fun desertDespawnDistance(screenWidth: Float, screenHeight: Float): Float =
+            desertDespawnDistance(maxOf(screenWidth, screenHeight))
+
+        /**
+         * Half the canyon floor's width, in world units.
+         *
+         * Was 400. Owner, 2026-09-29: in landscape the walls were most of the screen. At 900 a
+         * rotated Pixel 9 Pro (2142 wide) sees 171 units of rock each side of a centred ship — 8%
+         * of its width, the same share the old corridor gave an upright one (80 of 960). Upright,
+         * the walls now come into view as you drive toward them. The settlement is NOT widened:
+         * it keeps its own ±400 layout in the middle of the floor.
+         */
+        const val DESERT_CORRIDOR_HALF_WIDTH = 900f
+
+        /** See the `desertSpan` property: the long edge, the same either way up. */
+        fun desertWorldSpan(screenWidth: Float, screenHeight: Float): Float = maxOf(screenWidth, screenHeight)
+
+        /**
+         * How far either side of the player's tank desert enemies spawn. The old corridor's own
+         * spread (±400 less a 50 margin): now that the floor is wider than an upright screen,
+         * spawning across all of it would put contacts where an upright player cannot see them.
+         */
+        const val DESERT_SPAWN_HALF_SPREAD = 350f
+
+        /**
+         * How far out the second band of ground scatter sits. The first band's objects land at
+         * 50..380 from the centre line, so this puts the copy at 470..800, inside ±900 with the
+         * existing per-object wall margins still applying.
+         */
+        const val DESERT_OUTER_SCATTER_SHIFT = 420f
+
+        /**
+         * Whether the tank counts as driving NORTH for the stop check — the one thing that runs
+         * Tobar's "we should stop" timer down toward the horror path. Only forward motion while
+         * facing north counts: stopping, driving south, reversing (negative speed) and turning
+         * round all let the good-ending timer run.
+         */
+        fun desertDrivingNorth(speed: Float, rotation: Float): Boolean =
+            speed > 20f && sin(rotation) < -0.5f
+
+        /**
+         * How far the canyon wall is drawn past the corridor edge.
+         *
+         * The corridor is fixed at ±400 world units while the viewport is not. The camera is
+         * centred on the ship and the ship is clamped 25 inside the wall, so the farthest the
+         * player can ever see past the corridor edge is `screenWidth / 2 - 25`. The shipped 500
+         * covers a design-aspect phone, which needs 495, and leaves 546 units of undrawn space on
+         * a 16:9 panel. This adds 40 units of margin and keeps the shipped value as a floor.
+         *
+         * Portrait design width is only 960 on devices narrower than the design aspect, so the
+         * shipped 500 was ALREADY short in portrait on anything wider: 77 units on a 16:9 phone,
+         * 144 on a portrait tablet, 508 on a fold inner panel. Those gain coverage here, which is
+         * a fix rather than a regression — the rock was missing from the screen edge before.
+         * Same reasoning, and the same companion, as desertDespawnDistance.
+         */
+        fun desertWallDepth(screenWidth: Float): Float = maxOf(500f, screenWidth / 2f + 15f)
+
+        /**
          * How long the winning card is held before it applies.
          *
          * Half a second was enough to see that the wheel had stopped and not enough to read what it
@@ -511,22 +665,24 @@ class GameSurfaceView(
 
     init {
         holder.addCallback(this)
-        isFocusable = true
+        // Never focusable: every key reaches the game through MainActivity.dispatchKeyEvent, and a
+        // focusable view lets ViewRootImpl swallow the first D-pad or OK press after a touch.
+        isFocusable = false
         FontManager.initialize(context)
+        // Set once here rather than beside each initialize(layout) call — there are three of
+        // those, and a callback assigned three times is three chances for them to disagree.
+        upgradeSelectionRenderer.onCardActivated = { index -> applySelectedUpgrade(index) }
     }
 
     private fun applyScreenDimensions(physW: Int, physH: Int) {
-        renderScale = minOf(physW / GameConfig.DESIGN_WIDTH, physH / GameConfig.DESIGN_HEIGHT)
-        screenWidth = physW / renderScale
-        screenHeight = physH / renderScale
-        layout = ScreenLayout.compute(
-            width = screenWidth,
-            height = screenHeight,
-            insetLeft = insetLeftPx / renderScale,
-            insetTop = insetTopPx / renderScale,
-            insetRight = insetRightPx / renderScale,
-            insetBottom = insetBottomPx / renderScale
+        val m = DesignSpace.metricsFor(
+            physW.toFloat(), physH.toFloat(),
+            insetLeftPx, insetTopPx, insetRightPx, insetBottomPx
         )
+        renderScale = m.renderScale
+        screenWidth = m.width
+        screenHeight = m.height
+        layout = m.layout
         touchController.renderScale = renderScale
         debugMenuRenderer.renderScale = renderScale
     }
@@ -582,6 +738,11 @@ class GameSurfaceView(
             crewmateEncounter.screenWidth = screenWidth
             crewmateEncounter.screenHeight = screenHeight
             movementSystem.initialize(screenWidth, screenHeight)
+            // The crystal bakes an absolute crack pattern at the size it was activated at, so a
+            // rotation leaves it covering the old rectangle unless it is rebuilt — the owner's
+            // 2026-09-20 report of a pause crystal that stops being full screen. A no-op unless
+            // one is actually up, and it keeps the animation where it is; see resize().
+            crystalRenderer.resize(screenWidth, screenHeight)
         }
     }
 
@@ -864,7 +1025,6 @@ class GameSurfaceView(
             GamePhase.DESERT -> updateDesert(deltaTime)
             GamePhase.DESERT_FAREWELL -> updateDesertFarewell(deltaTime)
             GamePhase.TIMELINE_SHIFT -> updateTimelineShift(deltaTime)
-            GamePhase.WAKE_UP -> updateWakeUp(deltaTime)
             GamePhase.GAME_OVER -> {
                 // Corruption death: wait for explosion then return to hangar
                 if (corruptionDeathTimer > 0f) {
@@ -875,14 +1035,6 @@ class GameSurfaceView(
                     if (corruptionDeathTimer <= 0f) {
                         onGameOver(state.goldCollected, false)
                     }
-                }
-            }
-            GamePhase.GAME_BRICKED -> {
-                if (brickScreenTimer < 10f) brickScreenTimer += deltaTime
-                if (brickStatsRevealed) brickStatsTimer = (brickStatsTimer + deltaTime).coerceAtMost(2f)
-                if (!brickSoundPlayed && brickScreenTimer >= 1f) {
-                    brickSoundPlayed = true
-                    SoundManager.playSFX("sfx_crystal_activate")
                 }
             }
         }
@@ -1013,14 +1165,34 @@ class GameSurfaceView(
         // Auto-pilot during fleet formation cutscene (starts at FLEET_CHATTER when fleet warps in)
         val inFleetAutopilot = state.bossFightPhase == PHASE_FLEET_CHATTER || state.bossFightPhase == PHASE_FORMATION || state.bossFightPhase == PHASE_SHIELD_ASSAULT || state.bossFightPhase == PHASE_TB26_RAM || state.bossFightPhase == PHASE_POST_VICTORY
 
+        // The stick readout ticks EVERY frame, outside the movement guard below.
+        //
+        // It used to be updated inside that guard, so the moment the guard closed — a retreat
+        // reaching phase 2, a stun, the fleet autopilot, the corruption rush — `update` stopped
+        // being called at all and the alpha FROZE wherever it was. The owner hit the worst case
+        // on 2026-09-20: die in Astro Loop and the readout sits at full brightness on screen for
+        // the entire emergency-shield fly-off, because nothing is left running to fade it. It was
+        // never a slow fade; there was no fade.
+        //
+        // And it goes dark the instant the emergency shield fires, per the owner, rather than
+        // hanging on while the ship flies itself out. `retreatPhase == 0` and not
+        // `emergencyShieldActive`: the shield flag is cleared at phase 3, when the ship leaves
+        // the screen, which would pop the readout back for the fade-to-black.
+        //
+        // The other three states keep today's policy — a finger still down still draws its stick
+        // — because only the freeze was wrong there, and that is fixed by ticking.
+        stickReadout.update(
+            touchController.isJoystickActive() && state.retreatPhase == 0, deltaTime
+        )
+
         // Update ship movement from touch input (skip when stunned, in fleet autopilot, or retreating)
         if (!state.playerStunned && !inFleetAutopilot && state.retreatPhase < 2 &&
                 state.corruptionRushPhase == 0) {
             // Suppress touch input through the whole engine-restart beat — incl. the brief
             // post-catch window before autopilot takes over — so the ship holds until it eases out.
             if (!state.bossEmpFired && !engineRestarting) {
-                ship.moveDirection.set(touchController.moveDirection)
-                ship.moveDirection.mul(touchController.moveMagnitude)
+                ship.moveDirection.set(activeMoveDirection())
+                ship.moveDirection.mul(activeMoveMagnitude())
             } else {
                 ship.moveDirection.zero()
             }
@@ -1565,7 +1737,7 @@ class GameSurfaceView(
                 if (!projectile.isRecalling) {
                     // Trigger recall at screen edge
                     val margin = 20f
-                    val halfW = screenWidth / 2f
+                    val halfW = Boss.recallHalfWidth(screenWidth)
                     val halfH = screenHeight / 2f
                     val atEdge = projectile.position.x < ship.position.x - halfW + margin ||
                         projectile.position.x > ship.position.x + halfW - margin ||
@@ -1687,7 +1859,7 @@ class GameSurfaceView(
 
         // Cryo Field: slow nearby enemies and asteroids each frame
         if (state.cryoSlowPercent > 0f) {
-            val cryoRadius = 100f * state.cryoRadiusMultiplier
+            val cryoRadius = state.getCryoRadius()
             val cryoRadiusSq = cryoRadius * cryoRadius
             val slowFactor = (1f - state.cryoSlowPercent).coerceAtLeast(0.1f)
             for (enemy in enemies) {
@@ -1965,7 +2137,7 @@ class GameSurfaceView(
         movementSystem.applyGravityWellEffects(projectiles, asteroids, deltaTime)
 
         // Check collisions
-        val pickupRange = GameConfig.POWERUP_MAGNET_BASE_RANGE * state.pickupRangeMultiplier * state.getMagnetRangeMultiplier()
+        val pickupRange = state.getPickupRange()
         val pullSpeed = GameConfig.POWERUP_PULL_SPEED * state.getMagnetSpeedMultiplier()
         val collisionResult = collisionSystem.checkCollisions(
             ship, asteroids, projectiles, powerUps, pickupRange, pullSpeed
@@ -3145,17 +3317,20 @@ class GameSurfaceView(
         }
     }
 
+    /** The thing to buzz: the pad being played on, or this device. */
+    private fun haptic(): Vibrator = com.astroloop.game.input.PadHaptics.target(vibrator)
+
     private fun vibrateHit() {
         if (isVibrationMuted) return
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            vibrator.vibrate(VibrationEffect.createOneShot(30, 40))
+            haptic().vibrate(VibrationEffect.createOneShot(30, 40))
         }
     }
 
     private fun vibrateExplosion() {
         if (isVibrationMuted) return
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            vibrator.vibrate(VibrationEffect.createOneShot(80, 150))
+            haptic().vibrate(VibrationEffect.createOneShot(80, 150))
         }
     }
 
@@ -3303,6 +3478,7 @@ class GameSurfaceView(
 
     private fun handleEvolutionDiamondCollected() {
         if (state.retreatPhase > 0) return
+        if (!canOpenUpgradeSelection(state.phase, ship.isActive)) return
         state.telemetryDiamondsCollected++
         SoundManager.playSFX("sfx_evolution")
 
@@ -3324,6 +3500,7 @@ class GameSurfaceView(
 
     private fun handlePowerUpCollected(powerUp: PowerUp) {
         if (state.retreatPhase > 0) return
+        if (!canOpenUpgradeSelection(state.phase, ship.isActive)) return
         state.telemetryUpgradeDropsCollected++
         val sourceType = if (powerUp.isFromEnemy) "enemy_drop" else "asteroid_drop"
         state.telemetryPowerupsCollected[sourceType] = (state.telemetryPowerupsCollected[sourceType] ?: 0) + 1
@@ -3334,7 +3511,7 @@ class GameSurfaceView(
         }
 
         // Generate upgrade options and show selection UI
-        val options = upgradeSystem.generateUpgradeOptions(state, fromAsteroid = !powerUp.isFromEnemy)
+        val options = upgradeSystem.generateUpgradeOptions(state)
         if (options.isEmpty()) return
         state.telemetryLastOfferedOptions = options.map { it.id }
         state.phase = GamePhase.UPGRADE_SELECTION
@@ -3560,6 +3737,9 @@ class GameSurfaceView(
     }
 
     private fun updateUpgradeSelection(deltaTime: Float) {
+        // The ring only breathes where it is drawn, and the overlay is its only combat context.
+        focusRing.update(deltaTime)
+
         // Lucky Star animation — blocks player input while active
         if (state.luckyStarAnimating) {
             state.luckyStarTimer += deltaTime
@@ -3608,17 +3788,25 @@ class GameSurfaceView(
                 touchController.lastTapY
             )
 
-            if (selectedIndex >= 0) {
-                val option = upgradeSystem.selectOption(selectedIndex)
-                if (option != null) {
-                    telemetryManager.logUpgradeOffered(state.survivalTime.toInt(), state.telemetryLastOfferedOptions, option.id)
-                    SoundManager.playSFX("sfx_ui_upgrade_select")
-                    applyUpgrade(option)
-                    weaponSystem.resetBeatSync()
-                    state.phase = GamePhase.PLAYING
-                }
-            }
+            applySelectedUpgrade(selectedIndex)
         }
+    }
+
+    /**
+     * The one place an upgrade choice is applied, whether it was tapped or focused.
+     *
+     * A pure extraction of what the tap path used to inline — same statements, same order. It
+     * exists so the telemetry, the selection sound and the beat resync happen for a focused
+     * pick exactly as they do for a tapped one; a second copy would drift.
+     */
+    private fun applySelectedUpgrade(selectedIndex: Int) {
+        if (selectedIndex < 0) return
+        val option = upgradeSystem.selectOption(selectedIndex) ?: return
+        telemetryManager.logUpgradeOffered(state.survivalTime.toInt(), state.telemetryLastOfferedOptions, option.id)
+        SoundManager.playSFX("sfx_ui_upgrade_select")
+        applyUpgrade(option)
+        weaponSystem.resetBeatSync()
+        state.phase = GamePhase.PLAYING
     }
 
     private fun updateBossFightSequence(deltaTime: Float) {
@@ -4832,7 +5020,6 @@ class GameSurfaceView(
         desertSettlementVisibleTimer = -1f
         desertCameraFrozen = false
         desertDriveOffActive = false
-        desertWakeUpTimer = 0f
 
         // Clear radio state
         state.radioMessage = null
@@ -4847,6 +5034,7 @@ class GameSurfaceView(
     private fun updateDesert(deltaTime: Float) {
         state.desertTimer += deltaTime
         state.desertNoInputTimer += deltaTime
+        stickReadout.update(touchController.isJoystickActive(), deltaTime)
 
         if (state.isPaused) {
             updatePaused(deltaTime)
@@ -4857,11 +5045,14 @@ class GameSurfaceView(
         EntityPools.projectiles.getActiveEntities(activeProjectiles)
         EntityPools.enemies.getActiveEntities(activeEnemies)
 
-        // Tank-style player movement
-        val touchX = touchController.moveDirection.x * touchController.moveMagnitude
-        val touchY = touchController.moveDirection.y * touchController.moveMagnitude
+        // Tank-style player movement. Reads the active source, not TouchController directly —
+        // the flashback is a playable scene, and an earlier change only converted the combat movement block,
+        // which left the tank deaf to a controller.
+        val desertMagnitude = activeMoveMagnitude()
+        val touchX = activeMoveDirection().x * desertMagnitude
+        val touchY = activeMoveDirection().y * desertMagnitude
 
-        if (touchController.moveMagnitude > 0.1f) {
+        if (desertMagnitude > 0.1f) {
             // Desired direction from touch
             val desiredAngle = atan2(touchY.toDouble(), touchX.toDouble()).toFloat()
 
@@ -4873,7 +5064,7 @@ class GameSurfaceView(
 
             // Determine if we're going forward or backward relative to facing
             val dot = cos(desiredAngle - ship.rotation)  // 1 = same dir, -1 = opposite
-            val targetSpeed = if (dot > 0) 200f * touchController.moveMagnitude else -100f * touchController.moveMagnitude
+            val targetSpeed = if (dot > 0) 200f * desertMagnitude else -100f * desertMagnitude
 
             // Accelerate/decelerate
             val accel = if (abs(targetSpeed) > abs(desertPlayerSpeed)) 300f else 400f
@@ -4891,7 +5082,7 @@ class GameSurfaceView(
         ship.position.x = ship.position.x.coerceIn(DESERT_CORRIDOR_LEFT + 25f, DESERT_CORRIDOR_RIGHT - 25f)
 
         // Prevent going south past the waterline
-        val waterlineY = desertSpawnY + screenHeight * 0.5f + (screenHeight * 0.5f) * 0.8f
+        val waterlineY = desertSpawnY + desertSpan * 0.5f + (desertSpan * 0.5f) * 0.8f
         ship.position.y = ship.position.y.coerceAtMost(waterlineY - 25f)
 
         // Crystal energy wall at settlement southern edge (horror path)
@@ -4905,8 +5096,8 @@ class GameSurfaceView(
 
         // Solid beach landing craft — box derived from renderDesertBeachAndSea's own math
         run {
-            val beachStartY = desertSpawnY + screenHeight * 0.5f
-            val beachEndY = desertSpawnY + screenHeight
+            val beachStartY = desertSpawnY + desertSpan * 0.5f
+            val beachEndY = desertSpawnY + desertSpan
             val wetSandTop = beachStartY + (beachEndY - beachStartY) * 0.6f
             val craftX = 30f
             val craftY = wetSandTop + 10f
@@ -5067,7 +5258,7 @@ class GameSurfaceView(
         // Track how long settlement has been visible (for bombardment delay)
         if (desertBuildings.isNotEmpty() && desertSettlementVisibleTimer < 0f) {
             val distToSettlement = abs(ship.position.y - desertSettlementWorldY)
-            if (distToSettlement < screenHeight * 0.8f) {
+            if (distToSettlement < desertSpan * 0.8f) {
                 desertSettlementVisibleTimer = 0f  // Start counting
             }
         }
@@ -5270,7 +5461,7 @@ class GameSurfaceView(
 
         desertTbX = desertTbX.coerceIn(DESERT_CORRIDOR_LEFT + 25f, DESERT_CORRIDOR_RIGHT - 25f)
         // Prevent TB from driving past the waterline
-        val tbWaterlineY = desertSpawnY + screenHeight * 0.5f + (screenHeight * 0.5f) * 0.8f
+        val tbWaterlineY = desertSpawnY + desertSpan * 0.5f + (desertSpan * 0.5f) * 0.8f
         desertTbY = desertTbY.coerceAtMost(tbWaterlineY - 25f)
 
         // North fence clamp — prevent crossing into settlement while following
@@ -5460,7 +5651,7 @@ class GameSurfaceView(
             // spawns land up to ~0.77 viewport-heights from the player, so a fixed
             // radius silently culled fresh spawns on tall screens (and deadlocked the
             // scene on the fallback-less FIRST_KILL line).
-            if (camera.isTooFar(enemy.position.x, enemy.position.y, desertDespawnDistance(screenHeight))) {
+            if (camera.isTooFar(enemy.position.x, enemy.position.y, desertDespawnDistance(screenWidth, screenHeight))) {
                 enemy.isActive = false
             }
         }
@@ -5662,10 +5853,12 @@ class GameSurfaceView(
     private fun spawnDesertEnemies(count: Int, military: Boolean) {
         for (i in 0 until count) {
             val enemy = EntityPools.enemies.obtain()
-            // Spawn above camera view, within corridor
+            // Spawn above camera view, near the player's line and within the corridor — see
+            // DESERT_SPAWN_HALF_SPREAD for why not across the whole floor
             val corridorMargin = 50f
-            enemy.position.x = DESERT_CORRIDOR_LEFT + corridorMargin +
-                Math.random().toFloat() * (DESERT_CORRIDOR_WIDTH - 2 * corridorMargin)
+            enemy.position.x = (ship.position.x +
+                (Math.random().toFloat() * 2f - 1f) * DESERT_SPAWN_HALF_SPREAD)
+                .coerceIn(DESERT_CORRIDOR_LEFT + corridorMargin, DESERT_CORRIDOR_RIGHT - corridorMargin)
             val screenH = camera.getScreenHeight()
             enemy.position.y = camera.y - screenH * DESERT_SPAWN_BAND_NEAR -
                 Math.random().toFloat() * screenH * DESERT_SPAWN_BAND_SPREAD
@@ -5864,7 +6057,7 @@ class GameSurfaceView(
         // Spawn settlement ahead for bombardment. 1.5 screens north (was 3) so the
         // silent northward crawl is ~10s and ends with the settlement + energy wall
         // cresting into view — the player still drives the whole way themselves.
-        desertSettlementWorldY = ship.position.y - screenHeight * 1.5f
+        desertSettlementWorldY = ship.position.y - desertSpan * 1.5f
         desertSettlementProgress = 1f
         spawnDesertSettlementBuildings()
         spawnDesertCivilians()
@@ -5897,7 +6090,7 @@ class GameSurfaceView(
                 // Timer only ticks when the player is not actively heading north — so stopping at any
                 // point (even 200f north) lets them wait it out for the good ending.
                 if (desertStopCheckReached) {
-                    val drivingNorth = desertPlayerSpeed > 20f && kotlin.math.sin(ship.rotation) < -0.5f
+                    val drivingNorth = desertDrivingNorth(desertPlayerSpeed, ship.rotation)
                     if (drivingNorth) desertNorthDriveTimer += deltaTime else desertStopCheckTimer += deltaTime
                     val movedSouth = ship.position.y >= desertStopCheckY + 500f
                     val movedNorth = desertNorthDriveTimer >= 6f
@@ -6146,7 +6339,7 @@ class GameSurfaceView(
         }
 
         // Player's tank
-        renderDesertTank(canvas, ship.position.x, ship.position.y, ship.rotation, desertPlayerTurretAngle, 0xFF556633.toInt(), 0xFFDD3333.toInt())
+        renderDesertTank(canvas, ship.position.x, ship.position.y, ship.rotation, desertPlayerTurretAngle, desertPlayerHullColor, desertPlayerAccentColor)
 
         // Explosions render on top of tanks so deaths read clearly
         vectorRenderer.renderVisualEffects(canvas, visualEffects)
@@ -6160,6 +6353,18 @@ class GameSurfaceView(
 
         // Screen-space: Radio chatter only (no upgrade grid, health, yen, timer)
         hudRenderer.renderRadioOnly(canvas, state)
+
+        // The flashback is driven by the same relative stick combat uses, so it gets the same
+        // readout — in the tank's accent, which is what tells your tank from TB-26's.
+        if (!state.isPaused) {
+            val desertOrigin = touchController.getJoystickOrigin()
+            val desertKnob = touchController.getJoystickPosition()
+            stickReadout.render(
+                canvas, desertOrigin.x, desertOrigin.y, desertKnob.x, desertKnob.y,
+                GameConfig.JOYSTICK_DEAD_ZONE, GameConfig.JOYSTICK_MAX_RADIUS,
+                desertPlayerAccentColor
+            )
+        }
 
         // Fade overlay
         if (state.desertFadeAlpha > 0f) {
@@ -6384,7 +6589,7 @@ class GameSurfaceView(
         }
 
         // Road boundaries and fade zones
-        val roadSouthEnd = desertSpawnY + screenHeight * 0.5f  // Southern terminus (beach start)
+        val roadSouthEnd = desertSpawnY + desertSpan * 0.5f  // Southern terminus (beach start)
         val gapSouthEdge = if (desertBuildings.isNotEmpty()) settlementSouthY + 80f else Float.MAX_VALUE
         val gapNorthEdge = if (desertBuildings.isNotEmpty()) settlementNorthY - 80f else Float.MIN_VALUE
         val roadFadeDist = 120f
@@ -6481,7 +6686,7 @@ class GameSurfaceView(
         val startTile = ((camera.y) / tileSize).toInt() - 1
         val endTile = ((camera.y + screenHeight) / tileSize).toInt() + 1
 
-        val terrainSouthLimit = desertSpawnY + screenHeight * 0.3f  // No terrain objects past beach zone
+        val terrainSouthLimit = desertSpawnY + desertSpan * 0.3f  // No terrain objects past beach zone
         for (tileY in startTile..endTile) {
             val seed = tileY * 17 + 42  // deterministic seed
 
@@ -6491,92 +6696,99 @@ class GameSurfaceView(
             // Skip terrain objects in beach zone
             if (worldY > terrainSouthLimit) continue
 
-            // Alternate sides: even tiles → left, odd tiles → right
-            val side = if (tileY % 2 == 0) -1f else 1f
+            // Two bands of the same scatter: the original one within ~380 of the centre line,
+            // and a mirrored copy shifted out by DESERT_OUTER_SCATTER_SHIFT onto the floor the
+            // corridor gained when it widened to ±900. Without it that floor was bare sand. The
+            // first band is exactly the shipped one, so the middle of the canyon is unchanged.
+            for (band in 0..1) {
+                val shift = if (band == 0) 0f else DESERT_OUTER_SCATTER_SHIFT
+                // Alternate sides: even tiles → left, odd tiles → right (flipped on the outer band)
+                val side = (if (tileY % 2 == 0) -1f else 1f) * (if (band == 0) 1f else -1f)
 
-            // --- 4. Sparse Vegetation: Scrub Bush ---
-            if (seed % 5 == 0) {
-                val offset = 80f + ((seed * 37) % 250).toFloat()
-                val bushX = side * offset
-                if (bushX < DESERT_CORRIDOR_RIGHT - 30 && bushX > DESERT_CORRIDOR_LEFT + 30) {
-                    desertTankPaint.color = 0xFF6B7B3A.toInt()  // olive green
-                    canvas.drawCircle(bushX, worldY.toFloat(), 8f, desertTankPaint)
-                    canvas.drawCircle(bushX - 5f, worldY.toFloat() + 3f, 6f, desertTankPaint)
+                // --- 4. Sparse Vegetation: Scrub Bush ---
+                if (seed % 5 == 0) {
+                    val offset = 80f + ((seed * 37) % 250).toFloat()
+                    val bushX = side * (offset + shift)
+                    if (bushX < DESERT_CORRIDOR_RIGHT - 30 && bushX > DESERT_CORRIDOR_LEFT + 30) {
+                        desertTankPaint.color = 0xFF6B7B3A.toInt()  // olive green
+                        canvas.drawCircle(bushX, worldY.toFloat(), 8f, desertTankPaint)
+                        canvas.drawCircle(bushX - 5f, worldY.toFloat() + 3f, 6f, desertTankPaint)
+                    }
                 }
-            }
 
-            // --- Dead Tree (stick figure) ---
-            if (seed % 7 == 0) {
-                val offset = 100f + ((seed * 53) % 200).toFloat()
-                val treeX = -side * offset  // opposite side from bush
-                if (treeX < DESERT_CORRIDOR_RIGHT - 40 && treeX > DESERT_CORRIDOR_LEFT + 40) {
-                    desertTankPaint.color = 0xFF5A4A3A.toInt()  // dark brown
-                    desertTankPaint.strokeWidth = 3f
-                    desertTankPaint.style = Paint.Style.STROKE
-                    canvas.drawLine(treeX, worldY.toFloat(), treeX, worldY.toFloat() - 25f, desertTankPaint)
-                    canvas.drawLine(treeX, worldY.toFloat() - 15f, treeX + 12f, worldY.toFloat() - 22f, desertTankPaint)
-                    canvas.drawLine(treeX, worldY.toFloat() - 18f, treeX - 10f, worldY.toFloat() - 25f, desertTankPaint)
-                    desertTankPaint.style = Paint.Style.FILL
+                // --- Dead Tree (stick figure) ---
+                if (seed % 7 == 0) {
+                    val offset = 100f + ((seed * 53) % 200).toFloat()
+                    val treeX = -side * (offset + shift)  // opposite side from bush
+                    if (treeX < DESERT_CORRIDOR_RIGHT - 40 && treeX > DESERT_CORRIDOR_LEFT + 40) {
+                        desertTankPaint.color = 0xFF5A4A3A.toInt()  // dark brown
+                        desertTankPaint.strokeWidth = 3f
+                        desertTankPaint.style = Paint.Style.STROKE
+                        canvas.drawLine(treeX, worldY.toFloat(), treeX, worldY.toFloat() - 25f, desertTankPaint)
+                        canvas.drawLine(treeX, worldY.toFloat() - 15f, treeX + 12f, worldY.toFloat() - 22f, desertTankPaint)
+                        canvas.drawLine(treeX, worldY.toFloat() - 18f, treeX - 10f, worldY.toFloat() - 25f, desertTankPaint)
+                        desertTankPaint.style = Paint.Style.FILL
+                    }
                 }
-            }
 
-            // --- Rock / Boulder ---
-            if (seed % 3 == 0) {
-                val offset = 50f + ((seed * 71) % 300).toFloat()
-                val rockX = side * offset
-                if (rockX < DESERT_CORRIDOR_RIGHT - 20 && rockX > DESERT_CORRIDOR_LEFT + 20) {
-                    desertTankPaint.color = 0xFF8B7B6B.toInt()  // gray-brown
-                    val size = 5f + (seed % 8)
-                    canvas.drawOval(rockX - size, worldY.toFloat() - size * 0.6f, rockX + size, worldY.toFloat() + size * 0.6f, desertTankPaint)
+                // --- Rock / Boulder ---
+                if (seed % 3 == 0) {
+                    val offset = 50f + ((seed * 71) % 300).toFloat()
+                    val rockX = side * (offset + shift)
+                    if (rockX < DESERT_CORRIDOR_RIGHT - 20 && rockX > DESERT_CORRIDOR_LEFT + 20) {
+                        desertTankPaint.color = 0xFF8B7B6B.toInt()  // gray-brown
+                        val size = 5f + (seed % 8)
+                        canvas.drawOval(rockX - size, worldY.toFloat() - size * 0.6f, rockX + size, worldY.toFloat() + size * 0.6f, desertTankPaint)
+                    }
                 }
-            }
 
-            // --- Thorn bush cluster ---
-            if ((seed + 3) % 4 == 0) {
-                val offset = 70f + ((seed * 89) % 260).toFloat()
-                val thornX = -side * offset  // opposite side from rocks
-                if (thornX < DESERT_CORRIDOR_RIGHT - 25 && thornX > DESERT_CORRIDOR_LEFT + 25) {
-                    desertTankPaint.color = 0xFF5A6B2A.toInt()  // dark olive
-                    canvas.drawCircle(thornX, worldY.toFloat(), 5f, desertTankPaint)
-                    canvas.drawCircle(thornX + 7f, worldY.toFloat() - 2f, 4f, desertTankPaint)
-                    canvas.drawCircle(thornX - 4f, worldY.toFloat() + 3f, 4f, desertTankPaint)
+                // --- Thorn bush cluster ---
+                if ((seed + 3) % 4 == 0) {
+                    val offset = 70f + ((seed * 89) % 260).toFloat()
+                    val thornX = -side * (offset + shift)  // opposite side from rocks
+                    if (thornX < DESERT_CORRIDOR_RIGHT - 25 && thornX > DESERT_CORRIDOR_LEFT + 25) {
+                        desertTankPaint.color = 0xFF5A6B2A.toInt()  // dark olive
+                        canvas.drawCircle(thornX, worldY.toFloat(), 5f, desertTankPaint)
+                        canvas.drawCircle(thornX + 7f, worldY.toFloat() - 2f, 4f, desertTankPaint)
+                        canvas.drawCircle(thornX - 4f, worldY.toFloat() + 3f, 4f, desertTankPaint)
+                    }
                 }
-            }
 
-            // --- Dry grass tuft ---
-            if ((seed + 1) % 3 == 0) {
-                val offset = 60f + ((seed * 67) % 230).toFloat()
-                val grassX = side * offset
-                if (grassX < DESERT_CORRIDOR_RIGHT - 20 && grassX > DESERT_CORRIDOR_LEFT + 20) {
-                    desertTankPaint.color = 0xFF8B9B4A.toInt()  // yellow-green
-                    desertTankPaint.strokeWidth = 1.5f
-                    desertTankPaint.style = Paint.Style.STROKE
-                    canvas.drawLine(grassX, worldY.toFloat(), grassX - 3f, worldY.toFloat() - 10f, desertTankPaint)
-                    canvas.drawLine(grassX, worldY.toFloat(), grassX + 2f, worldY.toFloat() - 9f, desertTankPaint)
-                    canvas.drawLine(grassX, worldY.toFloat(), grassX + 5f, worldY.toFloat() - 8f, desertTankPaint)
-                    desertTankPaint.style = Paint.Style.FILL
+                // --- Dry grass tuft ---
+                if ((seed + 1) % 3 == 0) {
+                    val offset = 60f + ((seed * 67) % 230).toFloat()
+                    val grassX = side * (offset + shift)
+                    if (grassX < DESERT_CORRIDOR_RIGHT - 20 && grassX > DESERT_CORRIDOR_LEFT + 20) {
+                        desertTankPaint.color = 0xFF8B9B4A.toInt()  // yellow-green
+                        desertTankPaint.strokeWidth = 1.5f
+                        desertTankPaint.style = Paint.Style.STROKE
+                        canvas.drawLine(grassX, worldY.toFloat(), grassX - 3f, worldY.toFloat() - 10f, desertTankPaint)
+                        canvas.drawLine(grassX, worldY.toFloat(), grassX + 2f, worldY.toFloat() - 9f, desertTankPaint)
+                        canvas.drawLine(grassX, worldY.toFloat(), grassX + 5f, worldY.toFloat() - 8f, desertTankPaint)
+                        desertTankPaint.style = Paint.Style.FILL
+                    }
                 }
-            }
 
-            // --- 5. Small Cactus ---
-            if (tileY % 3 == 0 && seed % 4 == 0) {
-                val offset = 120f + ((seed * 31) % 200).toFloat()
-                val cactusX = -side * offset
-                if (abs(cactusX) > 60f && cactusX < DESERT_CORRIDOR_RIGHT - 40 && cactusX > DESERT_CORRIDOR_LEFT + 40) {
-                    desertTankPaint.color = 0xFF4A6B2A.toInt()  // cactus green
-                    desertTankPaint.strokeWidth = 4f
-                    desertTankPaint.style = Paint.Style.STROKE
-                    val wy = worldY.toFloat()
-                    val h = 18f + (seed % 8)
-                    // Main trunk
-                    canvas.drawLine(cactusX, wy, cactusX, wy - h, desertTankPaint)
-                    // Left arm
-                    canvas.drawLine(cactusX - 6f, wy - h * 0.4f, cactusX - 6f, wy - h * 0.7f, desertTankPaint)
-                    canvas.drawLine(cactusX, wy - h * 0.4f, cactusX - 6f, wy - h * 0.4f, desertTankPaint)
-                    // Right arm (slightly higher)
-                    canvas.drawLine(cactusX + 6f, wy - h * 0.55f, cactusX + 6f, wy - h * 0.8f, desertTankPaint)
-                    canvas.drawLine(cactusX, wy - h * 0.55f, cactusX + 6f, wy - h * 0.55f, desertTankPaint)
-                    desertTankPaint.style = Paint.Style.FILL
+                // --- 5. Small Cactus ---
+                if (tileY % 3 == 0 && seed % 4 == 0) {
+                    val offset = 120f + ((seed * 31) % 200).toFloat()
+                    val cactusX = -side * (offset + shift)
+                    if (abs(cactusX) > 60f && cactusX < DESERT_CORRIDOR_RIGHT - 40 && cactusX > DESERT_CORRIDOR_LEFT + 40) {
+                        desertTankPaint.color = 0xFF4A6B2A.toInt()  // cactus green
+                        desertTankPaint.strokeWidth = 4f
+                        desertTankPaint.style = Paint.Style.STROKE
+                        val wy = worldY.toFloat()
+                        val h = 18f + (seed % 8)
+                        // Main trunk
+                        canvas.drawLine(cactusX, wy, cactusX, wy - h, desertTankPaint)
+                        // Left arm
+                        canvas.drawLine(cactusX - 6f, wy - h * 0.4f, cactusX - 6f, wy - h * 0.7f, desertTankPaint)
+                        canvas.drawLine(cactusX, wy - h * 0.4f, cactusX - 6f, wy - h * 0.4f, desertTankPaint)
+                        // Right arm (slightly higher)
+                        canvas.drawLine(cactusX + 6f, wy - h * 0.55f, cactusX + 6f, wy - h * 0.8f, desertTankPaint)
+                        canvas.drawLine(cactusX, wy - h * 0.55f, cactusX + 6f, wy - h * 0.55f, desertTankPaint)
+                        desertTankPaint.style = Paint.Style.FILL
+                    }
                 }
             }
         }
@@ -6614,16 +6826,18 @@ class GameSurfaceView(
     }
 
     private fun renderDesertBeachAndSea(canvas: Canvas) {
-        val beachStartY = desertSpawnY + screenHeight * 0.5f  // Beach starts half-screen south of spawn
-        val beachEndY = desertSpawnY + screenHeight           // Water starts at boundary
-        val seaEndY = beachEndY + screenHeight                // Deep ocean extends beyond
+        val beachStartY = desertSpawnY + desertSpan * 0.5f  // Beach starts half an upright screen south of spawn
+        val beachEndY = desertSpawnY + desertSpan           // Water starts at boundary
+        val seaEndY = beachEndY + desertSpan                // Deep ocean extends beyond
         val time = (System.currentTimeMillis() % 10000L) / 1000f
 
         // Only render if camera can see this area
         if (camera.y + screenHeight < beachStartY - 100f) return
 
-        val left = DESERT_CORRIDOR_LEFT - 500f
-        val right = DESERT_CORRIDOR_RIGHT + 500f
+        // As wide as the canyon walls reach, so the sea runs under both walls to the screen edge
+        // at any aspect — the old fixed 500 fell short of a landscape wall.
+        val left = DESERT_CORRIDOR_LEFT - desertWallDepth(screenWidth)
+        val right = DESERT_CORRIDOR_RIGHT + desertWallDepth(screenWidth)
 
         desertTankPaint.style = Paint.Style.FILL
 
@@ -6777,12 +6991,12 @@ class GameSurfaceView(
 
         // World-space canyon walls — drawn within camera transform
         // Canyon walls extend all the way to the sea (foam line)
-        val beachEndY = desertSpawnY + screenHeight
-        val foamY = desertSpawnY + screenHeight * 0.5f + (beachEndY - (desertSpawnY + screenHeight * 0.5f)) * 0.8f
+        val beachEndY = desertSpawnY + desertSpan
+        val foamY = desertSpawnY + desertSpan * 0.5f + (beachEndY - (desertSpawnY + desertSpan * 0.5f)) * 0.8f
         val visibleTop = camera.y - 40f
         val visibleBottom = minOf(camera.y + screenHeight + 40f, foamY)
         if (visibleBottom <= visibleTop) return
-        val wallDepth = 500f
+        val wallDepth = desertWallDepth(screenWidth)
         val tileSize = 40f
         val startTile = (visibleTop / tileSize).toInt() - 1
         val endTile = (visibleBottom / tileSize).toInt() + 1
@@ -7437,21 +7651,6 @@ class GameSurfaceView(
     }
 
     private fun applyUpgrade(option: UpgradeOption) {
-        // Handle fallback options when fully upgraded
-        if (option.isFallback) {
-            when (option.fallbackType) {
-                FallbackType.HEALTH_RESTORE -> {
-                    ship.health = (ship.health + ship.maxHealth * 0.2f).coerceAtMost(ship.maxHealth)
-                }
-                FallbackType.GOLD_BONUS -> {
-                    val bonus = (state.goldCollected * 0.01f).toInt().coerceAtLeast(1)
-                    state.goldCollected += bonus
-                }
-                null -> {}
-            }
-            return
-        }
-
         if (option.isEvolution) {
             // Apply evolution: transforms base weapon into evolved weapon
             val baseWeaponId = option.baseWeaponId ?: return
@@ -7487,98 +7686,6 @@ class GameSurfaceView(
 
     }
 
-    // ========================================================================
-    // WAKE_UP — monitor pull-back transition (stage 5 good ending)
-    // ========================================================================
-
-    private fun updateWakeUp(deltaTime: Float) {
-        desertWakeUpTimer += deltaTime
-        if (desertWakeUpTimer >= WAKE_UP_SILENCE + WAKE_UP_DURATION + 1.0f) {
-            // Placeholder: transition to GAME_BRICKED until Phase 2 meta-layer exists
-            state.phase = GamePhase.GAME_BRICKED
-        }
-    }
-
-    private fun renderWakeUp(canvas: Canvas) {
-        // Silence period: just black
-        if (desertWakeUpTimer < WAKE_UP_SILENCE) {
-            canvas.drawColor(android.graphics.Color.BLACK)
-            return
-        }
-
-        val w = screenWidth
-        val h = screenHeight
-        val animTime = (desertWakeUpTimer - WAKE_UP_SILENCE).coerceAtLeast(0f)
-        val t = (animTime / WAKE_UP_DURATION).coerceIn(0f, 1f)
-        val eased = 1f - (1f - t) * (1f - t)
-
-        val scale = 1.0f - eased * 0.65f
-        val scaledW = w * scale
-        val scaledH = h * scale
-        val offsetX = (w - scaledW) / 2f
-        val offsetY = (h - scaledH) / 2f
-
-        // Dark room background
-        val roomAlpha = (eased * 255).toInt()
-        canvas.drawColor(android.graphics.Color.BLACK)
-        if (roomAlpha > 0) {
-            val roomPaint = Paint().apply {
-                color = android.graphics.Color.argb(roomAlpha, 15, 15, 20)
-                style = Paint.Style.FILL
-            }
-            canvas.drawRect(0f, 0f, w, h, roomPaint)
-        }
-
-        // Scale and draw the desert scene inside the shrinking frame
-        canvas.save()
-        canvas.translate(offsetX, offsetY)
-        canvas.scale(scale, scale)
-        renderDesert(canvas)
-        canvas.restore()
-
-        // CRT monitor bezel
-        if (eased > 0.1f) {
-            val bezelAlpha = ((eased - 0.1f) / 0.9f * 255).toInt().coerceIn(0, 255)
-            val bezelPaint = Paint().apply {
-                style = Paint.Style.STROKE
-                strokeWidth = 8f * scale + 4f
-                color = android.graphics.Color.argb(bezelAlpha, 60, 60, 70)
-                isAntiAlias = true
-            }
-            canvas.drawRect(offsetX - 6f, offsetY - 6f, offsetX + scaledW + 6f, offsetY + scaledH + 6f, bezelPaint)
-            val innerPaint = Paint().apply {
-                style = Paint.Style.STROKE
-                strokeWidth = 2f
-                color = android.graphics.Color.argb(bezelAlpha / 2, 100, 100, 120)
-            }
-            canvas.drawRect(offsetX + 2f, offsetY + 2f, offsetX + scaledW - 2f, offsetY + scaledH - 2f, innerPaint)
-
-            // Scan lines
-            if (eased > 0.3f) {
-                val scanAlpha = ((eased - 0.3f) / 0.7f * 30).toInt().coerceIn(0, 30)
-                val scanPaint = Paint().apply {
-                    color = android.graphics.Color.argb(scanAlpha, 0, 0, 0)
-                    style = Paint.Style.FILL
-                }
-                var scanY = offsetY
-                while (scanY < offsetY + scaledH) {
-                    canvas.drawRect(offsetX, scanY, offsetX + scaledW, scanY + 1f, scanPaint)
-                    scanY += 4f
-                }
-            }
-        }
-
-        // Fade to black at the end
-        if (t > 0.85f) {
-            val fadeAlpha = ((t - 0.85f) / 0.15f * 255).toInt().coerceIn(0, 255)
-            val fadePaint = Paint().apply {
-                color = android.graphics.Color.argb(fadeAlpha, 0, 0, 0)
-                style = Paint.Style.FILL
-            }
-            canvas.drawRect(0f, 0f, w, h, fadePaint)
-        }
-    }
-
     private fun updateDeathPlayOut(deltaTime: Float) {
         // Game world keeps running for 2s after death before crystal animation starts.
         // Ship is already dead/exploded. No player input, no player collision, no spawning.
@@ -7597,6 +7704,11 @@ class GameSurfaceView(
         // and updatePlaying — which normally advances them — has stopped, so without this they
         // stand still on screen for the whole death sequence.
         vampiricLeecherSystem.fadeOut(deltaTime)
+
+        // Fade the effect rings out with it, for the same reason: renderPlaying still draws them
+        // during the play-out, and nothing in this game may simply vanish.
+        state.effectRingFadeAlpha =
+            (state.effectRingFadeAlpha - deltaTime / EffectRings.DEATH_FADE_SECONDS).coerceAtLeast(0f)
 
         // Get all active entities
         EntityPools.asteroids.getActiveEntities(activeAsteroids)
@@ -7883,6 +7995,7 @@ class GameSurfaceView(
             GamePhase.UPGRADE_SELECTION -> {
                 renderPlaying(canvas)
                 upgradeSelectionRenderer.render(canvas, upgradeSystem.getPendingOptions(), state, upgradeSystem)
+                focusRing.render(canvas, upgradeSelectionRenderer.focusRegistry)
             }
             GamePhase.CRYSTAL_DEATH -> {
                 // Black background if coming from heart-to-heart, desert if from desert, game world otherwise
@@ -7925,7 +8038,6 @@ class GameSurfaceView(
                 val a = (timelineShiftAlpha * 255f).toInt().coerceIn(0, 255)
                 canvas.drawColor(android.graphics.Color.argb(a, 0, 0, 0))
             }
-            GamePhase.WAKE_UP -> renderWakeUp(canvas)
             GamePhase.GAME_OVER -> {
                 renderPlaying(canvas)
                 // Fade to black during corruption death (1.5s timer counting down)
@@ -7933,9 +8045,6 @@ class GameSurfaceView(
                     val fadeAlpha = (1f - corruptionDeathTimer / 1.5f).coerceIn(0f, 1f)
                     canvas.drawColor(android.graphics.Color.argb((fadeAlpha * 255).toInt(), 0, 0, 0))
                 }
-            }
-            GamePhase.GAME_BRICKED -> {
-                renderBrickScreen(canvas)
             }
         }
 
@@ -8056,6 +8165,10 @@ class GameSurfaceView(
                 intensity = if (state.corruptionRushPhase == 1) BossRush.easeIn(state.corruptionRushTimer) else 0f
             )
         }
+        // Effect radius rings — how far cryo, magnet, vampiric and nova reach. Drawn before the
+        // ship so they sit under it, and outside renderShip so they outlive ship.isActive and can
+        // fade through the death play-out.
+        vectorRenderer.renderEffectRings(canvas, ship, state)
         vectorRenderer.renderShip(canvas, ship, state)
 
         // Render combat drones (autonomous AI wingmen)
@@ -8196,6 +8309,20 @@ class GameSurfaceView(
         val hudAlpha = graceAlpha * state.hudFadeAlpha
         hudRenderer.render(canvas, state, ship, hudAlpha)
 
+        // The stick readout sits in the HUD layer, so every overlay drawn after renderPlaying —
+        // pause, upgrade cards, game over — covers it rather than fighting it.
+        if (state.phase == GamePhase.PLAYING && !state.isPaused) {
+            val origin = touchController.getJoystickOrigin()
+            val knob = touchController.getJoystickPosition()
+            stickReadout.render(
+                canvas, origin.x, origin.y, knob.x, knob.y,
+                GameConfig.JOYSTICK_DEAD_ZONE, GameConfig.JOYSTICK_MAX_RADIUS,
+                // The same expression the death explosion uses, so the readout turns red with
+                // the ship on the corruption run rather than staying the one white thing left.
+                if (state.isCorruptionRun) Boss.CORRUPTION_COLOR else ship.shipColor
+            )
+        }
+
         // Astro Loop retreat fade to black overlay (phase 3)
         if (state.retreatPhase == 3) {
             val fadeAlpha = (state.retreatTimer / 1.5f * 255).toInt().coerceIn(0, 255)
@@ -8213,8 +8340,14 @@ class GameSurfaceView(
 
         val totalLines = state.heartToHeartLog.size
         val entrySpacing = 60f
-        val leftX = screenWidth * 0.10f
-        val rightX = screenWidth * 0.90f
+        // The conversation keeps its PORTRAIT width in landscape, centred, so the two speakers
+        // sit as close together as they do upright instead of at opposite ends of the screen
+        // (owner, 2026-09-29). shortEdge is the screen's width in portrait, so this is the old
+        // 10%/90% of screenWidth exactly when the device is upright.
+        val columnWidth = minOf(screenWidth, layout.shortEdge)
+        val columnLeft = (screenWidth - columnWidth) / 2f
+        val leftX = columnLeft + columnWidth * 0.10f
+        val rightX = columnLeft + columnWidth * 0.90f
         val bottomBaseline = screenHeight * 0.65f
         val fadeStart = screenHeight * 0.20f
         val fadeEnd = screenHeight * 0.08f
@@ -8265,87 +8398,6 @@ class GameSurfaceView(
         heartLinePaint.textSize = 28f
         heartLinePaint.textAlign = Paint.Align.CENTER
         heartLinePaint.style = Paint.Style.FILL
-    }
-
-    private fun renderBrickScreen(canvas: Canvas) {
-        canvas.drawColor(android.graphics.Color.BLACK)
-
-        heartLinePaint.typeface = FontManager.getRegular()
-        heartLinePaint.textAlign = Paint.Align.CENTER
-        heartLinePaint.textSize = 28f
-
-        val centerX = screenWidth / 2f
-        val centerY = screenHeight / 2f
-
-        // "The loop is broken." — fades in at 1s, holds, fades out at 4s
-        val line1Alpha = when {
-            brickScreenTimer < 1f -> 0f
-            brickScreenTimer < 2f -> (brickScreenTimer - 1f)
-            brickScreenTimer < 4f -> 1f
-            brickScreenTimer < 5f -> 1f - (brickScreenTimer - 4f)
-            else -> 0f
-        }
-
-        if (line1Alpha > 0f) {
-            heartLinePaint.color = 0xFFFFFFFF.toInt()
-            heartLinePaint.alpha = (line1Alpha * 255).toInt()
-            canvas.drawText("The loop is broken.", centerX, centerY - 20f, heartLinePaint)
-        }
-
-        // "Goodbye, commander." — fades in at 6s, stays permanently
-        val line2Alpha = when {
-            brickScreenTimer < 6f -> 0f
-            brickScreenTimer < 7.5f -> (brickScreenTimer - 6f) / 1.5f
-            else -> 1f
-        }
-
-        // Compute goodbye Y position — animates up when stats revealed
-        val goodbyeY = if (brickStatsRevealed) {
-            val t = (brickStatsTimer / 0.5f).coerceIn(0f, 1f)
-            val eased = 1f - (1f - t) * (1f - t)
-            centerY + 20f + (screenHeight * 0.25f - (centerY + 20f)) * eased
-        } else {
-            centerY + 20f
-        }
-
-        if (line2Alpha > 0f) {
-            heartLinePaint.color = 0xFF6688AA.toInt()  // TB-26's color
-            heartLinePaint.alpha = (line2Alpha * 255).toInt()
-            canvas.drawText("Goodbye, commander.", centerX, goodbyeY, heartLinePaint)
-        }
-
-        // Career stats — fade in after goodbye finishes moving
-        if (brickStatsRevealed) {
-            val statsAlpha = ((brickStatsTimer - 0.5f) / 0.5f).coerceIn(0f, 1f)
-            if (statsAlpha > 0f) {
-                val alphaInt = (statsAlpha * 255).toInt()
-                heartLinePaint.textSize = 22f
-                val startY = screenHeight * 0.42f
-                val lineSpacing = 36f
-
-                for ((i, stat) in cachedBrickStatLines.withIndex()) {
-                    val y = startY + i * lineSpacing
-
-                    // Label in TB-26 blue, right-aligned
-                    heartLinePaint.textAlign = Paint.Align.RIGHT
-                    heartLinePaint.color = 0xFF6688AA.toInt()
-                    heartLinePaint.alpha = alphaInt
-                    canvas.drawText(stat.first, centerX - 20f, y, heartLinePaint)
-
-                    // Value in white, left-aligned
-                    heartLinePaint.textAlign = Paint.Align.LEFT
-                    heartLinePaint.color = 0xFFFFFFFF.toInt()
-                    heartLinePaint.alpha = alphaInt
-                    canvas.drawText(stat.second, centerX + 20f, y, heartLinePaint)
-                }
-
-                // Reset paint state
-                heartLinePaint.textAlign = Paint.Align.CENTER
-                heartLinePaint.textSize = 28f
-            }
-        }
-
-        canvas.restore()
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
@@ -8410,31 +8462,6 @@ class GameSurfaceView(
         if (state.phase == GamePhase.DEATH_PLAY_OUT) return true
         if (state.phase == GamePhase.CRYSTAL_DEATH) return true
         if (state.phase == GamePhase.GAME_OVER) return true
-        if (state.phase == GamePhase.GAME_BRICKED) {
-            if (event.action == MotionEvent.ACTION_UP && brickScreenTimer >= 7.5f && !brickStatsRevealed) {
-                brickStatsRevealed = true
-                brickStatsTimer = 0f
-                // Cache stats once
-                val persistence = PersistenceManager(context)
-                cachedBrickPlaytime = highScoreManager.getTotalPlayTime()
-                cachedBrickKills = persistence.getTotalKills()
-                cachedBrickDeaths = persistence.getTotalDeaths()
-                cachedBrickYenEarned = persistence.getTotalYenEarned()
-                cachedBrickEvolutions = persistence.getDiscoveredEvolutions().size
-                cachedBrickCasinoSpins = persistence.getTotalCasinoSpins()
-                val hours = (cachedBrickPlaytime / 3600).toInt()
-                val mins = ((cachedBrickPlaytime % 3600) / 60).toInt()
-                cachedBrickStatLines = listOf(
-                    "Time Played" to "${hours}h ${mins}m",
-                    "Kills" to "$cachedBrickKills",
-                    "Deaths" to "$cachedBrickDeaths",
-                    "Yen Earned" to "$cachedBrickYenEarned",
-                    "Evolutions" to "$cachedBrickEvolutions/12",
-                    "Casino Spins" to "$cachedBrickCasinoSpins"
-                )
-            }
-            return true
-        }
         if (state.phase == GamePhase.DESERT) {
             // Desert scene: touch resets no-input timer and drives movement
             if (event.actionMasked == MotionEvent.ACTION_DOWN || event.actionMasked == MotionEvent.ACTION_MOVE) {
@@ -8557,7 +8584,7 @@ class GameSurfaceView(
         if (crystalRenderer.isActive) {
             crystalRenderer.update(deltaTime)
 
-            if (touchController.consumeTap()) {
+            if (touchController.consumeTap() || consumePadActivate()) {
                 crystalRenderer.dissolve()
             }
 
@@ -8571,7 +8598,7 @@ class GameSurfaceView(
             }
         } else {
             // Crystal not active (e.g., surface recreated) — tap to resume directly
-            if (touchController.consumeTap()) {
+            if (touchController.consumeTap() || consumePadActivate()) {
                 state.isPaused = false
                 pauseDebugHoldActive = false
                 pauseDebugHoldTimer = 0f
@@ -8607,3 +8634,72 @@ class GameSurfaceView(
  *  tap strands the run on PAUSED (app-switch during the emergency-shield fly-off). */
 internal fun retreatBlocksTouch(isPaused: Boolean, retreatPhase: Int): Boolean =
     !isPaused && retreatPhase >= 2
+
+/**
+ * Whether a pickup collected this frame may open the upgrade (or evolution) screen.
+ *
+ * GitHub #35, "invisible player ship". updatePlaying resolves the frame's damage BEFORE its
+ * pickups, so a hit that kills the ship and a pickup touched on the same frame arrive in that
+ * order: gameOver() deactivates the ship and sets DEATH_PLAY_OUT, then the pickup set
+ * UPGRADE_SELECTION over it. Choosing a card handed back to PLAYING with the ship still
+ * inactive — not drawn, never re-killed (death is only checked where damage lands), its weapons
+ * still firing from where it stood. The reporter's hunch, "dropping to 0 HP just while picking up
+ * the upgrade block", was exactly it.
+ *
+ * Also refuses while the ship is inactive in PLAYING, which the corruption boss's heart-to-heart
+ * transition produces. A Phoenix Core revive keeps the ship active and the phase PLAYING, so a
+ * pickup on the frame it saves you still opens its screen.
+ */
+internal fun canOpenUpgradeSelection(phase: GamePhase, shipActive: Boolean): Boolean =
+    phase == GamePhase.PLAYING && shipActive
+
+/** Mirrors the double-tap pause guard inside onTouchEvent, which is deliberately not edited —
+ *  see the plan's touch constraint. ControllerPauseGuardTest pins the two to the same rules. */
+internal fun canPauseFromInput(phase: GamePhase, isPaused: Boolean, debugMenuOpen: Boolean): Boolean =
+    !isPaused && !debugMenuOpen && (phase == GamePhase.PLAYING || phase == GamePhase.DESERT)
+
+/** What a press of the pause button means right now. */
+internal enum class PauseVerb { PAUSE, RESUME, NOTHING }
+
+/**
+ * Pause is a toggle, because the button is labelled for one job and must do it both ways.
+ *
+ * The debug menu owns the screen while it is open, so it swallows the verb entirely rather than
+ * resuming underneath itself.
+ */
+internal fun pauseVerb(phase: GamePhase, isPaused: Boolean, debugMenuOpen: Boolean): PauseVerb = when {
+    debugMenuOpen -> PauseVerb.NOTHING
+    isPaused -> PauseVerb.RESUME
+    canPauseFromInput(phase, isPaused, debugMenuOpen) -> PauseVerb.PAUSE
+    else -> PauseVerb.NOTHING
+}
+
+/**
+ * Phases in which onTouchEvent returns early and a finger does nothing.
+ *
+ * A controller must be deaf in exactly the same places, or it could act during cutscenes where
+ * touch cannot — dismissing the heart-to-heart, picking through a death sequence. This is the
+ * "everything that blocks touch blocks the controller" rule, written once so both the activate
+ * and the focus paths read the same list.
+ *
+ * The pause screen is deliberately NOT here: it blocks gameplay touches but still accepts the
+ * tap that resumes, and the controller needs that same route back.
+ */
+internal fun controllerInputBlocked(phase: GamePhase, isPaused: Boolean): Boolean {
+    if (isPaused) return false
+    return phase == GamePhase.DEATH_PLAY_OUT ||
+        phase == GamePhase.CRYSTAL_DEATH ||
+        phase == GamePhase.GAME_OVER ||
+        phase == GamePhase.HEART_TO_HEART
+}
+
+/**
+ * Whether the upgrade overlay is currently a focus context.
+ *
+ * The Lucky Star clause is the "everything that blocks touch blocks the controller" rule again:
+ * `updateUpgradeSelection` returns before its tap check while the animation runs, so a finger
+ * cannot pick during it, and the reel is choosing for the player anyway. Without this a
+ * controller could reach in and pick a card mid-spin.
+ */
+internal fun upgradeFocusActive(hasPendingOptions: Boolean, luckyStarAnimating: Boolean): Boolean =
+    hasPendingOptions && !luckyStarAnimating

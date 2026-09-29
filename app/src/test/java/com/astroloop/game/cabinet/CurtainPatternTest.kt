@@ -41,7 +41,7 @@ class CurtainPatternTest : ReckoningPatternContract() {
     }
 
     @Test fun anArcIsBornAtTheCrystalAndTravelsOutward() {
-        // Decision 78, and the whole reason this pattern was rebuilt: it used to spawn
+        // A design decision, and the whole reason this pattern was rebuilt: it used to spawn
         // just inside the top or bottom screen edge, where a wall cannot be read before
         // it commits you.
         val arc = firstArc()
@@ -87,7 +87,7 @@ class CurtainPatternTest : ReckoningPatternContract() {
     }
 
     @Test fun everyArcIsUnbroken() {
-        // INVERTED at device pass 7. The arc used to carry a walking opening and this
+        // INVERTED at a device pass. The arc used to carry a walking opening and this
         // asserted there was exactly one of them, in every arc of the phase. Owner: "the
         // bullet patterns shot by the boss also don't need a gap in them, it's easy enough
         // right now to dodge even without the gap."
@@ -105,7 +105,7 @@ class CurtainPatternTest : ReckoningPatternContract() {
     }
 
     @Test fun theArcArrivesOnTheShipsBearing() {
-        // REPLACES "successive arcs arrive on different bearings". Device pass 7 made
+        // REPLACES "successive arcs arrive on different bearings". A device pass made
         // CURTAIN aim: a player who stayed put used to simply wait for the arcs that
         // missed them. Now the wall comes to you and the open sector is where you have to
         // get to, which is the question this pattern was always supposed to ask.

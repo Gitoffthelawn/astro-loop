@@ -41,6 +41,29 @@ class HangarState(internal val persistence: PersistenceManager) {
     companion object {
         /** Long enough to be seen as a change, short enough not to be an animation. */
         const val HINT_NOTE_REVEAL_SECONDS = 0.8f
+
+        /**
+         * Open the panel the crystal reveal is about to fly into.
+         *
+         * In landscape the store's 3x3 board is not in the room at all — the SHOP panel owns it
+         * (see `HangarRenderer.drawPanelLayer`), and that panel is shut by default. The reveal is
+         * a scripted beat that fires itself and blocks both launching and selecting Astro until
+         * it finishes, so a destination behind a closed door is a player stuck with no idea why.
+         * The gate therefore opens it.
+         *
+         * Pure and static so the rule is testable without a SurfaceView, and routed through
+         * [togglePanel] rather than assigning [openPanel] directly so the panel's own invariants
+         * (at most one of open/closing, and when the fade may restart) hold for a panel the game
+         * opened exactly as they do for one the player opened. The `!= SHOP` guard is what stops
+         * that toggle from CLOSING a board the player already had up.
+         *
+         * A no-op in portrait, where the board is in the room and there is no panel to open.
+         */
+        fun armCrystalRevealPanel(state: HangarState) {
+            if (!state.landscape) return
+            if (state.openPanel == HangarPanels.Panel.SHOP) return
+            state.togglePanel(HangarPanels.Panel.SHOP)
+        }
     }
 
     @Volatile var phase: HangarPhase = HangarPhase.BROWSING
@@ -59,6 +82,10 @@ class HangarState(internal val persistence: PersistenceManager) {
     @Volatile var shipDragY: Float = 0f           // Current Y of ship being dragged
     @Volatile var isDraggingShip: Boolean = false
     @Volatile var shipRestingY: Float = 0f        // Resting position below walkway
+
+    // A controller launch: the ship rises into the halo on its own, then holds there for a beat.
+    @Volatile var padLaunchActive: Boolean = false
+    @Volatile var padLaunchTimer: Float = 0f
 
     // --- Pilot selection (bar page grid) ---
     @Volatile var selectedPilotIndex: Int = 0
@@ -227,8 +254,32 @@ class HangarState(internal val persistence: PersistenceManager) {
     @Volatile var pilotTargetX: Float = 0f
     @Volatile var pilotWalking: Boolean = false
     var pilotScreenWidth: Float = 0f              // Set before initialize()
-    // Width of one hangar room in design units — also the page stride. Set alongside
-    // pilotScreenWidth before initialize(). Equals pilotScreenWidth below sw600dp.
+
+    /**
+     * The screen's height in design units.
+     *
+     * Paired with [pilotScreenWidth] and set at the SAME three HangarSurfaceView sites. Miss one
+     * and [landscape] reads false on a rotated screen, which sends the walker to a room that is
+     * not where it is drawn.
+     */
+    var pilotScreenHeight: Float = 0f
+
+    /**
+     * Whether the screen is rotated. The walker's world space is anchored per page when it is.
+     *
+     * An unset height is treated as "not known yet" and answers portrait, the same convention
+     * [HangarMetrics.effectiveRoomWidth] gives an unset [roomWidth]. Without it a state carrying a
+     * width but no height — which is every frame between the two assignments, and several test
+     * fixtures — would read `width > 0f` and so LANDSCAPE, the side that moves things. Portrait is
+     * the side with no behaviour change, so it is the safe answer to a question we cannot yet
+     * answer.
+     */
+    val landscape: Boolean
+        get() = pilotScreenHeight > 0f && RoomAnchor.isLandscape(pilotScreenWidth, pilotScreenHeight)
+
+    // Width of one hangar room in design units. In portrait this is also the page stride; in
+    // landscape the stride is a full screen and the room keeps this — its PORTRAIT — width.
+    // Set alongside pilotScreenWidth before initialize(). Equals pilotScreenWidth below sw600dp.
     var roomWidth: Float = 0f
 
     // --- NPC walkers (bar page) ---
@@ -325,10 +376,27 @@ class HangarState(internal val persistence: PersistenceManager) {
     var crystalRevealTimer = 0f
     @Volatile var awaitingCrystalReveal = false
 
+    /**
+     * The reveal's two MOVING phases — the orb in the air and the burst on the tile.
+     *
+     * The one definition of "the reveal is in flight", shared by everything that has to agree
+     * about it: `HangarSurfaceView.crystalRevealFlying` (which gates every input path), the room
+     * (which hands its Astro dot over for the duration — see `StorePageRenderer.draw`) and
+     * `HangarRenderer.drawCrystalReveal` (which picks it up). [GLOW] is deliberately not in here:
+     * nothing is moving yet, nothing is refused, and the room still owns the dot.
+     */
+    fun crystalRevealInFlight(): Boolean =
+        crystalRevealPhase == CrystalRevealPhase.ORB_TRAVEL ||
+            crystalRevealPhase == CrystalRevealPhase.FLASH
+
     // --- Codex secret (maintenance hatch on slot machine) ---
     @Volatile var codexDiscovered: Boolean = false
     @Volatile var codexHintGiven: Boolean = false
     @Volatile var hatchTapCount: Int = 0
+
+    // How far into the codex sequence a controller has got. Not persisted: the secret is the
+    // sequence, not the progress, and a half-entered run means nothing across launches.
+    @Volatile var codexSequenceProgress: Int = 0
     @Volatile var hatchOpen: Boolean = false
     @Volatile var showCodex: Boolean = false
     var hatchRect: RectF? = null
@@ -341,6 +409,161 @@ class HangarState(internal val persistence: PersistenceManager) {
     // --- BELT RUN cabinet (Astro Loop only) ---
     /** True while the full-screen cabinet overlay is up; the hangar pauses beneath it. */
     @Volatile var cabinetOpen: Boolean = false
+
+    /**
+     * The landscape panel that is open, or null. Landscape only — panels do not exist in
+     * portrait, and the state is never persisted: an orientation change closes it
+     * (`HangarSurfaceView.applyScreenDimensions`).
+     *
+     * "Open" means the panel is the one accepting card/backdrop taps — set the instant its
+     * button is pressed, cleared the instant a close begins. What keeps the panel on screen
+     * after that is [closingPanel], not this field.
+     *
+     * Read on the render thread and written on the UI thread, like [cabinetOpen] beside it.
+     */
+    @Volatile var openPanel: HangarPanels.Panel? = null
+
+    /**
+     * The panel sliding shut, or null.
+     *
+     * [togglePanel] moves a panel here the instant a tap closes it, rather than dropping it
+     * straight to nothing — closing sets [openPanel] to null, and without somewhere else to
+     * keep the identity, the panel would vanish between frames instead of fading out, which
+     * the house rule against instant disappearance forbids. `HangarRenderer.drawPanelLayer`
+     * keeps drawing whichever of [openPanel] / [closingPanel] is set; only the alpha differs.
+     * A closing panel is drawn regardless of which page is current — see [setPageTarget],
+     * which is what can hand it a page it no longer belongs to.
+     *
+     * Cleared by [advancePanelFade] once [panelFade] reaches zero — or immediately, by
+     * [togglePanel], if the SAME panel is reopened before that happens, which hands the
+     * identity back to [openPanel] and lets the fade resume from wherever it was instead of
+     * restarting or jumping straight to open.
+     *
+     * At most one of [openPanel] / [closingPanel] is non-null at a time. Volatile because it
+     * is written from two different threads: [togglePanel] (UI thread, on a tap or a page
+     * change) sets it, and [advancePanelFade] (the update/render thread, every frame) clears
+     * it once the fade completes. The race between them is benign — at worst a tap and a tick
+     * land the same frame and one write wins, costing at most a frame of fade, never a stuck
+     * or duplicated panel.
+     */
+    @Volatile var closingPanel: HangarPanels.Panel? = null
+
+    /**
+     * 0 (nothing on screen) .. 1 (fully open): how far into its open/close fade the panel
+     * layer is. Belongs to whichever of [openPanel] / [closingPanel] is currently set — never
+     * both, so there is never a question of whose fade this is. [advancePanelFade] ticks it
+     * every frame from the hangar's ordinary update, never from the draw pass; the renderer
+     * only reads it, for the scrim alpha and a `saveLayerAlpha` around the panel box and its
+     * contents.
+     *
+     * Written from two threads, like [closingPanel]: the UI thread resets it to 0 in
+     * [togglePanel] when the visible panel identity changes outright (switching straight to a
+     * different panel, or a page change carrying the old one into [closingPanel]), and the
+     * update/render thread advances it every frame in [advancePanelFade]. Same benign race as
+     * [closingPanel]: the two writers never fight over the SAME frame's meaning, only over
+     * which frame's tick a fresh tap lands on.
+     */
+    @Volatile var panelFade: Float = 0f
+
+    /**
+     * Press [panel]'s button — or, from [setPageTarget], leave the page an open panel belongs
+     * to (which calls this with that SAME panel to start its close).
+     *
+     * Three cases: start closing it if it is the one already open ([openPanel] to null, the
+     * identity moving to [closingPanel] rather than disappearing); if it is the very panel
+     * already mid-close, hand the identity straight back to [openPanel] without touching
+     * [panelFade] — so pressing the button again during a fade-out reverses the motion from
+     * wherever it is instead of restarting it or snapping straight to fully open; or, open it
+     * from cold or from a genuinely different panel.
+     *
+     * The state rule: the visible panel identity changing
+     * for any reason OTHER than reversing the same panel resets the fade. The first two cases
+     * above are exactly "the same panel, reversing" — closing what was open, or reopening what
+     * was closing — so neither touches [panelFade]. The third case is everything else: a
+     * button press for a panel that is neither the one open nor the one closing. That abandons
+     * whatever was mid-close outright (only one identity is tracked at a time, and the
+     * newly-pressed one is what the player is looking at now) AND resets [panelFade] to 0, so
+     * the new panel opens from scratch instead of inheriting a stale fade value left over from
+     * whatever was fading a moment ago — the bug this rule exists to close.
+     */
+    fun togglePanel(panel: HangarPanels.Panel) {
+        when {
+            openPanel == panel -> {
+                closingPanel = panel
+                openPanel = null
+            }
+            closingPanel == panel -> {
+                openPanel = panel
+                closingPanel = null
+            }
+            else -> {
+                // Whichever identity was on screen a moment ago, open or mid-close — the "at
+                // most one of openPanel/closingPanel is set" invariant the two cases above rely
+                // on means at most one of these is non-null.
+                val previous = openPanel ?: closingPanel
+
+                // openPanel set before closingPanel cleared: a render frame caught between the
+                // two would otherwise see neither set and the panel would blink out for a
+                // frame.
+                openPanel = panel
+                closingPanel = null
+
+                // A later review (correcting an earlier fix, which reset
+                // the fade unconditionally here): a page change makes the old panel irrelevant,
+                // so THAT switch resets — but it never reaches this branch at all, since
+                // setPageTarget always calls this with the SAME panel that was open, which is
+                // case one above. What DOES land here on an unchanged page is a button press for
+                // a genuinely different panel while one is already up — SHOP -> SLOT, both live
+                // on page 2. That keeps the same box and the same shared scrim; only the CONTENT
+                // changes. Resetting unconditionally made that box and scrim vanish in one frame
+                // the instant the second button was pressed, mid-fade — the exact instant
+                // disappearance the fade exists to prevent — so only a switch that also changes
+                // which page the panel belongs to resets; a same-page swap carries the fade
+                // forward instead.
+                if (previous == null || HangarPanels.pageOf(previous) != HangarPanels.pageOf(panel)) {
+                    panelFade = 0f
+                }
+            }
+        }
+    }
+
+    /**
+     * The panel [HangarRenderer.drawPanelLayer] is actually drawing this frame, in identity
+     * terms — or null when it draws none. The single predicate both the draw path and the input
+     * gate consult: before this, `drawPanelLayer` derived it
+     * inline while `HangarSurfaceView`'s input handling asked a DIFFERENT question ("does this
+     * page publish any buttons?"), and those two questions agree everywhere except a closing
+     * panel drawn over a page — the launchpad — that owns no buttons of its own. That drift is
+     * what let a tap and a drag reach the launchpad through a scrim that was plainly on screen.
+     *
+     * An OPEN panel counts only on the page that owns it — the crew page's panel is not open on
+     * the shop page. A CLOSING one counts regardless of page: it is already on its way out no
+     * matter which page is current (see [closingPanel]'s own doc), and [advancePanelFade]
+     * guarantees it clears itself within [HangarSurfaceView.PANEL_FADE_SECONDS] either way.
+     */
+    fun visiblePanel(): HangarPanels.Panel? =
+        openPanel?.takeIf { it in HangarPanels.panelsOn(currentPage) } ?: closingPanel
+
+    /**
+     * Advance the panel open/close fade by [deltaTime]. Called once per frame from the
+     * hangar's ordinary update, alongside [advanceStoreFlips] and [advanceHintNoteReveal] —
+     * ticking belongs there, not in the draw pass.
+     *
+     * A no-op whenever neither [openPanel] nor [closingPanel] is set, which is always true
+     * outside landscape: panels only ever open via [togglePanel], reached from
+     * `HangarSurfaceView.handlePanelTap`, which itself refuses to run outside landscape. So
+     * this costs one comparison per frame in portrait and changes nothing.
+     */
+    fun advancePanelFade(deltaTime: Float) {
+        val rate = deltaTime / HangarSurfaceView.PANEL_FADE_SECONDS
+        when {
+            openPanel != null -> panelFade = (panelFade + rate).coerceAtMost(1f)
+            closingPanel != null -> {
+                panelFade = (panelFade - rate).coerceAtLeast(0f)
+                if (panelFade <= 0f) closingPanel = null
+            }
+        }
+    }
 
     /** The INSERT COIN button. Occupies the slot machine's old spin-button rect. */
     var insertCoinRect: RectF? = null
@@ -494,25 +717,61 @@ class HangarState(internal val persistence: PersistenceManager) {
         }
     }
 
-    /** World X target for each page (pilot stands near the archway connecting to shipyard) */
-    fun getPilotWorldTarget(page: Int): Float {
-        // Pages tile at roomWidth, so world positions must step by the same stride.
-        val stride = HangarMetrics.effectiveRoomWidth(roomWidth, pilotScreenWidth)
-        val margin = stride * 0.1f
-        val walkable = stride * 0.8f
-        return when (page) {
-            0 -> margin + 0.9f * walkable                       // Right side of bar
-            1 -> stride + margin + 0.5f * walkable              // Center of shipyard
-            2 -> {
-                val base = 2f * stride + margin + 0.1f * walkable   // Left side of store
-                if (astroAtSlotMachine) base - 35f
-                else base
-            }
-            else -> stride + margin + 0.5f * walkable
-        }
+    /**
+     * World X of a point [fraction] (0..1) along [page]'s walkable band.
+     *
+     * The one derivation of the walker's world space. Pages step by the stride and then lean
+     * toward the shipyard by [RoomAnchor.anchorX], and the band is measured against the page's
+     * DRAWN width, not the stride: in landscape a page slot is a full screen while the crew and
+     * shop rooms are only portrait-wide, so measuring against the stride would walk the pilot out
+     * of his own room and into starfield. In portrait `anchorX` is the centring term the shipped
+     * code folded into its stride and `pageWidth` IS the stride, so this is that arithmetic
+     * unchanged.
+     *
+     * `drawNPCWalkers` maps the same 0.1 .. 0.9 band room-locally inside the page's own translate,
+     * which lands on the same screen point because room-local plus page origin is world minus
+     * viewport.
+     */
+    fun pilotWorldX(page: Int, fraction: Float): Float {
+        val stride = RoomAnchor.stride(pilotScreenWidth, roomWidth, landscape)
+        val pageW = RoomAnchor.pageWidth(page, pilotScreenWidth, roomWidth, landscape)
+        val base = page * stride + RoomAnchor.anchorX(page, pilotScreenWidth, roomWidth, landscape)
+        return base + pageW * 0.1f + fraction * (pageW * 0.8f)
     }
 
+    /** World X target for each page (pilot stands near the archway connecting to shipyard) */
+    fun getPilotWorldTarget(page: Int): Float = when (page) {
+        0 -> pilotWorldX(0, 0.9f)                          // Right side of bar
+        1 -> pilotWorldX(1, 0.5f)                          // Center of shipyard
+        2 -> {
+            val base = pilotWorldX(2, 0.1f)                // Left side of store
+            if (astroAtSlotMachine) base - 35f else base
+        }
+        else -> pilotWorldX(1, 0.5f)
+    }
+
+    /**
+     * The store walkway's slot machine, in world space — page 2's target without the walker's
+     * own offset. The crystal reveal needs this exact point, and computed it a second time by
+     * hand before this existed.
+     */
+    fun slotMachineWorldX(): Float = pilotWorldX(2, 0.1f)
+
+    /**
+     * Move to [page] — and, if [page] does not own the currently OPEN panel, start closing it
+     * rather than leaving it pinned open on a page that no longer shows it.
+     *
+     * This is the page-change half of the panel state rule: a page
+     * change is exactly a case of the visible panel identity changing (from "open on the old
+     * page" to "not present on the new one"), so the fade must not simply freeze — [togglePanel]
+     * is reused here for the same reason `HangarSurfaceView.togglePanel` reuses it for a button
+     * press, so there is one definition of "start closing [openPanel]", not two. A panel that
+     * already belongs to [page] — including the common case of staying put — is left alone; a
+     * panel that is already [closingPanel] is left to keep closing, wherever it is headed, since
+     * `HangarRenderer.drawPanelLayer` draws a closing panel regardless of the current page.
+     */
     fun setPageTarget(page: Int) {
+        openPanel?.let { if (it !in HangarPanels.panelsOn(page)) togglePanel(it) }
         currentPage = page
         pilotTargetX = getPilotWorldTarget(page)
         if (pilotTargetX != pilotX) {

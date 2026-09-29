@@ -38,7 +38,7 @@ class VolleyPatternTest : ReckoningPatternContract() {
     }
 
     @Test fun subVolleysArriveAtAnUnbrokenCadence() {
-        // Decision 88: the rest between bursts is gone. This used to require a gap over
+        // A design decision: the rest between bursts is gone. This used to require a gap over
         // 2s; it now requires that no such gap exists. Inverted rather than deleted so a
         // re-added rest gate fails here.
         val e = emissions(1f)

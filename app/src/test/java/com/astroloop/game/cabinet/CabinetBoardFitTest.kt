@@ -6,7 +6,7 @@ import org.junit.Test
 /**
  * The high score board's text must fit the panel it is drawn in.
  *
- * Device pass 7 found it clipping — both the plate and the text. The text half was a unit
+ * A device pass found it clipping — both the plate and the text. The text half was a unit
  * error: the size came from `lineHeight`, which is `reelHeight / 7` and therefore VERTICAL,
  * while the panel it has to fit is 15% of the machine's WIDTH.
  */

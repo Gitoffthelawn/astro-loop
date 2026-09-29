@@ -23,6 +23,22 @@ class Boss : Entity() {
         const val RAIL_SPEED = 800f
         const val RAIL_COOLDOWN = 1.8f
         const val RECALL_PAUSE_TIME = 1.0f
+
+        /**
+         * Half-width of the box a railgun recall shot turns at: the screen's own edge.
+         *
+         * Owner, 2026-09-29: the shot pauses and ricochets where the player can SEE the edge of
+         * the screen. From 2026-09-13 (`2edae5a1`) the box was capped at the short edge so a
+         * rotated screen would not let the shot fly 2.2x further, and on a rotated phone that
+         * turned it 480 units out against a 1071-unit half-screen — in open space, reading as an
+         * invisible wall. The camera is centred on the ship, so half the viewport's width from
+         * the ship IS the screen edge. Portrait is unchanged: its width was already the short edge.
+         *
+         * Shared because BossSystem and GameSurfaceView both need it and the boss mirrors Astro's
+         * powers — two copies could drift them apart.
+         */
+        fun recallHalfWidth(screenWidth: Float): Float =
+            screenWidth / 2f
         const val AFTERIMAGE_DURATION = 0.3f
         const val AFTERIMAGE_DODGE_DISTANCE = 60f
         /**

@@ -48,7 +48,7 @@ class CabinetDebugIntentTest {
     }
 
     @Test fun phaseZeroIsTheAuthoredOpening() {
-        // Decision 57: N = 0 plays the opening, N = 1..5 skip straight to that phase.
+        // A design decision: N = 0 plays the opening, N = 1..5 skip straight to that phase.
         // Without a 0 the entrance would be the one thing the debug page cannot reach.
         CabinetDebugIntent.request(CabinetDebugIntent.Action.RECKONING, phase = 0)
         assertEquals(0, CabinetDebugIntent.consume()!!.phase)

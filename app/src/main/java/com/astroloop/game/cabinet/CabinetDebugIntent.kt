@@ -27,7 +27,7 @@ package com.astroloop.game.cabinet
  * consume into the hangar's `update()`, which does run on the render thread. It is stated
  * this way round deliberately: a comment claiming a cross-thread guarantee the code does
  * not actually rely on is how a hazard comes to look safe, and this branch has already
- * lost a device pass to exactly that (`CabinetShellRenderer`'s rects, device pass 4).
+ * lost a device pass to exactly that (`CabinetShellRenderer`'s rects, a device pass).
  */
 object CabinetDebugIntent {
 

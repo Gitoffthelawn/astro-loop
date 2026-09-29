@@ -15,13 +15,13 @@ import kotlin.math.pow
  * them — so this holds **no world state and no reference to the sim**, and every fairness
  * rule is provable over it alone. No `Random`: the same `dt` sequence is the same fight.
  *
- * **The fight advances on DAMAGE** (decision 92): the live pattern is a function of the
+ * **The fight advances on DAMAGE**: the live pattern is a function of the
  * crystal's health, one per fifth, so all five play for every player by construction —
- * you cannot reach the last fifth without crossing the four before it. Device pass 6
+ * you cannot reach the last fifth without crossing the four before it. A device pass
  * killed the crystal mid-WINDMILL on a first attempt and CURTAIN and SHATTER had never
  * been seen; that is what this fixes.
  *
- * Decision 74's HP bands did the same job with a floor pushed in every frame, a fractional
+ * A design decision's HP bands did the same job with a floor pushed in every frame, a fractional
  * carry, and a crystal that stopped reacting mid-pattern. All of it is gone.
  *
  * **Escalation still runs on a clock** ([elapsed]) and must, or a player who dodges
@@ -46,7 +46,7 @@ class ReckoningDirector(
         require(patterns.isNotEmpty()) { "the reckoning needs at least one pattern" }
         // A sanity check on a DECLARED figure, and no longer a guard against a hang.
         // Phases used to advance by draining phaseElapsed against duration in a `while`,
-        // which could not terminate on a zero-duration pattern; decision 92 replaced that
+        // which could not terminate on a zero-duration pattern; a design decision replaced that
         // with phaseFor(healthFrac) and the loop is gone. duration now only documents how
         // long a pattern is meant to run, and this is the one thing still reading it.
         require(patterns.all { it.duration > 0f }) {
@@ -75,9 +75,9 @@ class ReckoningDirector(
         private set
 
     /**
-     * Seconds left in the beat of quiet before the current pattern starts — decision 94.
+     * Seconds left in the beat of quiet before the current pattern starts — a design decision.
      *
-     * **A lull between the patterns, not inside one.** Decision 88 retired fairness rule 2
+     * **A lull between the patterns, not inside one.** A design decision retired fairness rule 2
      * because the owner found the scheduled silences inside a pattern unnecessary, and that
      * stands: within a pattern the fire is still unbroken. But it left the crystal with
      * nowhere to speak — measured across a whole phase, a player holding engagement range
@@ -104,7 +104,7 @@ class ReckoningDirector(
     /**
      * Interval multiplier for the current lap: 1.0, then 0.75, 0.5625, 0.421875.
      *
-     * This is the forcing function (§38, fairness rule 5). Nothing presses on a player
+     * This is the forcing function (fairness rule 5). Nothing presses on a player
      * who dodges well and never shoots, so the patterns cycle and each lap tightens —
      * lap two noticeably, lap three frighteningly, lap four not really survivably. A
      * player who engages wins in one or two laps; one who refuses dies to the crystal
@@ -113,11 +113,11 @@ class ReckoningDirector(
     val tighten: Float get() = TIGHTEN_PER_LAP.pow(lap - 1)
 
     /**
-     * Which pattern a crystal at [healthFrac] is in — decision 92.
+     * Which pattern a crystal at [healthFrac] is in — a design decision.
      *
      * **The fight advances on damage, not on a clock.** One pattern per fifth of the
-     * crystal's health: 100–80% is the first, 80–60% the second, and so on. Device pass 7
-     * asked for exactly this, and it replaces decision 74's HP bands — which existed to
+     * crystal's health: 100–80% is the first, 80–60% the second, and so on. A device pass
+     * asked for exactly this, and it replaces a design decision's HP bands — which existed to
      * guarantee all five patterns played, and which this guarantees by construction
      * instead. You cannot reach the crystal's last fifth without having passed through the
      * four before it, so there is nothing left to enforce.
@@ -201,7 +201,7 @@ class ReckoningDirector(
     }
 
     companion object {
-        /** Each lap's intervals, as a fraction of the lap before. §38. */
+        /** Each lap's intervals, as a fraction of the lap before. */
         const val TIGHTEN_PER_LAP = 0.75f
 
         /** How long a step of escalation lasts, seconds. Was the length of one full lap. */
@@ -227,7 +227,7 @@ class ReckoningDirector(
         const val MAX_STEP = 0.05f
 
         /**
-         * The five, in §39's teaching order: PULSE establishes the grammar, VOLLEY
+         * The five, in the spec's teaching order: PULSE establishes the grammar, VOLLEY
          * punishes standing still, WINDMILL asks for sustained weaving, CURTAIN for
          * planning, SHATTER for nerve.
          *

@@ -30,16 +30,18 @@ object BossHintDefinitions {
      * short of naming Astro — tapping a pilot shows their passive, so "doesn't fly alone" is
      * followable, and finding it is a better moment than being handed it.
      *
-     * The last rung deliberately says "keep recruiting" rather than pointing at a pilot, because
-     * **Astro unlocks on ALL_OTHERS**: a player stuck at ten minutes may not have him yet, and
-     * naming someone they cannot select is worse than saying nothing. Phrased this way the line is
-     * true either way — an incomplete roster gets an actionable next step, and a complete one gets
-     * an unmistakable pointer at who "the last one" is.
+     * The last rung has to survive **Astro unlocking on ALL_OTHERS**, because it is the rung that
+     * repeats forever: whoever is still failing on the fifth attempt reads it, and they may or may
+     * not have him by then. So it names no pilot and asks for no particular next step — "find him"
+     * is something the player can act on either way, recruiting him if he is locked and selecting
+     * him if he is not. An earlier version said "keep recruiting", which was nonsense to anyone
+     * who already had the whole roster, and nonsense from the one character who can see the player
+     * costs him the authority the hints depend on.
      */
     private val soloHints = listOf(
         "Ten minutes in. Nobody gets that far alone.",
         "Still going out on your own, I see.",
-        "Keep recruiting. The last one doesn't fly alone."
+        "There's one who doesn't fly alone. Find him."
     )
 
     /** For a pilot who has the answer and is still dying: stop trading, start lasting. */

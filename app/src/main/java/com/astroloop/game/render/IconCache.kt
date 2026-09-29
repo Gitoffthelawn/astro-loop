@@ -13,6 +13,7 @@ object IconCache {
 
     private const val ICON_SIZE = 64
     private const val PORTRAIT_SIZE = 128
+    private const val PANEL_ICON_SIZE = 256
 
     // --- Public mapping helpers (tested directly) ---
 
@@ -87,6 +88,11 @@ object IconCache {
             load(am, "icons/store/icon_store_time_crystal.png", ICON_SIZE, "store_time_crystal")
             load(am, "icons/store/icon_store_emergency_shield.png", ICON_SIZE, "store_emergency_shield")
 
+            // Landscape hangar panel buttons, kept at their native 256: the button is card-sized
+            // and draws them ~160 design units across, so a 64 or 128 cache would upscale.
+            for (name in PANEL_ICON_NAMES)
+                load(am, "icons/panels/icon_$name.png", PANEL_ICON_SIZE, "panel_$name")
+
             loaded = true
         }
     }
@@ -122,6 +128,8 @@ object IconCache {
     fun getPortraitBoss(): Bitmap?             = bitmaps["portrait_boss"]
     fun getCorruptedPortrait(pilotId: String): Bitmap? = bitmaps["corrupted_$pilotId"]
     fun getSlotSymbol(sym: Int): Bitmap?       = bitmaps["slot_$sym"]
+    /** A landscape hangar panel button's art: "arcade", "slot" or "upgrade". */
+    fun getPanelIcon(name: String): Bitmap?    = bitmaps["panel_$name"]
     // Keys stored as "store_$upgradeId" during preload — do NOT route through storeIdToFilename here.
     // storeIdToFilename is only for building the file path during preload.
     fun getStoreIcon(upgradeId: String?): Bitmap? {
@@ -182,6 +190,8 @@ object IconCache {
         "pilot_whiskers", "pilot_unit7", "pilot_havoc"
     )
 
+
+    private val PANEL_ICON_NAMES = listOf("arcade", "slot", "upgrade")
 
     private val STORE_IDS = listOf("health", "shields", "speed", "damage", "crit", "magnet", "yen_bonus", "salvage")
 }

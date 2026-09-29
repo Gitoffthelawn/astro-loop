@@ -4,7 +4,7 @@ package com.astroloop.game.cabinet
  * A shot. Dies on [life] rather than on distance.
  *
  * The player's shots wrap like everything else on the field. **The crystal's do not**
- * ([hostile]) — §8 of the design: it bounds their lifetime to one playfield crossing,
+ * ([hostile]) — the design: it bounds their lifetime to one playfield crossing,
  * which is what makes fairness rule 3's density figure deterministic, and it reads
  * in-fiction as the crystal not obeying the cabinet's rules.
  *

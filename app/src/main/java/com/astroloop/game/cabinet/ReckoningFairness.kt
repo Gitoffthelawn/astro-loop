@@ -21,11 +21,11 @@ object ReckoningFairness {
      *
      * It said: an opening the player must be *standing in* has to be one they can *get to*.
      * Rule 1 measures the hole's WIDTH and would not notice a hole that sweeps faster than
-     * the ship can fly. Task 14 found exactly that on hardware — PULSE's gap needed 378px/s
+     * the ship can fly. An earlier change found exactly that on hardware — PULSE's gap needed 378px/s
      * at engagement range against a top speed of 302.4, and its rings outran the ship
      * radially too, so there was no escape in either direction.
      *
-     * It is retired because **no pattern has such an opening any more.** Device pass 7 took
+     * It is retired because **no pattern has such an opening any more.** A device pass took
      * PULSE's gap away (*"it's easy enough right now to dodge even without the gap"*) and
      * CURTAIN's walking hole with it; WINDMILL's arms were always pickets you dive between,
      * which is its whole question. With nothing declaring an occupied opening, the check
@@ -41,7 +41,7 @@ object ReckoningFairness {
     /**
      * Room to react, on top of the bare sum.
      *
-     * §8 states rule 1 as "spacing clears danger diameter + braking distance" with no
+     * The spec states rule 1 as "spacing clears danger diameter + braking distance" with no
      * margin — but the fight it replaces carried "with room to react" inside its own
      * tests (`spacing >= 2.5 * dangerDiameter`). A bare sum certifies a stream as
      * threadable when it is exactly, and only just, threadable.
@@ -58,7 +58,7 @@ object ReckoningFairness {
      * own surface. Measuring at the surface would cap every simultaneous emission at
      * five bullets and make VOLLEY, CURTAIN and SHATTER geometrically impossible.
      *
-     * The consequence is a feature: **closing on the crystal costs you room.** §8 says
+     * The consequence is a feature: **closing on the crystal costs you room.** The spec says
      * damage is never free because shooting means flying at the thing trying to kill
      * you; this is that same statement in geometry. Do not "fix" the tightness near the
      * crystal — it is the fight.
@@ -81,7 +81,7 @@ object ReckoningFairness {
     /**
      * The last lap on which rules 1 and 2 are asserted.
      *
-     * §8: *"A player who engages wins in one or two laps."* Every lap a winning player
+     * The spec: *"A player who engages wins in one or two laps."* Every lap a winning player
      * actually meets is provably fair; past that is the crystal losing patience.
      */
     const val FAIR_LAPS = 2
@@ -93,10 +93,10 @@ object ReckoningFairness {
      * How far the ship travels before it can be going the other way, at top speed.
      *
      * Mirrors `CabinetShip.reversalDistance()` at `sp == topSpeed`, where it collapses to
-     * `(T/k)(1 - ln2)`. Worst case is the only case worth measuring (§8) — and the
+     * `(T/k)(1 - ln2)`. Worst case is the only case worth measuring — and the
      * function is speed-dependent, so a representative value would understate it.
      *
-     * NOTE: §8 justifies the "range rather than a constant" by decision 19's analog
+     * NOTE: the spec justifies the "range rather than a constant" by a design decision's analog
      * thrust. **That decision was reversed.** The conclusion still stands, but because
      * the velocity lerp commands `-topSpeed` regardless of current speed — not because
      * thrust is analog.
@@ -107,7 +107,7 @@ object ReckoningFairness {
     /**
      * The ship plus a bullet, doubled — the width of lane a shot denies.
      *
-     * Uses the SMALLER crystal-bullet hitbox (decision 44), not the rock radius: the rock
+     * Uses the SMALLER crystal-bullet hitbox, not the rock radius: the rock
      * circle is about twice the drawn hull at mid-ship, so measuring against it would
      * demand spacing for a ship far larger than the one on screen.
      */

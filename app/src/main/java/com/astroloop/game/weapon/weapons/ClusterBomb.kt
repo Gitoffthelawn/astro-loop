@@ -13,8 +13,7 @@ import com.astroloop.game.weapon.Weapon
 
 class ClusterBomb : Weapon(
     id = "cluster_bomb",
-    name = "Cluster Bomb",
-    description = "Slow bomb that splits into bomblets"
+    name = "Cluster Bomb"
 ) {
     override val baseDamage = 60f
     override val baseCooldown = 2f

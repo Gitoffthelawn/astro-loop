@@ -80,8 +80,8 @@ class CabinetCuesTest {
     }
 
     @Test fun theLandingSitsUnderTheEnding() {
-        // Decision 95 makes the shatter "the biggest sound the cabinet makes". The landing
-        // borrows a MAIN-GAME sting (decision 99) that was levelled for a different mix
+        // A design decision makes the shatter "the biggest sound the cabinet makes". The landing
+        // borrows a MAIN-GAME sting that was levelled for a different mix
         // entirely, and at full volume it measured 0.66 dB ABOVE the shatter — the arrival
         // out-shouting the ending.
         val landing = cues(quiet().copy(landed = true)).single().volume
@@ -130,7 +130,7 @@ class CabinetCuesTest {
     }
 
     @Test fun theCrystalsGunSitsUnderThePlayersSoNeitherMasksTheOther() {
-        // Decision 110: the two are told apart by timbre, not by level — but the crystal's
+        // A design decision: the two are told apart by timbre, not by level — but the crystal's
         // is the one the player is dodging rather than firing, so it takes the lower trim.
         val player = cues(quiet().copy(shotsFired = 1)).single().volume
         val crystal = cues(quiet().copy(bulletsEmitted = 1)).single().volume

@@ -226,30 +226,28 @@ class HUDRenderer {
     }
 
     /**
-     * Horizontal bounds the combat HUD pins to, in design units.
+     * Horizontal bounds the combat HUD pins to, in design units. The rule itself lives in
+     * [HudBand]; this is the renderer's view of it, and every zone hangs off this pair — the
+     * upgrade grid, the health and shield bars, the radio chatter box, and the right-aligned yen
+     * and timer. Narrowing and centring these two moves the whole band together.
      *
-     * The HUD used to span [ScreenLayout.safe] — the whole screen minus cutouts. That is right on a
-     * phone, where safe is about 960 wide, but on a landscape tablet it is ~3427, so the bar stretched
-     * to more than three times its intended width and the zones drifted to opposite ends of the screen.
+     * PORTRAIT is exactly what shipped: [ScreenLayout.content] above the sw600 gate,
+     * [ScreenLayout.safe] below it.
      *
-     * [ScreenLayout.content] is the design-aspect column centred inside safe, and its width comes out
-     * at DESIGN_WIDTH on every device — 960 on a Pixel 9 Pro and 960 on a 2560x1600 tablet — so
-     * pinning here gives every device the phone's HUD proportions. Cutout safety is unchanged:
-     * content is contained within safe by construction, so it can never reach into an inset.
+     * LANDSCAPE keeps the portrait width and centres it. An earlier revision of this comment
+     * claimed the full-width bar "is the intended shape there: the HUD spans the top of a wide
+     * screen". That was never a decision — it was inferred from the transposed geometry during
+     * the design-space pass and written as though settled. It is rejected: a bar spanning a
+     * rotated screen is the portrait bar stretched, and rotation must never change its size.
      *
-     * Vertical anchoring deliberately stays on `safe.top`; only the width was ever the problem, and
-     * safe.top is what keeps the bar clear of a notch.
+     * Vertical anchoring deliberately stays on `safe.top`; only the width was ever the problem,
+     * and `safe.top` is what keeps the bar clear of a notch.
      *
-     * Gated at [ScreenLayout.LARGE_SCREEN_MIN_SW_DP]: below it the HUD keeps spanning safe exactly as
-     * it always has. A 16:9 phone has a safe area wider than the design column (about 1205 against
-     * 960), so narrowing there would have been a visible change on a device class that never had the
-     * stretch problem.
+     * `internal` rather than private so `HudBandWiringTest` can check the delegation without
+     * re-implementing it.
      */
-    private val isLargeScreen: Boolean
-        get() = smallestScreenWidthDp >= ScreenLayout.LARGE_SCREEN_MIN_SW_DP
-
-    private val hudLeft: Float get() = if (isLargeScreen) layout.content.left else layout.safe.left
-    private val hudRight: Float get() = if (isLargeScreen) layout.content.right else layout.safe.right
+    internal val hudLeft: Float get() = HudBand.left(layout, smallestScreenWidthDp)
+    internal val hudRight: Float get() = HudBand.right(layout, smallestScreenWidthDp)
 
     // Debug paint for alignment grid
     private val gridPaint = Paint().apply {

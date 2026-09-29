@@ -15,8 +15,7 @@ import kotlin.random.Random
 
 class ScatterShot : Weapon(
     id = "scatter_shot",
-    name = "Scatter Shot",
-    description = "Wide spread of pellets"
+    name = "Scatter Shot"
 ) {
     companion object {
         /**

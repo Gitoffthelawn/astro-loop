@@ -14,8 +14,7 @@ import kotlin.random.Random
 
 class LeechBurst : Weapon(
     id = "leech_burst",
-    name = "Leech Burst",
-    description = "Scatter pellets that heal the ship on hit"
+    name = "Leech Burst"
 ) {
     companion object {
         /**

@@ -60,7 +60,7 @@ class VolleyPattern : ReckoningPattern {
         t: Float, dt: Float, tighten: Float, m: CabinetMetrics, shipX: Float, shipY: Float
     ): List<CabinetBullet> {
         val out = ArrayList<CabinetBullet>()
-        // Every slot fires — decision 88. No rest slots between bursts.
+        // Every slot fires — a design decision. No rest slots between bursts.
         forEachTick(t, dt, SUB_INTERVAL * tighten) { _, _ ->
             fan(m, shipX, shipY, out)
         }
@@ -107,8 +107,8 @@ class VolleyPattern : ReckoningPattern {
          * ODD, so one bullet lands exactly on the aim.
          *
          * It was 4, and an even fan spread symmetrically about the ship's bearing puts a
-         * HOLE where the ship is — VOLLEY aimed at you and then politely missed. Device
-         * pass 7: "it's still very much possible to just sit still and damage the boss
+         * HOLE where the ship is — VOLLEY aimed at you and then politely missed. A device
+         * pass: "it's still very much possible to just sit still and damage the boss
          * during the first two phases." Standing still was not merely survivable here, it
          * was the safest thing available.
          */

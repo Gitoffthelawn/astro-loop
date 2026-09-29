@@ -80,7 +80,7 @@ object CabinetCues {
         // read the health bar's soft floor was once written to avoid.
         if (f.crystalHits > 0) out.add(Cue("sfx_belt_crystal_hit", VOL_CRYSTAL_HIT, 1f))
         if (f.shattered) out.add(Cue("sfx_belt_crystal_shatter", VOL_CRYSTAL_SHATTER, 1f))
-        // The arrival. The only cue that is not the machine's own voice — decision 99 keeps
+        // The arrival. The only cue that is not the machine's own voice — a design decision keeps
         // the main game's sting, because the crossing from the top strip is the one moment
         // the crystal is not yet inside the cabinet.
         if (f.landed) out.add(Cue("sfx_crystal_activate", VOL_CRYSTAL_LANDING, 1f))
@@ -128,7 +128,7 @@ object CabinetCues {
     }
 
     /**
-     * The crystal's gun, pitched by pattern — decision 100.
+     * The crystal's gun, pitched by pattern — a design decision.
      *
      * One asset, five voices. A 1979 board pitched one waveform rather than storing five, and
      * the patterns already differ in cadence and geometry; this is what stops the fifth
@@ -147,7 +147,7 @@ object CabinetCues {
     /** PULSE, VOLLEY, WINDMILL, CURTAIN, SHATTER — the director's own order. */
     private val PHASE_RATES = floatArrayOf(1.00f, 1.25f, 0.85f, 0.65f, 1.50f)
 
-    // The authored trims the LUFS ladder was built against. See the audio design doc §3.3:
+    // The authored trims the LUFS ladder was built against. See the audio design doc:
     // these are half of each sound's final level, and moving one here silently rebases it.
     const val VOL_FIRE = 0.60f
     const val VOL_BREAK = 0.70f
@@ -169,7 +169,7 @@ object CabinetCues {
      *
      * `sfx_crystal_activate` is a MAIN-GAME sample with eight other callers, levelled for
      * that mix, so it cannot be re-baked to fit this one — the trim has to be here. At full
-     * volume it measured **0.66 dB ABOVE the shatter**, and decision 95 makes the shatter
+     * volume it measured **0.66 dB ABOVE the shatter**, and a design decision makes the shatter
      * *"the biggest sound the cabinet makes"*: the arrival was out-shouting the ending.
      * 0.74 puts it 2 dB under, which is still the second-largest thing in the fight.
      */

@@ -1,11 +1,13 @@
 package com.astroloop.game.hangar
 
+import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.RectF
 import com.astroloop.game.cabinet.CabinetMarqueeDrift
 import com.astroloop.game.cabinet.CabinetRenderer
 import com.astroloop.game.cabinet.CabinetSim
+import com.astroloop.game.core.DesignSpace
 import com.astroloop.game.core.GameConfig
 import com.astroloop.game.core.LayoutRect
 import com.astroloop.game.core.ScreenLayout
@@ -16,12 +18,17 @@ import com.astroloop.game.data.PersistenceManager
 import com.astroloop.game.data.PilotDefinitions
 import com.astroloop.game.data.ShipDefinitions
 import com.astroloop.game.data.WeaponDefinitions
+import com.astroloop.game.render.CrystalOrbPath
+import com.astroloop.game.render.CrystalPalette
 import com.astroloop.game.render.FontManager
+import com.astroloop.game.render.IconCache
 import com.astroloop.game.render.IconRenderer
 import com.astroloop.game.render.ShapeRenderer
 import com.astroloop.game.render.ShipRenderer
 import com.astroloop.game.core.StoryStateManager
 import com.astroloop.game.entity.Boss
+import com.astroloop.game.input.FocusRegistry
+import com.astroloop.game.input.FocusTarget
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
@@ -52,6 +59,18 @@ class HangarRenderer(private val persistence: PersistenceManager) {
 
     // --- Layout ---
     private var layout: ScreenLayout = ScreenLayout.compute(GameConfig.DESIGN_WIDTH, GameConfig.DESIGN_HEIGHT)
+
+    /**
+     * The device's own PORTRAIT design space. Panels lay out against this, so a card is the size
+     * it is in portrait whichever way the device is held. In portrait it IS [layout], so nothing
+     * about the portrait page can move.
+     */
+    internal var portraitLayout: ScreenLayout =
+        ScreenLayout.compute(GameConfig.DESIGN_WIDTH, GameConfig.DESIGN_HEIGHT)
+
+    /** Whether the screen is rotated. The one input the page transform takes from orientation. */
+    private var landscape = false
+
     var shipCenterY = 0f
     var shipSpacing = 0f
     private var walkwayY = 0f
@@ -73,7 +92,7 @@ class HangarRenderer(private val persistence: PersistenceManager) {
     val spinButtonRect get() = storePageRenderer.spinButtonRect
     val crystalTileRect get() = storePageRenderer.crystalTileRect
     val codexBookRect get() = barPageRenderer.codexBookRect
-    private val pilotCardRects get() = barPageRenderer.pilotCardRects
+    internal val pilotCardRects get() = barPageRenderer.pilotCardRects
 
     /** Delegates to [StorePageRenderer.isCrystalTileRevealed] — see there for the branch rules. */
     fun isCrystalTileRevealed(persistence: PersistenceManager, state: HangarState): Boolean =
@@ -108,14 +127,21 @@ class HangarRenderer(private val persistence: PersistenceManager) {
     fun initialize(layout: ScreenLayout, roomWidth: Float) {
         this.roomWidth = roomWidth
         this.layout = layout
+        portraitLayout = DesignSpace.portraitShaped(layout)
         val width = layout.width
         val height = layout.height
+        landscape = RoomAnchor.isLandscape(width, height)
         screenWidth = width
         screenHeight = height
 
         // Ship center position
         shipCenterY = height / 2f
-        shipSpacing = layout.content.width * 0.30f
+        // Portrait-shaped, not `layout`: a ship sits the same ~289 from its neighbour in either
+        // orientation, so a rotated screen reveals more of the fleet instead of spreading the
+        // same three further apart (the golden rule — an object's size never depends on which
+        // way the device is held).
+        shipSpacing = portraitLayout.content.width * 0.30f
+        shipHalfExtent = measureShipHalfExtent()
 
         // Walkway at ~60% screen height
         walkwayY = height * 0.60f
@@ -129,6 +155,7 @@ class HangarRenderer(private val persistence: PersistenceManager) {
         }
         barPageRenderer.screenWidth = width
         barPageRenderer.roomWidth = roomWidth
+        barPageRenderer.landscape = landscape
         barPageRenderer.screenHeight = height
         barPageRenderer.walkwayY = walkwayY
         barPageRenderer.ceilingY = ceilingY
@@ -143,6 +170,7 @@ class HangarRenderer(private val persistence: PersistenceManager) {
         )
         storePageRenderer.screenWidth = width
         storePageRenderer.roomWidth = roomWidth
+        storePageRenderer.landscape = landscape
         storePageRenderer.screenHeight = height
         storePageRenderer.walkwayY = walkwayY
         storePageRenderer.ceilingY = ceilingY
@@ -207,6 +235,22 @@ class HangarRenderer(private val persistence: PersistenceManager) {
         // Background
         canvas.drawColor(0xFF000011.toInt())
 
+        // Nothing is tappable until this frame draws it — but the panel layer is published ONCE,
+        // at the END of this method, rather than cleared here and refilled halfway through. A
+        // clear here leaves most of every frame saying "no panel to hit" while the state says one
+        // is open, and a tap landing in that window closes it; see PanelLayer's own doc. The
+        // local below is render-thread-only and carries what this frame drew to that publication.
+        var layer = PanelLayer.NONE
+        drawnYenRight = Float.NaN // seam — see this field's own doc
+        drawnButtonAlphas = emptyMap() // seam — see this field's own doc
+        lastPanelScrimAlpha = 0
+        lastPanelLayerAlpha = 0
+        drawnSelectedShipX = Float.NaN // seam — see this field's own doc
+        drawnRevealSrcX = Float.NaN    // seam — see drawCrystalReveal's own doc
+        drawnRevealSrcY = Float.NaN
+        drawnRevealDstX = Float.NaN
+        drawnRevealDstY = Float.NaN
+
         when (state.phase) {
             HangarPhase.BROWSING -> {
                 drawStars(canvas)
@@ -217,6 +261,13 @@ class HangarRenderer(private val persistence: PersistenceManager) {
                 // Walkway and pilot walker (drawn over page content)
                 drawWalkway(canvas, state)
                 drawPilotWalker(canvas, state)
+
+                // Landscape only: the page's buttons, and whichever panel is open over the room.
+                layer = drawPanelLayer(canvas, state, bezelSim, bezelRenderer, marqueeDrift)
+
+                // The crystal reveal, over the panel it flies into — see drawCrystalReveal.
+                drawCrystalReveal(canvas, state)
+
                 // The intro cinematic hides all HUD chrome (nav labels + yen counter)
                 // and instead shows the ASTRO LOOP title on the launchpad.
                 if (state.introCinematic) {
@@ -257,6 +308,12 @@ class HangarRenderer(private val persistence: PersistenceManager) {
             val alpha = (state.fadeFromBlackTimer / 1.0f).coerceIn(0f, 1f)
             canvas.drawColor(android.graphics.Color.argb((alpha * 255).toInt(), 0, 0, 0))
         }
+
+        // The frame's one publication of what a finger or a focus ring may act on. Every phase
+        // reaches this line, so LAUNCHING and CODEX — which never draw a panel layer — publish
+        // PanelLayer.NONE and cannot leave a stale target behind. See PanelLayer's own doc for
+        // why this is a single write at the end rather than a clear at the top.
+        publishPanelLayer(layer)
     }
 
     private fun drawGlitchOverlay(canvas: Canvas, state: HangarState) {
@@ -334,24 +391,24 @@ class HangarRenderer(private val persistence: PersistenceManager) {
         canvas: Canvas, state: HangarState, bezelSim: CabinetSim?, bezelRenderer: CabinetRenderer?,
         marqueeDrift: CabinetMarqueeDrift? = null
     ) {
-        // Rooms tile edge to edge one roomWidth apart. Below sw600dp roomWidth == screenWidth,
-        // so this is arithmetically identical to the single-page-per-screen layout.
-        val stride = HangarMetrics.effectiveRoomWidth(roomWidth, screenWidth)
-        val viewportX = viewportX(state)
+        // Pages tile one stride apart and each leans toward the shipyard inside its own slot.
+        // In portrait the lean is the centring term the shipped code folded into its viewport and
+        // the stride is the room width, so this is arithmetically identical to what shipped.
+        val stride = RoomAnchor.stride(screenWidth, roomWidth, landscape)
 
         // A room is visible if any part of it falls inside the screen. The test is against
         // screenWidth, not stride: on wide screens several rooms are on screen at once.
-        val barX = 0f - viewportX
+        val barX = pageOriginX(0, state)
         if (barX > -stride && barX < screenWidth) {
             barPageRenderer.draw(canvas, state, -barX)
         }
 
-        val shipyardX = stride - viewportX
+        val shipyardX = pageOriginX(1, state)
         if (shipyardX > -stride && shipyardX < screenWidth) {
             drawShipyardPage(canvas, state, -shipyardX)
         }
 
-        val storeX = 2f * stride - viewportX
+        val storeX = pageOriginX(2, state)
         if (storeX > -stride && storeX < screenWidth) {
             storePageRenderer.draw(canvas, state, -storeX, bezelSim, bezelRenderer, marqueeDrift)
         }
@@ -363,7 +420,16 @@ class HangarRenderer(private val persistence: PersistenceManager) {
      * it drifting apart is what put content in the wrong room in the first place.
      */
     private fun viewportX(state: HangarState): Float =
-        HangarMetrics.viewportX(state.currentPage, state.pageScrollOffset, roomWidth, screenWidth)
+        RoomAnchor.viewportX(state.currentPage, state.pageScrollOffset, screenWidth, roomWidth, landscape)
+
+    /**
+     * Screen X of page [page]'s left edge this frame. The draw half of the pair whose other half
+     * is `HangarSurfaceView.roomX`; they change together or every tap lands off-target.
+     */
+    private fun pageOriginX(page: Int, state: HangarState): Float =
+        RoomAnchor.pageOriginX(
+            page, state.currentPage, state.pageScrollOffset, screenWidth, roomWidth, landscape
+        )
 
     /**
      * Screen-space horizontal extent of the hangar building (its three rooms), for the walkway
@@ -376,27 +442,830 @@ class HangarRenderer(private val persistence: PersistenceManager) {
      * clip in that branch would shave a sliver off the flush edge for the whole duration of the
      * drag. Bypass it entirely: the walkway always spans the full screen here, independent of
      * currentPage/pageScrollOffset.
+     *
+     * Landscape is excluded from that bypass even though its stride is also a full screen: the
+     * crew and shop rooms are only portrait-wide there and hug the shipyard side of their slots,
+     * so there IS starfield beside them and a full-screen walkway would hang out over it.
      */
     private fun buildingExtent(state: HangarState): Pair<Float, Float> {
-        val stride = HangarMetrics.effectiveRoomWidth(roomWidth, screenWidth)
-        if (stride >= screenWidth) return 0f to screenWidth
-        val viewportX = viewportX(state)
-        return (0f - viewportX).coerceAtLeast(0f) to (3f * stride - viewportX).coerceAtMost(screenWidth)
+        val stride = RoomAnchor.stride(screenWidth, roomWidth, landscape)
+        if (!landscape && stride >= screenWidth) return 0f to screenWidth
+        val left = pageOriginX(0, state)
+        val right = pageOriginX(2, state) + RoomAnchor.pageWidth(2, screenWidth, roomWidth, landscape)
+        return left.coerceAtLeast(0f) to right.coerceAtMost(screenWidth)
+    }
+
+    // =======================================================================
+    // Landscape panel layer
+    // =======================================================================
+
+    /**
+     * Everything the tap and focus paths hit-test an open panel against, as ONE value: the outer
+     * box, the item rects inside it, and each visible button's rect — all in SCREEN space.
+     *
+     * **One value, and one assignment per frame, because the alternative was a live bug.** These
+     * three used to be separate mutable fields, cleared at the top of [render] and refilled in
+     * [drawPanelLayer] — which runs after the starfield, the whole room, the walkway and the
+     * walker. Touches arrive on the UI thread while the frame is drawn on the render thread, with
+     * no lock between them, so for the majority of every frame the renderer said "nothing here to
+     * hit" while `HangarState` still said "a panel is open". `handlePanelTap` resolves that
+     * disagreement by falling through to the backdrop rule, whose only outcome is to CLOSE — so a
+     * correctly aimed tap on a pilot shut the roster whenever it landed in that window. The owner
+     * reported it twice: once as the dead-space bug (a real but separate geometric hole, fixed by
+     * the box below) and again, after that fix, as panels that "still close unexpectedly".
+     *
+     * Publishing an immutable snapshot in a single volatile write removes the window entirely: a
+     * reader sees either the whole of last frame's panel or the whole of this one, never a
+     * half-built frame and never a box without its cards. It also follows what the ROOM's own
+     * rects (`upgradeRects`, `pilotCardRects`) have always done — overwritten in place, never
+     * cleared first, which is why the room never had this bug.
+     *
+     * It keeps the property the clear was there for: a frame that draws no panel publishes
+     * [NONE], so a launch, the codex, portrait or the intro cinematic cannot leave last frame's
+     * rects behind as targets while nothing is on screen. [render] publishes exactly once, at the
+     * end, for every phase.
+     *
+     * Readers take the snapshot into a local FIRST and then interrogate it — two reads of the
+     * field can still straddle a frame, which is the same class of bug one level down.
+     */
+    internal data class PanelLayer(
+        val box: LayoutRect?,
+        val cards: List<LayoutRect>,
+        val buttons: Map<HangarPanels.Panel, LayoutRect>
+    ) {
+        companion object {
+            /** A frame that drew no panel layer at all. */
+            val NONE = PanelLayer(null, emptyList(), emptyMap())
+        }
+    }
+
+    @Volatile
+    internal var panelLayer: PanelLayer = PanelLayer.NONE
+        private set
+
+    /**
+     * The one writer. [render] calls this at the end of every frame; tests that cannot run a real
+     * draw pass (Robolectric's `lockCanvas` returns null) call it to stand in for the frame that
+     * would have published these.
+     */
+    internal fun publishPanelLayer(layer: PanelLayer) {
+        panelLayer = layer
+    }
+
+    /**
+     * The open panel's item rects, in SCREEN space. Published rather than recomputed, so the tap
+     * path — and the focus path — reads exactly the rects that were drawn instead
+     * of a second derivation that can drift from them.
+     *
+     * Empty whenever no panel is open, which is always in portrait.
+     */
+    internal val panelCardRects: List<LayoutRect> get() = panelLayer.cards
+
+    /**
+     * Each visible button's rect this frame, in SCREEN space: its home while its panel is shut,
+     * its tab while it is open.
+     *
+     * Empty whenever the layer draws nothing, so everything that stops the buttons being drawn —
+     * portrait, a page that owns no panel, the intro cinematic — stops them being tapped by the
+     * same fact rather than by a second gate that could disagree with the first.
+     */
+    internal val panelButtonRects: Map<HangarPanels.Panel, LayoutRect> get() = panelLayer.buttons
+
+    /**
+     * The open panel's outer BOX this frame, in SCREEN space — `null` whenever the layer drew no
+     * panel at all.
+     *
+     * Read by `HangarSurfaceView.handlePanelTap` to tell a tap that MISSED a card inside the panel
+     * from one that landed outside it. A box is strictly bigger than the grid it holds —
+     * [HangarPanels.PAD_H]/[HangarPanels.PAD_V] of padding all round, a gap between every pair of
+     * cards, and the empty half-row a short final row leaves in a reflowed board — and every one
+     * of those points used to fall through to the backdrop catch-all and CLOSE the panel. Reported
+     * by the owner on 2026-09-20 as "pressing a pilot sometimes closes the roster instead": the
+     * pilot grid's gutters are about 16 units wide, so it happened often enough to look random.
+     */
+    internal val panelBoxRect: LayoutRect? get() = panelLayer.box
+
+    /**
+     * The x the yen counter's right-aligned text was actually drawn at, `NaN` on a frame that
+     * drew no counter.
+     *
+     * A seam, exactly like [drawnSelectedShipX] — and needed for the same reason. "The counter is
+     * anchored to the safe area" was true and still left it clipped by the display's rounded
+     * corner, and no assertion in the suite could see it, because a Robolectric canvas cannot be
+     * asked where a string landed. Reverting the corner clearance to a plain `safe.right - 20f`
+     * leaves everything green without this.
+     */
+    @Volatile
+    internal var drawnYenRight: Float = Float.NaN
+        private set
+
+    /**
+     * The alpha each panel button was actually DRAWN at this frame, empty for a frame that drew
+     * none — a seam, like [drawnYenRight], and test-only: nothing on the UI thread reads it.
+     *
+     * A button that is fading out after its page has been swiped away is drawn but deliberately
+     * not published in [PanelLayer], so it does not appear in `panelButtonRects` and there is
+     * otherwise no way to tell "faded correctly on the way out" from the instant disappearance
+     * the owner reported on 2026-09-20.
+     */
+    @Volatile
+    internal var drawnButtonAlphas: Map<HangarPanels.Panel, Float> = emptyMap()
+        private set
+
+    /**
+     * The scrim/box-layer alpha [drawPanelLayer] actually computed and used THIS frame, 0 when
+     * nothing was drawn. Nothing reads these back — they exist purely as a seam, because
+     * every test in the suite drives [HangarState.
+     * panelFade] through its state-machine transitions, but none of them had inspected what the
+     * draw path actually DID with it, so replacing the [HangarPanels.panelScrimAlpha]/
+     * [HangarPanels.panelLayerAlpha] calls below with hardcoded constants — the panel popping
+     * open/shut instead of fading, the exact bug the fade commit exists to prevent — left every
+     * one of them green. A `saveLayerAlpha` region isn't something Robolectric's software canvas
+     * can be probed for pixel-accurately without a real compositing pass, so exposing the
+     * computed alpha is the cheap way to pin it instead.
+     */
+    internal var lastPanelScrimAlpha: Int = 0
+        private set
+    internal var lastPanelLayerAlpha: Int = 0
+        private set
+
+    private val panelBoxPaint = Paint().apply { style = Paint.Style.FILL; color = 0xF0101018.toInt() }
+    private val panelBorderPaint = Paint().apply {
+        style = Paint.Style.STROKE; strokeWidth = 2f; isAntiAlias = true; color = 0xFF3A3A40.toInt()
+    }
+
+    /**
+     * The panel's content box, before padding — the grid for CREW/SHOP, the machine for SLOT.
+     *
+     * Every size here comes from [portraitLayout], never from the landscape [layout]: a card is
+     * the size it is in portrait whichever way the device is held, and only the ARRANGEMENT is
+     * allowed to change. `portraitLayout.width` is passed as both the room width and the screen
+     * width, which makes `HangarMetrics.contentXInRoom` the identity — the panel lays out in its
+     * own space, so there is no room to cross into.
+     *
+     * Internal: a test seam, like [portraitLayout] and [shipyardPageWidth].
+     */
+    internal fun panelContentSize(panel: HangarPanels.Panel): Pair<Float, Float> = when (panel) {
+        HangarPanels.Panel.CREW -> crewGridArrangement().let { it.width to it.height }
+        HangarPanels.Panel.SHOP -> shopGridArrangement().let { it.width to it.height }
+        HangarPanels.Panel.SLOT -> panelMachineFrame().let { it.width to it.height }
+    }
+
+    /** The portrait walkway — what the store's board and machine are both measured against. */
+    private val portraitWalkwayY: Float get() = portraitLayout.height * 0.60f
+
+    /** One store tile, at its portrait size. Square, so one number. */
+    private fun panelTileSize(): Float =
+        GridGeometry.storeTileSize(portraitLayout.content, portraitWalkwayY)
+
+    /**
+     * Top of the nav row's tap band — the same [HangarMetrics.navBandTop] the input gate
+     * (`HangarSurfaceView.handleTap`) and the focus pass (`publishNavTargets`) resolve taps
+     * against. It used to be a hand-copy of that pair of numbers here, which was tolerable while
+     * the band only decided tap ownership and stopped being so once a PANEL'S ARRANGEMENT started
+     * depending on it — see [HangarMetrics.navBandTop]'s own doc.
+     */
+    private val navBandTop: Float get() = HangarMetrics.navBandTop(screenHeight)
+
+    /**
+     * The vertical space a panel's CONTENT may use, before padding.
+     *
+     * [HangarPanels.panelBox] always centres the outer box on `safe.centerY`, growing it in both
+     * directions as content grows, so the binding constraint on how tall that content may get is
+     * symmetric about `safe.centerY`, not the plain distance from `safe.top` down to the nav band:
+     * a box that only grew downward would clear the band at twice this height. Before this fix the
+     * SHOP panel's 3x3 board (908.79 tall on a rotated Pixel 9 Pro) ignored the band entirely, and
+     * its own box (936.42 bottom) landed 50.57 units into it — visibly under the lit
+     * [CREW]/[LAUNCH] labels `drawPageIndicator` paints on top of the panel layer.
+     *
+     * Also floored by the safe area's own height (unchanged from before this fix, and normally the
+     * looser of the two): nothing here assumes the nav band will always be the tighter constraint.
+     *
+     * Applies to every panel that reflows — CREW included, not just SHOP, per the review — even
+     * though CREW's own board (683.8 tall) clears either cap today with room to spare. SLOT is not
+     * threaded through this: the machine is a fixed portrait object that never reflows, and its own
+     * clearance is verified directly (`ShopPanelTest`'s `the machine clears the nav row's tap
+     * band...`), not budgeted here.
+     */
+    private fun panelAvailableHeight(safe: LayoutRect): Float {
+        val navClearance = 2f * (navBandTop - safe.centerY) - HangarPanels.PAD_V * 2f
+        val safeClearance = safe.height - HangarPanels.PAD_V * 2f
+        return minOf(navClearance, safeClearance)
+    }
+
+    /**
+     * The SHOP panel's arrangement of the nine tiles — the store's twin of [crewGridArrangement],
+     * and derived once per frame for the same reason: [panelContentSize] sizes the box from it and
+     * [drawPanelContents] lays the tiles out from it, and two expressions that agree algebraically
+     * can still disagree by an ulp and hand the second caller a wider grid than the box was sized
+     * for, whose rects are published as tap targets even though the drawn grid is clipped.
+     *
+     * Three rows on most profiles in the spec — the board is the portrait content width less
+     * 32, and a landscape screen's height is the portrait width, so the two are the same quantity
+     * by construction and the fit lives entirely in the margins — but [panelAvailableHeight] caps
+     * that height short of the nav row's tap band, and on a 2.22:1 phone (a rotated Pixel 9 Pro)
+     * that cap is tighter than the 3x3 board, so it reflows to 5+4 there.
+     * A 16:9 profile has enough room above the band for 3x3 to stand. The band is what decides
+     * this, not `HangarPanels.PAD_V` — see that constant's own doc.
+     *
+     * internal: a test seam, like [panelContentSize] — `ShopPanelTest` reads `.cols`/`.rows` off
+     * this directly, on real device profiles, so a hardcoded `Arrangement(3, 3, …)` here fails a
+     * real test rather than merely a re-derivation that could hardcode the same mistake.
+     */
+    internal fun shopGridArrangement(): PanelGrid.Arrangement {
+        val safe = layout.safe
+        val tile = panelTileSize()
+        return PanelGrid.arrange(
+            GridGeometry.STORE_COLS * GridGeometry.STORE_ROWS, tile, tile, GridGeometry.STORE_GAP,
+            GridGeometry.STORE_COLS,
+            safe.width - HangarPanels.SCREEN_EDGE * 2f - HangarPanels.PAD_H * 2f,
+            panelAvailableHeight(safe)
+        )
+    }
+
+    /**
+     * The machine at its PORTRAIT size — the SLOT panel's single object, which neither reflows nor
+     * scales: it either fits the panel or it does not. Measured at the portrait grid's own width
+     * and the portrait drop from the walkway, exactly as the room measures it, so the cabinet in
+     * the panel is the cabinet in the room.
+     */
+    private fun panelMachineFrame(): LayoutRect = GridGeometry.machineFrame(
+        GridGeometry.storeGridBounds(portraitLayout.content, 0f, portraitWalkwayY),
+        portraitWalkwayY, portraitLayout.height
+    )
+
+    /**
+     * The CREW panel's arrangement of all pilot cards, from the same inputs [panelContentSize]
+     * used to size the box — computed once per frame in `drawPanelLayer` and threaded through to
+     * [drawPanelContents] rather than re-derived there.
+     *
+     * A code review (the "arrangement derived twice" minor finding): before this, the box
+     * was sized from [PanelGrid.arrange] against `safe.width - SCREEN_EDGE*2 - PAD_H*2`, and
+     * [drawPanelContents] arranged AGAIN against `box.width - PAD_H*2` — algebraically the same
+     * number (`box.width == contentW + PAD_H*2`), but reached by a different float expression, so
+     * a single ulp of drift between the two could leave the second call arranging a wider grid
+     * (say 4 columns instead of 3) than the box was actually sized for. [PanelGrid.arrange]
+     * refuses a reduction that would overflow the available width, so that grid would be clipped
+     * visually — but its rects, published as tap targets, would not be. Calling this once and
+     * passing the SAME [PanelGrid.Arrangement] to both consumers makes that impossible: there is
+     * only one derivation, not two that happen to agree.
+     *
+     * Height capped by [panelAvailableHeight] like [shopGridArrangement] — a code review
+     * was explicit that the nav-band rule is not SHOP-specific, even though CREW's own board
+     * (683.8 tall) clears either cap today with room to spare and so never actually reflows from
+     * it.
+     */
+    private fun crewGridArrangement(): PanelGrid.Arrangement {
+        val safe = layout.safe
+        val (cardW, cardH) = panelCardSize()
+        return PanelGrid.arrange(
+            PilotDefinitions.getPilotCount(), cardW, cardH, GridGeometry.PILOT_GAP,
+            GridGeometry.PILOT_COLS,
+            safe.width - HangarPanels.SCREEN_EDGE * 2f - HangarPanels.PAD_H * 2f,
+            panelAvailableHeight(safe)
+        )
+    }
+
+    /**
+     * One pilot card, at its portrait size. Also the size of a panel BUTTON — the buttons are
+     * card-sized on purpose, so the crew page reads as a stack of cards either way.
+     */
+    private fun panelCardSize(): Pair<Float, Float> = GridGeometry.pilotCardSize(
+        GridGeometry.pilotGridBounds(portraitLayout.content, portraitLayout.width, portraitLayout.width)
+    )
+
+    /**
+     * The landscape panel layer: the buttons a page shows, and the panel one of them has opened.
+     *
+     * Drawn after the rooms, the walkway and the walker, and BEFORE the chrome — the yen counter
+     * and the page indicator stay above the scrim, because you need to see your money while the
+     * shop panel is up, and because leaving the hangar must not require closing a panel first.
+     * The nav row is therefore drawn over the panel, and `HangarSurfaceView.handleTap` resolves
+     * the nav row FIRST, to match — a lit nav label must always be reachable, panel or no panel
+     * (found in review). The two only need to agree on tap ownership at all
+     * because the panel's box stays clear of the nav row's tap band, which `CrewPanelTest` pins
+     * as an invariant rather than an accident.
+     *
+     * A closing panel (see [HangarState.closingPanel]) is drawn regardless of whether the
+     * CURRENT page owns it — only an OPEN one is filtered to the page it belongs to. A page
+     * change hands an open panel to [HangarState.closingPanel] via `HangarState.setPageTarget`
+     * rather than clearing it, precisely so this layer keeps drawing it through its fade instead
+     * of cutting it in the one frame the page changes.
+     *
+     * The three cabinet parameters are threaded through exactly as [drawPageContent] threads
+     * them: the SLOT panel draws the same machine the store page does, and it needs them.
+     */
+    private fun drawPanelLayer(
+        canvas: Canvas, state: HangarState, bezelSim: CabinetSim?, bezelRenderer: CabinetRenderer?,
+        marqueeDrift: CabinetMarqueeDrift?
+    ): PanelLayer {
+        // Returns what it drew rather than assigning it; render() publishes the result in one
+        // write at the end of the frame. The intro cinematic hides all chrome, the buttons
+        // included — and because the tap path reads only what this published, hiding them here is
+        // what makes them untappable too.
+        if (!landscape || state.introCinematic) return PanelLayer.NONE
+        val panels = HangarPanels.panelsOn(state.currentPage)
+        // How lit each panel-owning page's buttons are — 1 for the settled current page, easing
+        // to 0 as it is swiped away and back up as one is swiped in. A page the swipe has carried
+        // far enough out is not drawn at all. See HangarGestures.pageSwipeFade: the buttons are
+        // screen chrome that belongs to a page, so nothing moved them when the page moved, and
+        // they used to stay fully lit through the swipe and vanish on the frame it committed.
+        val stride = RoomAnchor.stride(screenWidth, roomWidth, landscape)
+        val (fadeCardW, fadeCardH) = panelCardSize()
+        val pageFade = HangarPanels.PANEL_PAGES.associateWith { page ->
+            HangarGestures.pageSwipeFade(
+                page, state.currentPage, state.pageScrollOffset, stride,
+                buttonFadeTravel(page, layout.safe, fadeCardW, fadeCardH)
+            )
+        }
+        // A closing panel keeps this layer alive even on a page that owns no panel at all (the
+        // launchpad, panelsOn(1) == emptyList()) — see the closing-panel paragraph above. So does
+        // a page still fading out behind the one being swiped to.
+        if (panels.isEmpty() && state.closingPanel == null && pageFade.values.all { it <= 0f }) {
+            return PanelLayer.NONE
+        }
+
+        val safe = layout.safe
+        val (cardW, cardH) = panelCardSize()
+        // The same predicate HangarSurfaceView's input gate consults — see
+        // HangarState.visiblePanel's own doc. An OPEN panel is
+        // filtered to the page it belongs to; a CLOSING one is not, since HangarState.
+        // advancePanelFade guarantees it clears itself within PANEL_FADE_SECONDS regardless of
+        // whether anything ever draws it, so there is no risk of a stale panel surviving here.
+        val visible = state.visiblePanel()
+
+        val buttons = LinkedHashMap<HangarPanels.Panel, LayoutRect>(panels.size)
+        val cards = ArrayList<LayoutRect>()
+
+        if (visible != null) {
+            // Computed once, not re-derived from the box below — see crewGridArrangement's doc
+            // (a code review, the "arrangement derived twice" minor finding). SLOT holds one
+            // object rather than a grid, so it has no arrangement and sizes straight off its frame.
+            val arrangement = when (visible) {
+                HangarPanels.Panel.CREW -> crewGridArrangement()
+                HangarPanels.Panel.SHOP -> shopGridArrangement()
+                HangarPanels.Panel.SLOT -> null
+            }
+            val (contentW, contentH) = arrangement?.let { it.width to it.height }
+                ?: panelContentSize(visible)
+            val box = HangarPanels.panelBox(visible, contentW, contentH, safe)
+            val fade = state.panelFade
+            // Scrim over the whole screen: the room stays visible and still animating behind it.
+            // Its alpha follows the same fade the panel box does — 0 the instant a close begins
+            // would cut the scrim the moment the tap lands, so it rides panelFade down instead
+            // and "releases" over the fade like the panel itself.
+            val scrimAlpha = HangarPanels.panelScrimAlpha(fade)
+            lastPanelScrimAlpha = scrimAlpha // seam — see this field's own doc
+            canvas.drawColor(android.graphics.Color.argb(scrimAlpha, 0x00, 0x00, 0x11))
+            // The box and its contents fade as one unit via a canvas layer alpha, rather than
+            // threading alpha through BarPageRenderer.drawPilotCards (and, later, the shop/slot
+            // content it will sit beside) — the same approach HUDRenderer.render already leans
+            // on for its own 120Hz fade. Rects are still published below at full geometry
+            // regardless of fade: what's tappable is a discrete question (open vs. closing vs.
+            // neither), answered in HangarSurfaceView.handlePanelTap, not a continuous one this
+            // alpha should answer by accident.
+            val layerAlpha = HangarPanels.panelLayerAlpha(fade)
+            lastPanelLayerAlpha = layerAlpha // seam — see this field's own doc
+            if (layerAlpha >= 255) {
+                // Fully open is where the panel spends most of its life, so
+                // skip the offscreen buffer entirely rather than pay for one
+                // whose alpha is a no-op every frame it is up.
+                drawPanelBox(canvas, box)
+                drawPanelContents(canvas, state, visible, box, arrangement, cards, bezelSim, bezelRenderer, marqueeDrift)
+            } else {
+                canvas.saveLayerAlpha(box.left, box.top, box.right, box.bottom, layerAlpha)
+                drawPanelBox(canvas, box)
+                drawPanelContents(canvas, state, visible, box, arrangement, cards, bezelSim, bezelRenderer, marqueeDrift)
+                canvas.restore()
+            }
+            // Every button belonging to the SAME page as the open/closing panel is clamped
+            // against its box, not just the one panel that is actually open.
+            // SHOP and SLOT share one X (buttonHome), so this was
+            // invisible while neither panel's box ever reached the stack — but a 5+4 SHOP board is
+            // wide enough to reach past SLOT's home, and clamping only the active button left its
+            // sibling sitting at `home`, underneath the wider box, while the active one alone slid
+            // clear. HangarPanels.tabRect degenerates to `home` unclamped whenever the box does
+            // not reach a given button (its own doc: "left exactly where it was"), so applying it
+            // to every button on the page is a no-op for CREW's lone button and for every profile
+            // where neither shop panel's box was ever wide enough to matter — verified by
+            // `ShopPanelTest`'s button-clamp test on the widened board.
+            //
+            // Guarded by `visible in panels`, not applied unconditionally: a CLOSING panel can be
+            // drawn over a page that does not own it at all (the launchpad, or — inside this
+            // `panels` list — a different page's own buttons), in which case `box` belongs to a
+            // page these buttons are not part of and must not move them (`CrewPanelTest`'s "a
+            // panel closes visibly even after a page change carries it off its own page").
+            drawPanelButtons(canvas, state, safe, cardW, cardH, pageFade, visible, box, buttons)
+            return PanelLayer(box, cards, buttons)
+        }
+
+        drawPanelButtons(canvas, state, safe, cardW, cardH, pageFade, null, null, buttons)
+        // No panel, so no box and no cards — but the buttons are drawn and must be tappable.
+        return PanelLayer(null, emptyList(), buttons)
+    }
+
+    /**
+     * How far page [page] travels on a swipe before its own room arrives at its buttons — the
+     * distance their fade has to finish in.
+     *
+     * Owner, 2026-09-20: the buttons must be "completely gone once the bar hits the button (or
+     * the shop on the other side)". The arithmetic lives in [HangarPanels.buttonRoomGap]; this
+     * supplies the room's settled edges from the same [RoomAnchor] the page pass draws with, so
+     * the two cannot describe different rooms. A page settled and current has its origin at its
+     * anchor, which is what makes the anchor the room's resting edge.
+     */
+    private fun buttonFadeTravel(page: Int, safe: LayoutRect, cardW: Float, cardH: Float): Float {
+        val panel = HangarPanels.panelsOn(page).firstOrNull() ?: return 0f
+        val pw = RoomAnchor.pageWidth(page, screenWidth, roomWidth, landscape)
+        val roomLeft = RoomAnchor.anchorX(page, screenWidth, roomWidth, landscape)
+        return HangarPanels.buttonRoomGap(
+            panel, roomLeft, roomLeft + pw,
+            HangarPanels.buttonHome(panel, safe, cardW, cardH)
+        )
+    }
+
+    /**
+     * Every panel-owning page's buttons that are still on screen, each at its own swipe alpha,
+     * collecting the CURRENT page's into [buttons] as the frame's hit targets.
+     *
+     * **Drawn for any page, published for one.** A page that has been swiped away still draws its
+     * buttons while they fade, but they are no longer something to press — the player is on
+     * another page and pressing one would open a panel that page does not own. That split is not
+     * new here: `drawPanelLayer` already draws a CLOSING panel through its fade while
+     * `HangarSurfaceView.handlePanelTap` refuses its cards, for the same reason. What the rule
+     * against draw and hit test diverging forbids is a target whose rect is not where it was
+     * drawn; a fading-out thing that has stopped being a target is the ordinary way to leave.
+     *
+     * The tab clamp still applies only to the page that owns the open panel ([box] non-null): a
+     * panel cannot push a button belonging to a page it is not on.
+     */
+    private fun drawPanelButtons(
+        canvas: Canvas, state: HangarState, safe: LayoutRect, cardW: Float, cardH: Float,
+        pageFade: Map<Int, Float>, visible: HangarPanels.Panel?, box: LayoutRect?,
+        buttons: MutableMap<HangarPanels.Panel, LayoutRect>
+    ) {
+        val alphas = LinkedHashMap<HangarPanels.Panel, Float>()
+        for (page in HangarPanels.PANEL_PAGES) {
+            val alpha = pageFade[page] ?: 0f
+            if (alpha <= 0f) continue
+            val pagePanels = HangarPanels.panelsOn(page)
+            // Guarded by "the open panel belongs to THIS page", which is what `visible in panels`
+            // meant when there was only ever one page's worth of buttons to draw: a CLOSING panel
+            // can be drawn over a page that does not own it at all, in which case its box must
+            // not move that page's buttons (`CrewPanelTest`'s "a panel closes visibly even after
+            // a page change carries it off its own page").
+            val ownsVisible = visible != null && visible in pagePanels
+            for (p in pagePanels) {
+                val home = HangarPanels.buttonHome(p, safe, cardW, cardH)
+                // Every button on the open panel's page is clamped against its box, not just the
+                // one panel actually open: SHOP and SLOT
+                // share one X, so clamping only the active one would leave its sibling underneath
+                // a board wide enough to reach them. tabRect degenerates to `home` whenever the
+                // box does not reach a given button, which since the owner's 2026-09-20 move is
+                // every panel on every profile in the spec.
+                val rect = if (ownsVisible && box != null) HangarPanels.tabRect(p, home, box) else home
+                drawPanelButton(canvas, state, p, rect, active = p == visible, alpha = alpha)
+                alphas[p] = alpha
+                if (page == state.currentPage) buttons[p] = rect
+            }
+        }
+        drawnButtonAlphas = alphas // seam — see this field's own doc
+    }
+
+    private fun drawPanelBox(canvas: Canvas, box: LayoutRect) {
+        canvas.drawRect(box.left, box.top, box.right, box.bottom, panelBoxPaint)
+        panelBorderPaint.color = 0xFF3A3A40.toInt()
+        canvas.drawRect(box.left, box.top, box.right, box.bottom, panelBorderPaint)
+    }
+
+    /**
+     * What an open panel puts inside its box.
+     *
+     * CREW hands the panel's rects straight to [BarPageRenderer.drawPilotCards], and SHOP does the
+     * same with [StorePageRenderer.drawUpgradeTiles] — the same renderers the in-room grid and
+     * board use, at the same sizes, in a different place. SLOT is the odd one: a single object, the
+     * machine, which neither reflows nor scales.
+     *
+     * [arrangement] is the panel's [PanelGrid.Arrangement], computed once by the caller
+     * ([drawPanelLayer]) from the exact same inputs it used to size [box] — never re-derived from
+     * `box.width` here, which is the arrangement-derived-twice fix (see [crewGridArrangement]'s
+     * doc). Non-null for CREW and SHOP; null for SLOT, which has no grid.
+     *
+     * Everything is collected into [cards] in the order it was drawn, SLOT's machine included:
+     * the machine IS the panel's one item, and publishing it is what lets a tap on it reach the
+     * store's own handler instead of falling through to the backdrop-closes rule. The caller owns
+     * the list and hands it to [PanelLayer] in one write — see that type's doc.
+     */
+    private fun drawPanelContents(
+        canvas: Canvas, state: HangarState, panel: HangarPanels.Panel, box: LayoutRect,
+        arrangement: PanelGrid.Arrangement?, cards: MutableList<LayoutRect>,
+        bezelSim: CabinetSim?, bezelRenderer: CabinetRenderer?, marqueeDrift: CabinetMarqueeDrift?
+    ) {
+        when (panel) {
+            HangarPanels.Panel.CREW -> {
+                val count = PilotDefinitions.getPilotCount()
+                val (cardW, cardH) = panelCardSize()
+                val a = arrangement ?: crewGridArrangement()
+                val rects = PanelGrid.rects(
+                    a, count, box.left + HangarPanels.PAD_H, box.top + HangarPanels.PAD_V,
+                    cardW, cardH, GridGeometry.PILOT_GAP
+                )
+                cards.addAll(rects)
+                barPageRenderer.drawPilotCards(canvas, state, rects)
+            }
+            HangarPanels.Panel.SHOP -> {
+                val count = GridGeometry.STORE_COLS * GridGeometry.STORE_ROWS
+                val tile = panelTileSize()
+                val a = arrangement ?: shopGridArrangement()
+                val rects = PanelGrid.rects(
+                    a, count, box.left + HangarPanels.PAD_H, box.top + HangarPanels.PAD_V,
+                    tile, tile, GridGeometry.STORE_GAP
+                )
+                cards.addAll(rects)
+                storePageRenderer.drawUpgradeTiles(canvas, state, rects)
+            }
+            HangarPanels.Panel.SLOT -> {
+                val frame = LayoutRect(
+                    box.left + HangarPanels.PAD_H, box.top + HangarPanels.PAD_V,
+                    box.right - HangarPanels.PAD_H, box.bottom - HangarPanels.PAD_V
+                )
+                cards.add(frame)
+                storePageRenderer.drawSlotMachineAt(
+                    canvas, state, frame, bezelSim, bezelRenderer, marqueeDrift
+                )
+            }
+        }
+    }
+
+    /**
+     * The button, and the tab it becomes. One icon, per the owner — no badge, no count, no word:
+     * a player with a recruit waiting sees the same button as one with nothing to do.
+     *
+     * CREW is the selected pilot's roster card. SHOP and SLOT carry [panelButtonIcon]'s icon, a
+     * square [PANEL_ICON_FRACTION] of the card's short side, centred. A button with nothing to
+     * show (no pilot selected, an asset that failed to load) is the bare card it was before the
+     * art arrived; the layout does not depend on it.
+     */
+    private fun drawPanelButton(
+        canvas: Canvas, state: HangarState, panel: HangarPanels.Panel,
+        rect: LayoutRect, active: Boolean, alpha: Float = 1f
+    ) {
+        // Through a layer rather than by scaling each paint's alpha: the fill carries its own
+        // alpha (0xF0) so a multiply would need the base, the border switches colour with
+        // `active`, and the icon gets the same treatment for free. Skipped entirely at full
+        // alpha, which is where a button spends all its time when nothing is being swiped — the
+        // same trade drawPanelLayer makes for the panel box itself.
+        val faded = alpha < 1f
+        if (faded) {
+            canvas.saveLayerAlpha(
+                rect.left, rect.top, rect.right, rect.bottom,
+                (alpha * 255f).toInt().coerceIn(0, 255)
+            )
+        }
+        if (panel == HangarPanels.Panel.CREW && crewButtonPilot(state) >= 0) {
+            // The selected pilot's roster card, as the pop-up draws it (owner, 2026-09-28). The
+            // button is already card-sized — panelCardSize() is the roster's own card — so it
+            // is the same card at the same size, and its pilot-coloured border replaces the
+            // grey one. Nothing else to draw.
+            barPageRenderer.drawPilotCardFront(canvas, state, crewButtonPilot(state), rect)
+            if (faded) canvas.restore()
+            return
+        }
+        canvas.drawRect(rect.left, rect.top, rect.right, rect.bottom, panelBoxPaint)
+        panelBorderPaint.color = if (active) 0xFF8899AA.toInt() else 0xFF3A3A40.toInt()
+        canvas.drawRect(rect.left, rect.top, rect.right, rect.bottom, panelBorderPaint)
+        val icon = panelButtonIcon(state, panel)
+        if (icon != null) {
+            val half = minOf(rect.width, rect.height) * PANEL_ICON_FRACTION / 2f
+            panelIconRect.set(
+                rect.centerX - half, rect.centerY - half, rect.centerX + half, rect.centerY + half
+            )
+            canvas.drawBitmap(icon, null, panelIconRect, panelIconPaint)
+        }
+        if (faded) canvas.restore()
+    }
+
+    /** The selected pilot's index if the crew button can show their card, else -1. */
+    private fun crewButtonPilot(state: HangarState): Int {
+        val index = state.selectedPilotIndex
+        return if (PilotDefinitions.getPilotByIndex(index) != null && state.isPilotUnlocked(index)) index else -1
+    }
+
+    /**
+     * The icon a SHOP or SLOT button shows: the upgrade art, and the slot machine — or, in Astro
+     * Loop, where that machine is the BELT RUN cabinet, the arcade. CREW draws a whole card
+     * instead (see [drawPanelButton]) and has no icon.
+     */
+    private fun panelButtonIcon(state: HangarState, panel: HangarPanels.Panel): Bitmap? =
+        when (panel) {
+            HangarPanels.Panel.CREW -> null
+            HangarPanels.Panel.SHOP -> IconCache.getPanelIcon("upgrade")
+            HangarPanels.Panel.SLOT -> IconCache.getPanelIcon(
+                if (StoryStateManager.isAstroLoop(persistence)) "arcade" else "slot"
+            )
+        }
+
+    private val panelIconRect = RectF()
+    private val panelIconPaint = Paint().apply { isFilterBitmap = true; isAntiAlias = true }
+
+    // =======================================================================
+    // Crystal reveal (drawn over the panel layer)
+    // =======================================================================
+
+    /**
+     * Where the reveal's orb actually left from and where it was actually headed this frame, in
+     * SCREEN space — `NaN` on a frame that drew neither.
+     *
+     * A seam, exactly like [drawnSelectedShipX] and for the same reason. "The reveal completes"
+     * is a proposition about `crystalRevealPhase` alone: every phase, sound and timing assertion
+     * in the suite passed the whole time the landscape orb was corkscrewing to the room's
+     * top-left corner and bursting at (0,0), because a Robolectric canvas cannot be asked where a
+     * circle landed. Publishing the two endpoints is the cheap way to pin the one thing the beat
+     * is actually about — that the player can see the crystal leave Astro and arrive on the tile.
+     *
+     * Src and dst are published independently, not as a pair: Astro's dot
+     * draws — and [drawnRevealSrcX]/[drawnRevealSrcY] are set — whether or not a destination tile
+     * exists yet, so that a frame with nowhere to fly to still shows him rather than nothing at
+     * all. [drawnRevealDstX]/[drawnRevealDstY] stay `NaN` on such a frame, since no orb actually
+     * flew.
+     */
+    internal var drawnRevealSrcX: Float = Float.NaN
+        private set
+    internal var drawnRevealSrcY: Float = Float.NaN
+        private set
+    internal var drawnRevealDstX: Float = Float.NaN
+        private set
+    internal var drawnRevealDstY: Float = Float.NaN
+        private set
+
+    private val revealDotPaint = Paint().apply { style = Paint.Style.FILL }
+    private val revealOrbPaint = Paint().apply { style = Paint.Style.FILL; isAntiAlias = true }
+    private val revealFlashPaint = Paint().apply { style = Paint.Style.FILL }
+
+    /**
+     * The crystal reveal's flight, drawn over everything — the open shop panel included.
+     *
+     * Its source and destination live in different layers now. Astro stands on the store
+     * walkway, inside the room; in landscape the crystal tile he throws to is inside the SHOP
+     * panel, above the room and above its scrim. Neither layer can draw a line between them, so
+     * this does, from above both, with both endpoints resolved into SCREEN space first: the
+     * walkway point through the page transform ([viewportX], the same one [drawPilotWalker]
+     * uses), and the tile from the rect the board published — wherever it drew itself.
+     *
+     * That published rect is in the space it was DRAWN in (see
+     * [StorePageRenderer.drawUpgradeTiles]): room-local for the in-room board, screen space for
+     * the panel. So the portrait rect crosses back through page 2's own origin, which is zero on
+     * a phone and NOT zero on a portrait tablet, where the room is narrower than the screen.
+     * Reading it raw would have put the burst half a gutter off the tile there and nowhere else.
+     *
+     * Astro's dot comes up with the orb rather than staying in the room: the corkscrew has to
+     * read as leaving *him*, and a dot under the scrim starts the flight from something the
+     * player cannot see. [StorePageRenderer.draw] stands its own copy down for the duration
+     * ([HangarState.crystalRevealInFlight]) so it is never on screen twice at two alphas. The
+     * mini machine and the shield aura stay behind the scrim — room props, not the moment.
+     *
+     * In portrait this draws exactly the pixels the store page used to, at exactly the same
+     * moments: the panel layer is a no-op there, both endpoints resolve to the same points as
+     * before, and nothing drawn between the room and here reaches them (the walkway is a 4-unit
+     * strip at `walkwayY`, the player's own walker stands 35 units clear at the store's walk
+     * target, and the chrome is drawn later still).
+     */
+    private fun drawCrystalReveal(canvas: Canvas, state: HangarState) {
+        if (!state.crystalRevealInFlight()) return
+        if (!state.astroAtSlotMachine) return
+
+        // The walkway machine, in screen space — HangarState.slotMachineWorldX is the same point
+        // StorePageRenderer.draw places the mini machine at, and the same one the walker band
+        // measures its store target from, so Astro cannot drift off the machine he is standing at.
+        val srcX = state.slotMachineWorldX() - viewportX(state)
+        val srcY = walkwayY - 14f   // the dot: walkwayY - 8f, then the head's own -6f. Radius 5.
+
+        // Darkened Astro dot (Astro is red 0xFFDD3333, corrupted = 50% brightness). Drawn before
+        // the destination is even looked at: the room has already stood
+        // its own copy down for the whole flight, keyed on the same crystalRevealInFlight() this
+        // method's own early return above uses, so if the tile below turns out not to be
+        // published this frame Astro must not simply blink out of a room that thinks someone else
+        // is drawing him. His visibility never depends on whether there is anywhere to fly to.
+        revealDotPaint.color = StoryStateManager.corruptColor(0xFFDD3333.toInt())
+        canvas.drawCircle(srcX, srcY, 5f, revealDotPaint)
+        drawnRevealSrcX = srcX   // seams — see their own doc
+        drawnRevealSrcY = srcY
+
+        // Room-local in portrait, screen space in landscape — see the doc above.
+        val tile = storePageRenderer.crystalTileRect
+        val tileOriginX = if (landscape) 0f else pageOriginX(2, state)
+        // Nothing to aim at. Unreachable on the shipped path — `HangarSurfaceView`'s own gate
+        // refuses to leave GLOW until the board has published a rect, and every input that could
+        // shut the panel mid-flight is already refused while the reveal is flying — so this is
+        // the belt to that braces: better a frame with no orb than a 30-unit white burst in the
+        // corner of the screen. Astro's dot above has already drawn either way, so this early
+        // return now only ever costs the orb and the burst, never the commander himself.
+        if (tile.isEmpty) return
+        val dstX = tile.centerX() + tileOriginX
+        val dstY = tile.centerY()
+
+        drawnRevealDstX = dstX   // seams — see their own doc
+        drawnRevealDstY = dstY
+
+        val time = System.currentTimeMillis()
+
+        // Orb travel animation: corkscrew from Astro up to the crystal tile
+        if (state.crystalRevealPhase == HangarState.CrystalRevealPhase.ORB_TRAVEL) {
+            val t = (state.crystalRevealTimer / CrystalOrbPath.TRAVEL_DURATION).coerceIn(0f, 1f)
+            val (orbX, orbY) = CrystalOrbPath.position(t, srcX, srcY, dstX, dstY)
+
+            val orbPulse = 0.7f + 0.3f * sin(time / 200.0).toFloat()
+            revealOrbPaint.color = CrystalPalette.MID   // icy cyan
+            // Trail: fading circles along the corkscrew behind the orb
+            for (i in 4 downTo 1) {
+                val trailT = (t - i * 0.04f).coerceAtLeast(0f)
+                val (trailX, trailY) = CrystalOrbPath.position(trailT, srcX, srcY, dstX, dstY)
+                revealOrbPaint.alpha = ((1f - i / 5f) * 60).toInt()
+                canvas.drawCircle(trailX, trailY, 5f - i * 0.8f, revealOrbPaint)
+            }
+            // Outer glow
+            revealOrbPaint.alpha = (orbPulse * 100).toInt()
+            canvas.drawCircle(orbX, orbY, 8f, revealOrbPaint)
+            // Core
+            revealOrbPaint.alpha = (orbPulse * 220).toInt()
+            canvas.drawCircle(orbX, orbY, 3f, revealOrbPaint)
+        }
+
+        // Flash burst on crystal tile when orb arrives
+        if (state.crystalRevealPhase == HangarState.CrystalRevealPhase.FLASH) {
+            val ft = (state.crystalRevealTimer / CrystalOrbPath.FLASH_DURATION).coerceIn(0f, 1f)
+            val flashRadius = 30f * ft
+            revealFlashPaint.color = 0xFFFFFFFF.toInt()
+            revealFlashPaint.alpha = ((1f - ft) * 255).toInt()
+            canvas.drawCircle(dstX, dstY, flashRadius, revealFlashPaint)
+        }
     }
 
     // =======================================================================
     // Shipyard page (fully functional)
     // =======================================================================
 
+    /**
+     * The width the shipyard page draws and clips page 1 against — the clip in
+     * [drawShipyardPage], [drawShips], [drawLaunchRail], [drawWalkway]'s runway-light spacing,
+     * and the page's own [drawRoomFrame] call all route through this one expression (or through
+     * [shipyardCenterX], its halved twin), after [initialize].
+     *
+     * The launchpad is the one page landscape leaves full-screen, so this is
+     * [RoomAnchor.pageWidth], matching the screen-centre hit tests in `HangarSurfaceView`
+     * (`handleShipyardTap`, `publishShipyardFocus`, both literally `screenWidth / 2f`) rather
+     * than the narrower portrait room width the bar and store pages correctly keep.
+     *
+     * Internal: a test seam, like [portraitLayout] above — `LandscapeRoomTest` pins it against
+     * the hit-test centre without a live Canvas pass.
+     */
+    internal fun shipyardPageWidth(): Float = RoomAnchor.pageWidth(1, screenWidth, roomWidth, landscape)
+
+    /**
+     * Centre X every page-1 draw site centres on — the target halo, the launch rail and the
+     * drawn ship centre all route through this rather than re-typing `shipyardPageWidth() / 2f`,
+     * so a regression (e.g. one site quietly going back to `HangarMetrics.effectiveRoomWidth`)
+     * requires editing this one accessor rather than silently diverging at a call site. Named and
+     * placed after [shipyardPageWidth] the way [shipCenterY] is the existing precedent for a
+     * published centre.
+     *
+     * `pageOriginX(1, currentPage = 1, scroll = 0) + shipyardCenterX() == screenWidth / 2` always
+     * — see `LandscapeRoomTest` for the derivation, in both orientations and both gate branches.
+     */
+    internal fun shipyardCenterX(): Float = shipyardPageWidth() / 2f
+
+    /**
+     * SCREEN X of the selected ship as [drawShips] actually placed it this frame, or `NaN` if page
+     * 1 drew no selected ship (a page off screen, the launch sequence, the codex).
+     *
+     * A seam, in the same spirit as [lastPanelScrimAlpha] and for the same reason: an earlier change unified
+     * every page-1 centre onto [shipyardCenterX], and `LandscapeRoomTest` pins that ACCESSOR — but
+     * reverting [drawShips]' own `val centerX` to re-derive a room width there leaves the accessor
+     * untouched and the whole suite green (verified experimentally in the code review). Only the
+     * drawn value can tell the two apart, and the drawn value lives inside a private draw method
+     * behind a `canvas.translate`, which a software Canvas cannot be probed for.
+     *
+     * Published in SCREEN space rather than the page-local space it is computed in — the page's own
+     * origin is added back — because the number it has to agree with is a screen-space one: both
+     * `HangarSurfaceView.handleShipyardTap` and `publishShipyardFocus` fire at a literal
+     * `screenWidth / 2f`. Publishing page-local would have been the same number at rest and would
+     * have quietly stopped discriminating the moment a page origin went wrong.
+     */
+    internal var drawnSelectedShipX: Float = Float.NaN
+        private set
+
     private fun drawShipyardPage(canvas: Canvas, state: HangarState, xOffset: Float) {
         canvas.save()
         canvas.translate(-xOffset, 0f)
-        // Clip to page bounds so ships don't bleed into adjacent pages
-        val rw = HangarMetrics.effectiveRoomWidth(roomWidth, screenWidth)
+        // Clip to page bounds so ships don't bleed into adjacent pages. The launchpad is the one
+        // page landscape leaves full-screen, so it clips to its PAGE width, not the room width.
+        val rw = shipyardPageWidth()
         canvas.clipRect(0f, 0f, rw, screenHeight)
 
-        // Room frame: no ceiling (open to space), archways on both sides
-        drawRoomFrame(canvas, false, RoomEdge.ARCHWAY, RoomEdge.ARCHWAY)
+        // Room frame: no ceiling (open to space), archways on both sides. The launchpad's own
+        // PAGE width (rw, above), not the default room width — its right archway must land at
+        // the screen edge, not mid-screen.
+        drawRoomFrame(canvas, false, RoomEdge.ARCHWAY, RoomEdge.ARCHWAY, rw)
 
         val ship = ShipDefinitions.getShipByIndex(state.selectedShipIndex)
         val isSelectedLocked = !state.isShipUnlocked(state.selectedShipIndex)
@@ -406,9 +1275,10 @@ class HangarRenderer(private val persistence: PersistenceManager) {
             else -> ship?.color ?: 0xFF00AAFF.toInt()
         }
 
-        // Target zone indicator (energy field at center of the room — we're drawing in this
-        // page's room-local space per the translate above, so it must centre on the room, not
-        // the screen)
+        // Target zone indicator (energy field at the launchpad's own centre — we're drawing in
+        // this page's local space per the translate above, and the launchpad is the one page
+        // landscape leaves full-screen, so shipyardCenterX() here is the page's centre, not the
+        // room's; centring on anything narrower would drift off the screen-centre hit tests)
         // Brightness follows chevron logic: brightens on approach, pulses when in halo zone
         val dragProximity = if (state.isDraggingShip) {
             val dist = kotlin.math.abs(state.shipDragY - shipCenterY)
@@ -417,7 +1287,7 @@ class HangarRenderer(private val persistence: PersistenceManager) {
         } else 0.2f
         val inHaloZone = state.isDraggingShip &&
             kotlin.math.abs(state.shipDragY - shipCenterY) < 60f
-        drawEnergyField(canvas, shipColor, rw / 2f, dragProximity, inHaloZone)
+        drawEnergyField(canvas, shipColor, shipyardCenterX(), dragProximity, inHaloZone)
 
         // Launch rail chevrons between resting position and target zone
         drawLaunchRail(canvas, state, shipColor)
@@ -471,17 +1341,15 @@ class HangarRenderer(private val persistence: PersistenceManager) {
     }
 
     private fun drawLaunchRail(canvas: Canvas, state: HangarState, shipColor: Int) {
-        // Called only from drawShipyardPage's room-local translate, so centre on the room.
-        val centerX = HangarMetrics.effectiveRoomWidth(roomWidth, screenWidth) / 2
+        // Called only from drawShipyardPage's room-local translate. The launchpad is the one page
+        // landscape leaves full-screen, so centre on the PAGE centre, not the room centre —
+        // matching the screen-centre hit tests in HangarSurfaceView.handleShipyardTap.
+        val centerX = shipyardCenterX()
         val targetZoneY = shipCenterY
         val restingY = state.shipRestingY
 
         // Brightness tied to drag progress — faint at rest, bright approaching halo, dim in halo
-        val dragFadeStart = restingY
-        val dragFadeEnd = (restingY + walkwayY) / 2f
-        val dragFade = if (dragFadeStart != dragFadeEnd)
-            ((state.shipDragY - dragFadeEnd) / (dragFadeStart - dragFadeEnd)).coerceIn(0f, 1f)
-        else 1f
+        val dragFade = shipDragFade(state)
         val dragProgress = 1f - dragFade  // 0 at rest, 1 when text fully faded
         // Dim when ship enters halo zone
         val distToHalo = kotlin.math.abs(state.shipDragY - targetZoneY)
@@ -507,11 +1375,95 @@ class HangarRenderer(private val persistence: PersistenceManager) {
         }
     }
 
+    /**
+     * How opaque a ship at page-local [shipX] is, given the page's clip at 0 and [pageWidth]:
+     * 1 well inside, easing to 0 at the moment any part of it would cross.
+     *
+     * Owner, 2026-09-20: a ship sliced in half by the page's clip edge during a swipe gives away
+     * that the walkway is three pages rather than one room. Fading it out instead keeps the seam
+     * invisible, and fading rather than cutting keeps the no-instant-disappearance rule — the
+     * player watches it go rather than finding it gone.
+     *
+     * **Portrait returns 1 unconditionally**, so this cannot move a single pixel there. That is
+     * not incidental: portrait shows the same sliver today (its third ship out sits about 68 units
+     * off the page edge, drawn at half alpha, about 22 units of it visible), and the owner's
+     * standing rule for this whole layer is that portrait does not change. The gate is the one
+     * line to lift if the owner ever wants it there too.
+     *
+     * The fade spans one ship width — [shipHalfExtent] * 2 — and the ship is already invisible
+     * when its leading edge reaches the clip, not when its centre does.
+     */
+    internal fun shipEdgeFade(shipX: Float, pageWidth: Float): Float {
+        if (!landscape) return 1f
+        val margin = shipHalfExtent
+        val span = margin * 2f
+        if (span <= 0f) return 1f
+        val clearance = minOf(shipX - margin, pageWidth - margin - shipX)
+        return (clearance / span).coerceIn(0f, 1f)
+    }
+
+    /**
+     * Half the width of the widest thing the carousel draws at a ship's own x — measured, not
+     * guessed, because the labels are wider than the ship and the widest of them decides when a
+     * ship has to be gone by.
+     *
+     * Measured once in [initialize] rather than per frame: every input is fixed at build time —
+     * the four text sizes are literals in [drawShips], and ship and weapon display names are
+     * static table lookups (`ShipDefinitions.getShipName` reads a `val` list; nothing renames a
+     * ship at runtime, corruption included, which recolours). The typeface is fixed too, since
+     * `FontManager` initialises before any renderer is constructed.
+     *
+     * One extent for the whole carousel rather than one per ship: the ships then all vanish the
+     * same distance from the edge, which is what reads as deliberate. The cost is that a ship with
+     * a short name goes very slightly earlier than it strictly must.
+     */
+    private var shipHalfExtent = 0f
+
+    private fun measureShipHalfExtent(): Float {
+        // Floored, not purely measured, and the floor is what normally wins.
+        //
+        // Robolectric's Paint.measureText returns 0, so a purely measured extent collapses to the
+        // ship glyph — 25 units, a tenth of the real thing — and every test of the fade would be
+        // exercising a case no device ever runs. The floor covers the widest label the tables
+        // actually hold: "HOMING MISSILES", 15 characters at the selected ship's 22px weapon size,
+        // measures about 171 units in Exo 2 (~0.52em per character). 180 gives that a little room
+        // and is the number both a device and a test see.
+        //
+        // The measurement below then only matters if a future ship or weapon name is LONGER than
+        // anything shipping today, which is the case a hardcoded constant would get silently
+        // wrong. `GameConfig.SHIP_BASE_SIZE * 2` is in the same max as a bound on the glyph — it
+        // is smaller than the floor on every real profile, and is there so the expression is
+        // honest about what it covers rather than assuming the text always wins.
+        var widest = maxOf(MIN_SHIP_EXTENT, GameConfig.SHIP_BASE_SIZE * 2f)
+        val sizes = floatArrayOf(24f, 16f) // selected, peek — see drawShips
+        val weaponSizes = floatArrayOf(22f, 14f)
+        for (i in 0 until ShipDefinitions.getShipCount()) {
+            val ship = ShipDefinitions.getShipByIndex(i) ?: continue
+            for (s in sizes) {
+                textPaint.textSize = s
+                widest = maxOf(widest, textPaint.measureText(ShipDefinitions.getShipName(i)))
+            }
+            for (s in weaponSizes) {
+                textPaint.textSize = s
+                widest = maxOf(
+                    widest,
+                    textPaint.measureText(WeaponDefinitions.getWeaponDisplayName(ship.startingWeaponId))
+                )
+            }
+            widest = maxOf(widest, costPaint.measureText(GameConfig.formatYen(ship.cost)))
+        }
+        widest = maxOf(widest, costPaint.measureText("LOCKED"))
+        textPaint.textSize = 24f // drawShips sets its own before every draw; restore the default
+        return widest / 2f
+    }
+
     private fun drawShips(canvas: Canvas, state: HangarState) {
-        // Called only from drawShipyardPage's room-local translate, so centre on the room —
-        // and cull against the room width below, not the screen width.
-        val rw = HangarMetrics.effectiveRoomWidth(roomWidth, screenWidth)
-        val centerX = rw / 2
+        // Called only from drawShipyardPage's room-local translate. The launchpad is the one page
+        // landscape leaves full-screen, so centre — and cull ship visibility below — against the
+        // PAGE width, not the room width, or the drawn ship drifts off the screen-centre hit tests
+        // in HangarSurfaceView.handleShipyardTap.
+        val rw = shipyardPageWidth()
+        val centerX = shipyardCenterX()
 
         val selectedPilot = PilotDefinitions.getPilotByIndex(state.selectedPilotIndex)
 
@@ -531,11 +1483,7 @@ class HangarRenderer(private val persistence: PersistenceManager) {
 
         // Global drag fade — text starts fading when selected ship starts moving,
         // fully gone halfway between resting position and walkway
-        val dragFadeStart = state.shipRestingY
-        val dragFadeEnd = (state.shipRestingY + walkwayY) / 2f
-        val dragFade = if (dragFadeStart != dragFadeEnd)
-            ((state.shipDragY - dragFadeEnd) / (dragFadeStart - dragFadeEnd)).coerceIn(0f, 1f)
-        else 1f
+        val dragFade = shipDragFade(state)
 
         for ((visualIndex, i) in visibleShipIndices.withIndex()) {
             val ship = ShipDefinitions.getShipByIndex(i) ?: continue
@@ -543,17 +1491,26 @@ class HangarRenderer(private val persistence: PersistenceManager) {
             val offsetFromSelected = visualIndex - selectedVisualPos
             val shipX = centerX + offsetFromSelected * shipSpacing + state.shipScrollOffset
 
-            // Only draw if on screen (room-local space, so cull against the room, not the screen)
+            // Only draw if on screen (room-local space, so cull against the launchpad's own page
+            // width, `rw` above, not the screen)
             if (shipX < -100f || shipX > rw + 100f) continue
+
+            // ...and in landscape, fade a ship out before the page's clip edge can slice it.
+            // Zero by the time any part of it would cross, so nothing is ever drawn half-cut.
+            val edgeFade = shipEdgeFade(shipX, rw)
+            if (edgeFade <= 0f) continue
 
             val isUnlocked = state.isShipUnlocked(i)
             val isSelected = (i == state.selectedShipIndex)
+            // Seam — see drawnSelectedShipX's own doc. Page-local `shipX` back into screen space
+            // via this page's own origin, which is exactly what drawShipyardPage's translate did.
+            if (isSelected) drawnSelectedShipX = shipX + pageOriginX(1, state)
 
             // Selected ship follows drag Y; peek ships stay at resting Y
             val shipY = if (isSelected) state.shipDragY else state.shipRestingY
 
-            // Dim non-selected ships (peek effect)
-            val peekAlpha = if (isSelected) 1f else 0.5f * dragFade
+            // Dim non-selected ships (peek effect), and fade whatever is near the page edge
+            val peekAlpha = (if (isSelected) 1f else 0.5f * dragFade) * edgeFade
 
             // Non-selected ships fade to grey as text fades; player ship keeps its color
             val greyColor = 0xFF555555.toInt()
@@ -566,7 +1523,8 @@ class HangarRenderer(private val persistence: PersistenceManager) {
 
             // Ship name and weapon — all text fades together as selected ship is dragged
             if (dragFade > 0f) {
-                val combinedAlpha = if (isSelected) dragFade else peekAlpha
+                // peekAlpha already carries edgeFade; the selected ship's own text needs it applied
+                val combinedAlpha = if (isSelected) dragFade * edgeFade else peekAlpha
 
                 textPaint.textSize = if (isSelected) 24f else 16f
                 textPaint.color = if (isSelected) 0xFFFFFFFF.toInt() else 0xFFAAAAAA.toInt()
@@ -590,7 +1548,7 @@ class HangarRenderer(private val persistence: PersistenceManager) {
                 kotlin.math.abs(state.shipDragY - state.shipRestingY) < 2f) {
                 val time = System.currentTimeMillis()
                 val bob = (sin(time / 400.0) * 3f).toFloat()
-                val hintAlpha = (0.3f + 0.2f * sin(time / 600.0)).toFloat()
+                val hintAlpha = (0.3f + 0.2f * sin(time / 600.0)).toFloat() * edgeFade
                 val hintPaint = Paint().apply {
                     color = 0xFFFFFFFF.toInt()
                     alpha = (hintAlpha * 255).toInt()
@@ -666,10 +1624,18 @@ class HangarRenderer(private val persistence: PersistenceManager) {
 
     private enum class RoomEdge { SOLID, ARCHWAY }
 
-    private fun drawRoomFrame(canvas: Canvas, hasCeiling: Boolean, leftEdge: RoomEdge, rightEdge: RoomEdge) {
+    private fun drawRoomFrame(
+        canvas: Canvas, hasCeiling: Boolean, leftEdge: RoomEdge, rightEdge: RoomEdge,
+        // Defaults to the ROOM width: the shared lambda handed to the bar and store page
+        // renderers calls this with the 4-arg form, and those two rooms correctly keep their
+        // portrait room width in landscape. Only drawShipyardPage passes a width explicitly —
+        // the launchpad's own PAGE width, since it alone is full-screen in landscape.
+        width: Float = HangarMetrics.effectiveRoomWidth(roomWidth, screenWidth)
+    ) {
         // Called from inside each page's translated space, so this draws THAT room's ceiling
-        // and walls — it must span the room, not the screen, or neighbouring rooms overlap.
-        val rw = HangarMetrics.effectiveRoomWidth(roomWidth, screenWidth)
+        // and walls — it must span the room (or, for the launchpad, the page), not the screen,
+        // or neighbouring rooms overlap.
+        val rw = width
 
         val wallPaint = Paint().apply {
             color = 0xFF2A2A30.toInt()
@@ -725,10 +1691,6 @@ class HangarRenderer(private val persistence: PersistenceManager) {
         // three rooms wide, so on a wide screen a full-width walkway would extend past the last
         // room and hang in open space. Clip the walkway (and its edge highlight, which must
         // match or it would float past the walkway itself) to the building.
-        val stride = HangarMetrics.effectiveRoomWidth(roomWidth, screenWidth)
-        // Same viewport transform drawPageContent uses, so the walkway (and the runway lights
-        // below, which also consume it) lines up with the rooms.
-        val viewportX = viewportX(state)
         val (buildingLeft, buildingRight) = buildingExtent(state)
 
         if (buildingRight > buildingLeft) {
@@ -751,10 +1713,10 @@ class HangarRenderer(private val persistence: PersistenceManager) {
             val lightPaint = Paint().apply { style = Paint.Style.FILL }
             val lightCount = 10
             // Lights belong to the launchpad room (page index 1), not the full screen — space
-            // and position them across that room using the same stride/viewportX transform
-            // drawPageContent uses to place the shipyard page itself.
-            val launchpadLeft = stride - viewportX
-            val spacing = stride / (lightCount + 1)
+            // and position them across that room using the same page transform drawPageContent
+            // uses to place the shipyard page itself.
+            val launchpadLeft = pageOriginX(1, state)
+            val spacing = shipyardPageWidth() / (lightCount + 1)
             val time = System.currentTimeMillis()
 
             // Check if ship is in the halo zone
@@ -901,15 +1863,15 @@ class HangarRenderer(private val persistence: PersistenceManager) {
         }
     }
 
-    /** Ship drag-fade: 1.0 at the resting position, fading to 0.0 as the ship is dragged up to launch. */
-    private fun shipDragFade(state: HangarState): Float {
-        if (state.shipRestingY == 0f) return 1f
-        val fadeStart = state.shipRestingY
-        val fadeEnd = (state.shipRestingY + walkwayY) / 2f
-        return if (fadeStart != fadeEnd)
-            ((state.shipDragY - fadeEnd) / (fadeStart - fadeEnd)).coerceIn(0f, 1f)
-        else 1f
-    }
+    /**
+     * Ship drag-fade: 1.0 at the resting position, fading to 0.0 as the ship is dragged up to
+     * launch. Internal because the focus ring rides the same curve, and it is drawn from the view.
+     */
+    internal fun shipDragFade(state: HangarState): Float =
+        if (state.shipRestingY == 0f) 1f
+        else HangarGestures.shipDragFade(
+            state.shipDragY, state.shipRestingY, (state.shipRestingY + walkwayY) / 2f
+        )
 
     private fun drawIntroTitle(canvas: Canvas, state: HangarState) {
         // Fade in slowly (~3s) after arriving at the launchpad...
@@ -917,8 +1879,8 @@ class HangarRenderer(private val persistence: PersistenceManager) {
         // ...then fade out with the ship drag — but half as fast as the yen counter, so the
         // title lingers. The yen-counter fade completes halfway to the walkway; doubling the
         // drag distance (fadeEnd = walkwayY) stretches the title fade over twice the range.
-        val dragFade = if (state.shipRestingY == 0f || state.shipRestingY == walkwayY) 1f
-            else ((state.shipDragY - walkwayY) / (state.shipRestingY - walkwayY)).coerceIn(0f, 1f)
+        val dragFade = if (state.shipRestingY == 0f) 1f
+            else HangarGestures.shipDragFade(state.shipDragY, state.shipRestingY, walkwayY)
 
         val alpha = (fadeIn * dragFade * 255f).toInt().coerceIn(0, 255)
         if (alpha <= 0) return
@@ -935,7 +1897,9 @@ class HangarRenderer(private val persistence: PersistenceManager) {
     private fun drawPageIndicator(canvas: Canvas, state: HangarState) {
         val labels = listOf("CREW", "LAUNCH", "SHOP")
         val centerX = screenWidth / 2
-        val labelY = screenHeight * 0.95f
+        // The row the tap band in [HangarMetrics.navBandTop] is measured from — one definition,
+        // so the labels and the band that catches them cannot drift apart.
+        val labelY = HangarMetrics.navLabelY(screenHeight)
         val spacing = layout.content.width * 0.25f
 
         for (i in labels.indices) {
@@ -958,7 +1922,20 @@ class HangarRenderer(private val persistence: PersistenceManager) {
         // Anchor to the inset-safe area (edge-to-edge devices push the display cutout
         // into the top-right corner where the yen lives — raw screenWidth/50f put it
         // behind the notch). safe == full on non-cutout devices, so this is a no-op there.
-        canvas.drawText(GameConfig.formatYen(state.displayedYen), layout.safe.right - 20f, layout.safe.top + 50f, textPaint)
+        //
+        // The cutout is not the only thing in that corner. The display's own rounded corner is
+        // reported separately from the insets and used to be ignored, which was invisible in
+        // portrait — where the cutout pushes safe.top down past the arc — and clipped the
+        // counter's right-hand end everywhere else: landscape, and upside-down portrait, both of
+        // which put safe.top at 0 and the glyphs at y=24 in the bare corner (owner, 2026-09-20,
+        // Pixel 9 Pro). `cornerSafeRight` binds on the glyphs' own top, not the baseline, and
+        // returns full.right untouched wherever the arc does not reach them — so right-way-up
+        // portrait keeps the exact x it has always had, and nothing moves on a square-cornered
+        // display or below API 31.
+        val baselineY = layout.safe.top + 50f
+        val edge = minOf(layout.safe.right, layout.cornerSafeRight(baselineY + textPaint.ascent()))
+        drawnYenRight = edge - 20f // seam — see this field's own doc
+        canvas.drawText(GameConfig.formatYen(state.displayedYen), drawnYenRight, baselineY, textPaint)
         textPaint.textAlign = Paint.Align.CENTER
         textPaint.color = 0xFFFFFFFF.toInt()
     }
@@ -981,33 +1958,20 @@ class HangarRenderer(private val persistence: PersistenceManager) {
     /**
      * Index of the pilot card under a tap, or null.
      *
-     * [roomX] is ROOM-local (see HangarMetrics.toRoomX) because the grid is drawn room-local by
+     * [roomX] is ROOM-local (see `RoomAnchor.toRoomX`) because the grid is drawn room-local by
      * BarPageRenderer; [y] is screen space, which room tiling never touches. Below the gate the
      * two spaces coincide and the caller passes the raw touch X, exactly as before.
      */
     fun getPilotGridIndex(roomX: Float, y: Float): Int? {
-        val gridPadding = 12f
-        // Must match BarPageRenderer.drawNormalBar's grid bounds exactly, in the same space.
-        val gridLeft = HangarMetrics.contentXInRoom(layout.content.left, roomWidth, screenWidth) + gridPadding
-        val gridRight = HangarMetrics.contentXInRoom(layout.content.right, roomWidth, screenWidth) - gridPadding
-        val gridTop = layout.content.top + 70f
-        val gridBottom = layout.content.top + layout.content.height * 0.52f
-        val cardGap = 8f
-        val cols = 4
-        val rows = 3
-        val cardWidth = (gridRight - gridLeft - cardGap * (cols - 1)) / cols
-        val cardHeight = (gridBottom - gridTop - cardGap * (rows - 1)) / rows
-        if (roomX < gridLeft || roomX > gridRight || y < gridTop || y > gridBottom) return null
-        val col = ((roomX - gridLeft) / (cardWidth + cardGap)).toInt()
-        val row = ((y - gridTop) / (cardHeight + cardGap)).toInt()
-        if (col >= cols || row >= rows) return null
-        // Verify tap is in card body, not in gap
-        val withinCardX = (roomX - gridLeft) - col * (cardWidth + cardGap)
-        val withinCardY = (y - gridTop) - row * (cardHeight + cardGap)
-        if (withinCardX > cardWidth || withinCardY > cardHeight) return null
-        val index = row * cols + col
-        if (index >= PilotDefinitions.getPilotCount()) return null
-        return index
+        // The room draws no grid in landscape — the CREW panel does, in screen space, and
+        // HangarSurfaceView.handlePanelTap hit-tests the rects it published. Without this the
+        // room would keep a hit test for cards that are not there: a tap on the empty upper half
+        // of the crew room would select a pilot nobody can see.
+        if (landscape) return null
+        return GridGeometry.pilotIndexAt(
+            GridGeometry.pilotGridBounds(layout.content, roomWidth, screenWidth),
+            roomX, y, PilotDefinitions.getPilotCount()
+        )
     }
 
     // =======================================================================
@@ -1137,7 +2101,7 @@ class HangarRenderer(private val persistence: PersistenceManager) {
             // Phase 3: Liftoff (0.375 - 0.55, ~0.7s) — world moves down, ship stays
             progress < 0.55f -> {
                 val phase = (progress - 0.375f) / 0.175f
-                val worldDropY = phase * (screenHeight * 0.8f)
+                val worldDropY = phase * (launchSpan(screenWidth, screenHeight) * 0.8f)
 
                 canvas.save()
                 val shakeIntensity = 6f + phase * 10f
@@ -1228,16 +2192,7 @@ class HangarRenderer(private val persistence: PersistenceManager) {
                 val lengthMult = if (isArrival) 1f - arrivalPhase * 0.8f else 1f
                 val streakAlphaBase = if (isArrival) 1f - arrivalPhase else 1f
 
-                // Accumulated offset: linear during travel, decelerating during arrival
-                // During travel (0..arrivalStart): offset grows linearly
-                // During arrival: offset continues growing but rate drops (integral of speedMult)
-                val travelOffset = hyperPhase.coerceAtMost(arrivalStart) * screenHeight * 0.6f
-                val arrivalOffset = if (isArrival) {
-                    // Integral of (1 - t*0.8) from 0 to arrivalPhase = arrivalPhase - 0.4*arrivalPhase^2
-                    val integrated = arrivalPhase - 0.4f * arrivalPhase * arrivalPhase
-                    integrated * (1f - arrivalStart) * screenHeight * 0.6f
-                } else 0f
-                val yOffset = travelOffset + arrivalOffset
+                val yOffset = hyperStreakOffset(hyperPhase, arrivalStart, launchSpan(screenWidth, screenHeight))
 
                 for (i in 0 until numStreaks) {
                     val xPos = hyperStreakRandom.nextFloat() * screenWidth
@@ -1334,10 +2289,9 @@ class HangarRenderer(private val persistence: PersistenceManager) {
             EvolutionMapping(base.id, base.name, passiveId, effectivePassiveId, passiveName, evo.id, evo.name, isWeaponKnown, isPassiveKnown)
         }
 
-        // Layout: title at top, back hint at bottom, evolutions fill the rest
-        val topMargin = 30f
-        val bottomMargin = 20f
-        val usableHeight = screenHeight - topMargin - bottomMargin
+        // Layout: the rows fill the safe band, so a display cutout never eats the first one
+        val (rowsTop, rowsBottom) = codexRowSpan(layout)
+        val usableHeight = rowsBottom - rowsTop
         val rowHeight = usableHeight / mappings.size.coerceAtLeast(1)
 
         val iconSize = (rowHeight * 0.45f).coerceIn(16f, 60f)
@@ -1353,11 +2307,13 @@ class HangarRenderer(private val persistence: PersistenceManager) {
 
         for ((index, mapping) in mappings.withIndex()) {
             val isDiscovered = discovered.contains(mapping.evolutionId)
-            val rowCenterY = topMargin + rowHeight * index + rowHeight / 2f
+            val rowCenterY = rowsTop + rowHeight * index + rowHeight / 2f
 
             // Horizontal layout: [weapon] + [passive] = [evolution]
-            // Centered on screen with even spacing
-            val spacing = layout.content.width / 6f
+            // Centered on screen with even spacing, measured on the PORTRAIT content width so a
+            // rotated device shows the same rows at the same width rather than stretching them
+            // across the landscape screen (owner, 2026-09-29). Identical to layout's in portrait.
+            val spacing = portraitLayout.content.width / 6f
             val weaponX = layout.content.centerX - spacing * 1.5f
             val plusX = layout.content.centerX - spacing * 0.75f
             val passiveX = layout.content.centerX
@@ -1439,6 +2395,145 @@ class HangarRenderer(private val persistence: PersistenceManager) {
             }
         }
 
+        // No "how to close" line (owner, 2026-09-29: it makes sense as is). A tap anywhere, or a
+        // pad's B, closes it. The rows still stop where that line used to sit — codexRowSpan —
+        // so removing the words did not move a row.
+
         textPaint.color = 0xFFFFFFFF.toInt()
+    }
+
+    companion object {
+        /**
+         * The launch sequence's yardstick for how far the world moves: the device's long edge,
+         * which is the screen height upright and its width rotated.
+         *
+         * Both launch motions — the liftoff's world drop and the hyperspace streaks' scroll — were
+         * multiples of `screenHeight`, so on a rotated phone (960 tall against 2142) they ran at
+         * less than half speed while the ship and the streaks stayed the same size: long, slow
+         * streaks. Owner, 2026-09-29: the launch should look the same either way up. Upright this
+         * IS screenHeight, so portrait is bit-identical.
+         */
+        internal fun launchSpan(screenWidth: Float, screenHeight: Float): Float =
+            maxOf(screenWidth, screenHeight)
+
+        /**
+         * How far the hyperspace streaks have scrolled at [hyperPhase] (0..1 of the phase).
+         * Linear through the travel, then decelerating over the arrival from [arrivalStart]: the
+         * arrival term is the integral of a speed falling from 1 to 0.2, `t - 0.4t^2`.
+         */
+        internal fun hyperStreakOffset(hyperPhase: Float, arrivalStart: Float, span: Float): Float {
+            val travel = hyperPhase.coerceAtMost(arrivalStart) * span * 0.6f
+            if (hyperPhase < arrivalStart) return travel
+            val t = (hyperPhase - arrivalStart) / (1f - arrivalStart)
+            return travel + (t - 0.4f * t * t) * (1f - arrivalStart) * span * 0.6f
+        }
+
+        /** A panel button's icon, as a fraction of the card's short side. Tune by eye. */
+        internal const val PANEL_ICON_FRACTION = 0.75f
+
+        /**
+         * Floor for the carousel's per-ship draw width — see [measureShipHalfExtent], which owns
+         * the derivation. Exposed so the fade's own test can state the distance it expects rather
+         * than copying the number.
+         */
+        internal const val MIN_SHIP_EXTENT = 180f
+
+        /**
+         * The band the codex lays its rows in.
+         *
+         * Anchored to the safe area, not the screen: at targetSdk 36 the window fills the display
+         * cutout, and rows measured from a raw screenHeight put the first one inside the notch —
+         * the same failure drawYenCounter had, in this same file. A no-op wherever safe == full.
+         */
+        internal fun codexRowSpan(layout: ScreenLayout): Pair<Float, Float> =
+            layout.safe.top + CODEX_TOP_MARGIN to codexHintY(layout) - CODEX_HINT_LINE
+
+        /**
+         * Where the "how to leave" line sits: the bottom of the safe band, with the rows stopping a
+         * line short of it. Drawn at the rows' own bottom it landed across the last row's labels,
+         * because the rows divide the whole band — the band's bottom edge is the last row.
+         */
+        internal fun codexHintY(layout: ScreenLayout): Float =
+            layout.safe.bottom - CODEX_BOTTOM_MARGIN
+
+        private const val CODEX_TOP_MARGIN = 30f
+        private const val CODEX_BOTTOM_MARGIN = 20f
+
+        /** The line reserved for the hint, kept clear of the rows above it. */
+        private const val CODEX_HINT_LINE = 34f
+
+        /**
+         * The [CREW] [LAUNCH] [SHOP] row, as focus targets.
+         *
+         * Geometry mirrors the tap zones in HangarSurfaceView.handleTap, which are anchored to
+         * content width rather than screen width so the side labels do not drift on wide
+         * screens. HangarNavFocusTest asserts the two agree rect for rect, because this is a
+         * deliberate copy and a copy is what drifts. The band's own top is the one part that is
+         * no longer copied — both sides read [HangarMetrics.navBandTop], because a panel's
+         * arrangement depends on that line too.
+         *
+         * The current page's own label is published but disabled — a remote user should see
+         * where they are, not have it vanish. During the intro cinematic only `nav:1` is
+         * published: the launch pad is the one hop a swipe can make then, and publishing the
+         * others would hand a controller a page change no finger can make.
+         */
+        fun publishNavTargets(
+            focus: FocusRegistry,
+            currentPage: Int,
+            screenWidth: Float,
+            screenHeight: Float,
+            contentWidth: Float,
+            introCinematic: Boolean,
+            onNavigate: (Int) -> Unit
+        ) {
+            val labelY = HangarMetrics.navLabelY(screenHeight)
+            val bandTop = HangarMetrics.navBandTop(screenHeight)
+            val centerX = screenWidth / 2f
+            val spacing = contentWidth * 0.25f
+            for (i in 0..2) {
+                // During the intro only the launch pad's own label exists, matching the one hop a
+                // swipe can make. Once that hop is made it is the current page, so it publishes
+                // disabled and the cinematic stays shut.
+                if (introCinematic && i != 1) continue
+                val labelCenterX = centerX + (i - 1) * spacing
+                val halfWidth = spacing * 0.4f
+                focus.add(
+                    FocusTarget(
+                        id = "nav:$i",
+                        rect = RectF(
+                            labelCenterX - halfWidth, bandTop,
+                            labelCenterX + halfWidth, labelY + 15f
+                        ),
+                        enabled = i != currentPage
+                    ) { onNavigate(i) }
+                )
+            }
+        }
+
+        /**
+         * The shipyard, as one focus target: the ship itself.
+         *
+         * Left and right are the carousel rather than focus moves, and OK buys or launches what
+         * is in front of the player, so there is nothing else on the page to land on. Four
+         * targets made flying the second ship a five-press sequence — right, OK, up, OK — with
+         * the ring hopping between three ships that are one control, not three.
+         *
+         * The rect is the ship's own tap zone, so the callback can re-enter handleShipyardTap at
+         * its centre rather than carrying a second copy of the purchase.
+         */
+        fun publishShipyardTarget(
+            focus: FocusRegistry,
+            centerX: Float,
+            shipY: Float,
+            hitSize: Float,
+            onActivate: () -> Unit
+        ) {
+            focus.add(
+                FocusTarget(
+                    "ship",
+                    RectF(centerX - hitSize, shipY - hitSize, centerX + hitSize, shipY + hitSize)
+                ) { onActivate() }
+            )
+        }
     }
 }

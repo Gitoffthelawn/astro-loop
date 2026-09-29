@@ -29,6 +29,27 @@ import kotlin.math.sin
  */
 class CabinetRenderer(private val m: CabinetMetrics) {
 
+    /**
+     * The display's side cutouts and rounded-corner radius, in playfield pixels. Set by the
+     * host alongside `CabinetShellRenderer.topInset`, and for the same reason kept out of
+     * [CabinetMetrics]: they are about the glass, not the game.
+     *
+     * Only the top bar reads them. In portrait the top inset already pushes its text below the
+     * corner arc and there are no side cutouts, so all three change nothing there; in landscape
+     * the bar's text sits in the bare corners, which on a Pixel 9 Pro ate the initials and the
+     * score (owner, 2026-09-28).
+     */
+    var leftInset: Float = 0f
+    var rightInset: Float = 0f
+    var cornerRadius: Float = 0f
+
+    /** Left-most x anything readable at height [top] may use, before its own padding. */
+    private fun safeLeft(top: Float): Float = maxOf(leftInset, cornerClearance(cornerRadius, top))
+
+    /** Right-most x, mirror of [safeLeft]. */
+    private fun safeRight(top: Float): Float =
+        m.width - maxOf(rightInset, cornerClearance(cornerRadius, top))
+
     private val stroke = Paint().apply {
         isAntiAlias = true
         style = Paint.Style.STROKE
@@ -140,9 +161,9 @@ class CabinetRenderer(private val m: CabinetMetrics) {
     /**
      * Draws [s] with its top-left at [x],[y]. [size] is the cap height.
      *
-     * [p] exists for decision 84's colour separation and for nothing else. It defaults to
+     * [p] exists for a design decision's colour separation and for nothing else. It defaults to
      * [ICE], so every existing caller is unchanged: the cabinet's own lettering is ice
-     * white and decision 15's single-phosphor rule still holds. The one thing allowed to
+     * white and a design decision's single-phosphor rule still holds. The one thing allowed to
      * break it is the crystal, exactly as on the playfield — see [CORRUPTION]'s own doc.
      */
     fun text(
@@ -167,14 +188,14 @@ class CabinetRenderer(private val m: CabinetMetrics) {
     }
 
     /**
-     * Decision 84's colour separation: [text]'s own stroke drawn a second time, displaced,
+     * A design decision's colour separation: [text]'s own stroke drawn a second time, displaced,
      * in the crystal's red. Draw it BEFORE the real lettering so the readable copy stays on
      * top — a ghost over the top is the version that stops a player finding PLAY.
      *
      * A second stroked pass, not an offscreen one, and the cost is countable rather than
      * estimated. `BELT RUN` is 12 strokes in [CabinetFont] and each goes through
      * [strokePath]'s three passes, so the ghost is 36 `drawPath` calls against a menu device
-     * pass 4 measured at ~1000. `HIGH SCORE` is 17 strokes, 51 calls. It is paid only inside
+     * pass measured at ~1000. `HIGH SCORE` is 17 strokes, 51 calls. It is paid only inside
      * an episode, and [CabinetTakeover] holds those to a 9.2% duty cycle: 3.6% of a menu
      * frame while it is happening, ~0.3% averaged. Frame time stays where it was.
      */
@@ -191,7 +212,7 @@ class CabinetRenderer(private val m: CabinetMetrics) {
     }
 
     /**
-     * Decision 84's dropped rows: a band or two of lost signal across [rect], each closed by
+     * A design decision's dropped rows: a band or two of lost signal across [rect], each closed by
      * a hot line in the crystal's red — the tear is the crystal's, not the tube's.
      *
      * **This is not the scanlines this class's header refuses**, and must not be read as
@@ -335,7 +356,7 @@ class CabinetRenderer(private val m: CabinetMetrics) {
      * them.** It said *"The shell is gone"* and cited an `ORB_HALO_FRAC` of 1.0; then it
      * described the orb as matching the main game's size, which it does not (see
      * [drawCrystalAt]); then a lattice replaced the orb outright on the reading that there
-     * is no crystal to draw. Decision 116 settled it: there IS one in the fight, and there
+     * is no crystal to draw. A design decision settled it: there IS one in the fight, and there
      * is not one on a replay, which is the distinction the other three all missed.
      *
      * Not wrapped: it is anchored at the field's centre and its radius cannot reach a
@@ -357,7 +378,7 @@ class CabinetRenderer(private val m: CabinetMetrics) {
      * bullets because it is the same thing throwing them. Inside it, the Time Crystal's own
      * orb, at the game's numbers and its own pulse.
      *
-     * **[hasCrystal] is false on a replay** — decision 116. You released it; the ??? entry
+     * **[hasCrystal] is false on a replay** — a design decision. You released it; the ??? entry
      * runs a recording, so what you fight there is the containment with nothing in it. The
      * voice substitutes on the same flag, [ReckoningRun.crystalHasBody].
      *
@@ -375,7 +396,7 @@ class CabinetRenderer(private val m: CabinetMetrics) {
      *
      * That is also why the ring-to-orb ratio drifted per device — 2.45:1 at 720 minEdge,
      * 3.67:1 at 1080, 4.90:1 at 1440 — while the main game's crystal, scaling uniformly with
-     * everything else, never had the problem at all. Decision 115 removed the orb for a story
+     * everything else, never had the problem at all. A design decision removed the orb for a story
      * reason; keeping its replacement proportional to [radius] is what stops the units
      * mismatch returning behind it.
      */
@@ -383,8 +404,8 @@ class CabinetRenderer(private val m: CabinetMetrics) {
         canvas: Canvas, x: Float, y: Float, radius: Float, health: Float,
         hasCrystal: Boolean = true
     ) {
-        // The shell: a plain circle, corruption red, dimming as it dies. No spikes — device
-        // pass 7 asked for exactly a circle, and a jagged silhouette read as a creature
+        // The shell: a plain circle, corruption red, dimming as it dies. No spikes — a device
+        // pass asked for exactly a circle, and a jagged silhouette read as a creature
         // rather than as a containment around something.
         val lit = 0.45f + 0.55f * health
         var i = 0
@@ -395,7 +416,7 @@ class CabinetRenderer(private val m: CabinetMetrics) {
         }
         strokePolyline(canvas, scratch, i, true, 1.4f, lit, CORRUPTION)
 
-        // AND THE CRYSTAL INSIDE IT, WHEN THERE IS ONE — decision 116. On a replay there
+        // AND THE CRYSTAL INSIDE IT, WHEN THERE IS ONE — a design decision. On a replay there
         // is not: you already released it, so the ??? entry is the cabinet running a
         // recording and what you fight is the containment with nothing in it. The same
         // fact drives the voice, which is why both read [ReckoningRun.crystalHasBody]
@@ -444,7 +465,7 @@ class CabinetRenderer(private val m: CabinetMetrics) {
      * [CabinetMetrics]: the sim stays resolution-independent, which is the property that
      * makes the fairness maths device-independent.
      *
-     * **Reverses design decision 33** (`2026-08-13-arcade-cabinet-finale-design.md`),
+     * **Reverses an earlier design decision**,
      * which chose full opacity. That decision's reasoning was about colour wash and
      * legibility only; it never considered that the playfield is full-bleed underneath,
      * so a fully opaque gel hides every rock — and the player's own ship — the instant
@@ -482,7 +503,8 @@ class CabinetRenderer(private val m: CabinetMetrics) {
         fill.alpha = 255
 
         val y = topInset + size * 0.6f
-        text(canvas, rules.initials, size * 0.7f, y, size, 1.5f)
+        // The glyph box's TOP binds: the corner arc is narrowest there.
+        text(canvas, rules.initials, safeLeft(y) + size * 0.7f, y, size, 1.5f)
 
         // No readout at all when the run does not score, rather than a readout of zero.
         //
@@ -493,7 +515,7 @@ class CabinetRenderer(private val m: CabinetMetrics) {
         // building dread. Absence says it properly.
         if (showScore) {
             val scoreText = score.toString().padStart(3, '0')
-            text(canvas, scoreText, m.width - size * 0.7f - CabinetFont.width(scoreText, size), y, size, 1.5f)
+            text(canvas, scoreText, safeRight(y) - size * 0.7f - CabinetFont.width(scoreText, size), y, size, 1.5f)
         }
 
         // The crystal can speak over the ORDINARY bar too. Through the opening the fight
@@ -520,7 +542,7 @@ class CabinetRenderer(private val m: CabinetMetrics) {
      * initials and a score.
      *
      * The score half is dropped because there are no rocks during the fight, so it would
-     * read 0 for the whole climax and look broken (decision 47). The gel stays — it is
+     * read 0 for the whole climax and look broken. The gel stays — it is
      * the pilot's colour and the one thing on screen that says who is flying.
      *
      * The fill drains from both ends toward the middle rather than left-to-right: this is
@@ -551,12 +573,13 @@ class CabinetRenderer(private val m: CabinetMetrics) {
         // 2. The health fill, drained from both ends.
         val h = healthFrac.coerceIn(0f, 1f)
         val inset = m.minEdge * 0.03f
-        val left = inset
-        val right = m.width - inset
-        val span = (right - left) * h
-        val cx = (left + right) / 2f
         val barY = topInset + m.minEdge * BAR_Y_FRAC
         val thickness = m.minEdge * BAR_THICKNESS_FRAC
+        // Same corner/cutout clearance as [drawTopBar]'s text: the bar's ends sit in the corners.
+        val left = safeLeft(barY - thickness) + inset
+        val right = safeRight(barY - thickness) - inset
+        val span = (right - left) * h
+        val cx = (left + right) / 2f
 
         scratch[0] = cx - span / 2f; scratch[1] = barY
         scratch[2] = cx + span / 2f; scratch[3] = barY
@@ -568,7 +591,7 @@ class CabinetRenderer(private val m: CabinetMetrics) {
         scratch[2] = right; scratch[3] = barY
         strokePolyline(canvas, scratch, 4, false, thickness * 0.35f, 0.25f, CORRUPTION)
 
-        // 4. The crystal, talking — decision 81. Beneath the bar rather than over it: the
+        // 4. The crystal, talking — a design decision. Beneath the bar rather than over it: the
         //    health readout is the thing being consulted under pressure and must never be
         //    the thing a line of dialogue sits on top of. In CORRUPTION, because this is
         //    WHITE, not CORRUPTION. The red was the argument-from-authorship — this is
@@ -581,6 +604,17 @@ class CabinetRenderer(private val m: CabinetMetrics) {
 
     companion object {
         const val SCREEN = 0xFF000206.toInt()
+
+        /**
+         * How far in from a side edge a rounded display corner of [radius] reaches at height
+         * [top] below the top edge. 0 at or below the arc, and 0 for a square corner. Same arc
+         * as `ScreenLayout.cornerSafeRight`, measured from the edge instead of as an x.
+         */
+        fun cornerClearance(radius: Float, top: Float): Float {
+            if (radius <= 0f) return 0f
+            val leg = radius - top.coerceIn(0f, radius)
+            return radius - kotlin.math.sqrt(radius * radius - leg * leg)
+        }
 
         /**
          * Top bar gel opacity, ~62%. Balances two things pulling in opposite directions:
@@ -615,14 +649,14 @@ class CabinetRenderer(private val m: CabinetMetrics) {
          */
         class Phosphor(val core: Int, val beam: Int, val glow: Int)
 
-        /** The cabinet's own beam. Decision 31: ice white, not amber and not green. */
+        /** The cabinet's own beam. A design decision: ice white, not amber and not green. */
         val ICE = Phosphor(PHOSPHOR_CORE, PHOSPHOR_BEAM, PHOSPHOR_GLOW)
 
         /**
-         * The crystal's. Decision 35 — corruption red, and the ONE exception to decision
-         * 15's monochrome playfield.
+         * The crystal's. A design decision — corruption red, and the ONE exception to the
+         * monochrome playfield.
          *
-         * That is not a contradiction: decision 15 makes the playfield single-phosphor so
+         * That is not a contradiction: a design decision makes the playfield single-phosphor so
          * pilot identity has to come from the gel over the score strip. The crystal is
          * the one thing on this screen that is not the cabinet's own game, and it is
          * supposed to look like it does not belong.
@@ -645,7 +679,7 @@ class CabinetRenderer(private val m: CabinetMetrics) {
          *
          * So the core is a vivid red now. ICE gets away with a near-white core because the
          * cabinet's own beam is *supposed* to look white-hot; the crystal is not, and the
-         * one exception decision 35 grants it is the whole point of it being red.
+         * one exception a design decision grants it is the whole point of it being red.
          */
 
         private const val TWO_PI = (2.0 * Math.PI).toFloat()
@@ -674,7 +708,7 @@ class CabinetRenderer(private val m: CabinetMetrics) {
         const val ORB_CORE_ALPHA = 220f
 
         /**
-         * Brightness of decision 84's displaced red copy, relative to the real lettering.
+         * Brightness of a design decision's displaced red copy, relative to the real lettering.
          *
          * Below full so the ghost reads as a fringe rather than as a second, competing word.
          * It is multiplied by the episode's own intensity on top of this.

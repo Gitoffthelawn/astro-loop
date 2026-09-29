@@ -6,7 +6,7 @@ import com.astroloop.game.data.PersistenceManager
  * What a finished reckoning writes to the save.
  *
  * **Only a WIN writes anything.** A loss leaves the save untouched and returns the player to the
- * bar in silence (decision 79, which retired decision 62). It still *resolves* — [apply] returns
+ * bar in silence. It still *resolves* — [apply] returns
  * true so the shell latches the run and stops re-applying it — it simply has nothing to record.
  *
  * **Extracted so it can be tested.** These writes used to live inline in `HangarSurfaceView`,

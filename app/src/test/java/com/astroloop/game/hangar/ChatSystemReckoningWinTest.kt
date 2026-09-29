@@ -50,7 +50,7 @@ class ChatSystemReckoningWinTest {
 
     @Test
     fun `Tobar opens it and the pilot is not in it`() {
-        // Decision 96: the crew got better and nobody in the room can be told why, so the
+        // A design decision: the crew got better and nobody in the room can be told why, so the
         // pilot says nothing about the fight. If a speaker other than TOBAR or MEDIC ever
         // appears here, the script has grown a witness it is not supposed to have.
         chatSystem.onReckoningWon(state)

@@ -12,8 +12,7 @@ import com.astroloop.game.weapon.Weapon
 
 class HunterKiller : Weapon(
     id = "hunter_killer",
-    name = "Hunter-Killer",
-    description = "Relentless homing torpedo at double rate"
+    name = "Hunter-Killer"
 ) {
     override val baseDamage = 60f
     override val baseCooldown = 1.0f   // double the Cluster Bomb's 2.0s — clean beat-halving

@@ -140,7 +140,7 @@ class BossSystem(
             if (!p.isRecalling) {
                 // Trigger recall at screen edge
                 val margin = 20f
-                val halfW = state.screenWidth / 2f
+                val halfW = Boss.recallHalfWidth(state.screenWidth)
                 val halfH = state.screenHeight / 2f
                 val atEdge = p.position.x < ship.position.x - halfW + margin ||
                     p.position.x > ship.position.x + halfW - margin ||
@@ -243,7 +243,9 @@ class BossSystem(
         // The player does get that boomerang, but on the *corruption* run rather than in Astro
         // Loop — hasCrystalPowers is isCorrupted() — and it is bolted onto ordinary railgun
         // projectiles rather than living in the weapon. See "Crystal power: player railgun recall
-        // shots" in GameSurfaceView, which reuses Boss.RECALL_PAUSE_TIME and this same edge test.
+        // shots" in GameSurfaceView, which reuses Boss.RECALL_PAUSE_TIME and calls the same
+        // Boss.recallHalfWidth this does — the edge test used to be copied into both, and the
+        // boss mirrors Astro's powers, so a copy was one edit away from drifting them apart.
         val shotsInBurst = 2
         for (burst in 0 until shotsInBurst) {
             val burstOffset = burst * 15f

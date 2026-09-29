@@ -9,8 +9,8 @@ import kotlin.math.sin
  * How the reckoning arrives: a stretch of ordinary BELT RUN, then the field crystallising
  * into the thing you fight.
  *
- * **Authored rather than played (decision 52).** The original design contradicted itself
- * here — decision 5 said the launch dissolves the hangar *into the cabinet*, while §8 said
+ * **Authored rather than played.** The original design contradicted itself
+ * here — a design decision said the launch dissolves the hangar *into the cabinet*, while the spec said
  * *"You are playing a normal game when it arrives"* with rocks on the field to
  * crystallise. Both hold only if there is a stretch of BELT RUN first, and its length was
  * never specified.
@@ -20,7 +20,7 @@ import kotlin.math.sin
  * with how well the player was flying; it is deterministic; and **it does not depend on
  * wave pacing**, which is the one figure this project has repeatedly refused to guess.
  *
- * The player cannot tell a scripted wave from a random one, so §8's *"normal game"*
+ * The player cannot tell a scripted wave from a random one, so the spec's *"normal game"*
  * survives in the only sense that matters.
  */
 class ReckoningOpening(
@@ -41,7 +41,7 @@ class ReckoningOpening(
          * The field freezes and the crystal flies in from the top strip.
          *
          * Was CRYSTALLISING, where the rocks imploded into the forming crystal and were
-         * eaten. Device pass 7 replaced that: "instead of the asteroids in the first part
+         * eaten. A device pass replaced that: "instead of the asteroids in the first part
          * of the fight going to the middle, please just freeze the asteroids, as the
          * crystal does its opening lines and flies to the middle."
          */
@@ -159,7 +159,7 @@ class ReckoningOpening(
      * Move the player off the crystal's seat, if they are on it.
      *
      * **One caller now: [formCrystal].** It used to run twice — once as the implosion
-     * started and once as the crystal formed — but decision 93 replaced the implosion with
+     * started and once as the crystal formed — but a design decision replaced the implosion with
      * the flight in, so there is no earlier moment to shove at. The idempotence the second
      * call needed is kept anyway: it is a shove to a minimum clearance, not a displacement,
      * so calling it on a player who is already clear does nothing.
@@ -256,9 +256,9 @@ class ReckoningOpening(
         /**
          * The crystal's health, and therefore the length of the fight.
          *
-         * 200 -> 300 when decision 74 needed five HP bands to fit above it; back to 180 at
-         * device pass 7, where the owner found the fight too hard and asked for less. With
-         * decision 92 this is the ONLY dial that sets the fight's length — each pattern is
+         * 200 -> 300 when a design decision needed five HP bands to fit above it; back to 180 at
+         * a device pass, where the owner found the fight too hard and asked for less. With
+         * a design decision this is the ONLY dial that sets the fight's length — each pattern is
          * a fifth of it, so 180 gives 36 HP a pattern.
          */
         const val CRYSTAL_HP = 180

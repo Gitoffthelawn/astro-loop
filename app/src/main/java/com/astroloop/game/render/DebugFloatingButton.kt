@@ -13,7 +13,7 @@ import com.astroloop.game.data.PersistenceManager
  * touches before the scale division for exactly that reason. Working in raw pixels means one
  * coordinate space for draw and hit-test in both views, and over the cabinet as well.
  *
- * **Tap versus drag is stage 1 Task 13's rule:** a press promotes to a drag on slop **or** on
+ * **Tap versus drag has one rule:** a press promotes to a drag on slop **or** on
  * elapsed time. Slop alone was the first version of that rule and it broke stationary holds; the
  * review caught it and the fix was the disjunction. Do not reduce it back to one condition.
  *
@@ -119,7 +119,7 @@ class DebugFloatingButton(private val radiusPx: Float) {
     fun release(atMs: Long): Outcome {
         // No arming press means no tap. Without this guard a release that never had a down —
         // reachable whenever another handler consumed the ACTION_DOWN — reports a phantom tap.
-        // Device pass 2 Task 2 found the identical hole in CabinetInput.up().
+        // A device pass found the identical hole in CabinetInput.up().
         if (!active) return Outcome.IGNORED
         val wasPromoted = promoted || (atMs - downMs >= HOLD_MS)
         endGesture()

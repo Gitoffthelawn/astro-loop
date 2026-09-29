@@ -3,12 +3,12 @@ package com.astroloop.game.cabinet
 /**
  * The thing at the centre of the reckoning.
  *
- * Anchored — it never moves. §8: *"You always know where to point, so the question is
+ * Anchored — it never moves. The spec: *"You always know where to point, so the question is
  * never where is it but can I afford to turn right now."* That anchoring is also what
  * keeps the radial patterns readable and what gives the wrap meaning, since fleeing
  * carries you around the field and back toward it.
  *
- * The only behaviour here is its own damage arithmetic, and since decision 92 there is
+ * The only behaviour here is its own damage arithmetic, and since a design decision there is
  * barely any: damage comes straight off hp. The bands, their floor and the fractional carry
  * that made damage inside the floor visible are all gone — the pattern follows the health
  * now, so nothing needs to hold the crystal back from dying. See [damage].
@@ -18,7 +18,7 @@ class CabinetCrystal(
     val y: Float,
     val maxHp: Int,
     /**
-     * Whether there is anything inside the containment — decision 116.
+     * Whether there is anything inside the containment — a design decision.
      *
      * False on a replay: you released the crystal, and ??? runs a recording of a fight that
      * already happened, so what is on the tube is the shell with nothing in it.
@@ -48,9 +48,9 @@ class CabinetCrystal(
      * Take [n] damage. Non-positive is a no-op rather than a heal: `damage` is a named
      * mutator and healing through it would be an abuse of the name, not a feature.
      *
-     * **No floor, and no carry.** Decision 74 gave this a per-pattern HP floor with damage
+     * **No floor, and no carry.** A design decision gave this a per-pattern HP floor with damage
      * inside it scaled to 12%, so that every pattern got its turn before the crystal could
-     * die. Decision 92 makes the pattern follow the health instead, which guarantees the
+     * die. A design decision makes the pattern follow the health instead, which guarantees the
      * same thing by construction — you cannot reach the last fifth without crossing the
      * four before it — so the floor, the carry and the crystal that stopped reacting mid
      * pattern all go away together.
@@ -67,7 +67,7 @@ class CabinetCrystal(
          * 23.8px at reference — a hair over a SMALL rock (21.6px) and about the size of the
          * player's own ship (24.8px).
          *
-         * **This is the hitbox, and since device pass 7 it is also the drawing.** It was
+         * **This is the hitbox, and since a device pass it is also the drawing.** It was
          * 0.09 — 97.2px — back when a corruption-red shell was drawn at exactly this radius
          * and the orb sat small inside it: the shell was what told you where the target
          * ended. With the shell removed the orb had to take that job, so it was scaled up to
@@ -84,7 +84,7 @@ class CabinetCrystal(
          * 4-unit core — DESIGN units, which the main game's `canvas.scale(renderScale)`
          * turns into 13.3 physical pixels on a Pixel 9 Pro — and that smallness is most of
          * what makes it recognisable. ⚠️ That orb is no
-         * longer drawn at all — decision 115 replaced it with a lattice, because the ending
+         * longer drawn at all — a design decision replaced it with a lattice, because the ending
          * is a release and there is no Time Crystal here to depict. The sizing history below
          * is kept because it is why this number moved, not because the orb is still in it.
          *
@@ -102,7 +102,7 @@ class CabinetCrystal(
         /**
          * Points on the shell.
          *
-         * Kept at 14 through the device pass 7 reshape because it is not only a silhouette:
+         * Kept at 14 through the device pass reshape because it is not only a silhouette:
          * `CabinetSim.shatterCrystal` subdivides each of these edges to build the ending, so
          * `SHELL_POINTS * CRYSTAL_DEBRIS_SUBDIVISIONS` is the ~70 pieces the ending is
          * authored to throw. Changing it changes the ending's weight.
@@ -113,7 +113,7 @@ class CabinetCrystal(
          * The shell as a unit-radius closed polygon, interleaved x,y.
      *
      * **A plain ring, not a star.** It alternated radii 1.0 / 0.72 to read as spikes until
-     * device pass 7: *"with a corruption red shell around it, it makes the target a little
+     * a device pass: *"with a corruption red shell around it, it makes the target a little
      * bigger, no spikes or anything."* The shell's job is to be a target the orb cannot be
      * on its own — the Time Crystal is a dot — and a spiked silhouette was reading as a
      * creature rather than as a containment around something.

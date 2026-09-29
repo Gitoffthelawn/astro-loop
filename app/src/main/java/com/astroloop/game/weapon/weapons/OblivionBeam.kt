@@ -9,8 +9,7 @@ import com.astroloop.game.weapon.Weapon
 
 class OblivionBeam : Weapon(
     id = "oblivion_beam",
-    name = "Oblivion Beam",
-    description = "Always-on piercing lance"
+    name = "Oblivion Beam"
 ) {
     override val baseDamage = 18f     // per tick (10 ticks/sec); was 50 — heavy nerf
     override val baseCooldown = 0.1f   // per-entity tick interval

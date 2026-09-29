@@ -49,7 +49,7 @@ class ReckoningDirectorTest {
     private fun director(ps: List<ReckoningPattern> = probes()) = ReckoningDirector(m, ps)
 
     /**
-     * Step past the beat of quiet every pattern opens with — decision 94. Anything asserting
+     * Step past the beat of quiet every pattern opens with — a design decision. Anything asserting
      * about EMISSION has to get through it first, because the director deliberately emits
      * nothing while the crystal is talking.
      */
@@ -71,7 +71,7 @@ class ReckoningDirectorTest {
     }
 
     @Test fun timeAloneDoesNotAdvanceThePattern() {
-        // INVERTED for decision 92. Phases used to run out a 15-second clock each and cycle;
+        // INVERTED for a design decision. Phases used to run out a 15-second clock each and cycle;
         // now they follow the crystal's health, so a fight in which nothing is damaged sits
         // on its first pattern however long it lasts.
         val d = director()
@@ -103,7 +103,7 @@ class ReckoningDirectorTest {
     }
 
     @Test fun escalationStepsDoNotShrink() {
-        // Decision 58: escalation tightens emission INTERVALS, never the clock it runs on.
+        // A design decision: escalation tightens emission INTERVALS, never the clock it runs on.
         // The fight densifies without accelerating.
         val d = director()
         val step = ReckoningDirector.ESCALATION_SECONDS
@@ -160,10 +160,10 @@ class ReckoningDirectorTest {
         assertEquals(1, d.lap)
     }
 
-    // --- Decision 74: the bands ---------------------------------------------------------
+    // --- A design decision: the bands ---------------------------------------------------------
 
     @Test fun everyPatternOpensWithASeamAndThenFires() {
-        // Decision 94. The lull is BETWEEN patterns, not inside one — decision 88 still
+        // A design decision. The lull is BETWEEN patterns, not inside one — a design decision still
         // holds for what a pattern does once it starts.
         val d = director()
         assertTrue("the fight opens on a seam", d.inLull)
@@ -183,7 +183,7 @@ class ReckoningDirectorTest {
     }
 
     @Test fun thePatternFollowsTheCrystalsHealth() {
-        // Decision 92, replacing decision 74's HP bands. One pattern per fifth: 100-80% is
+        // A design decision, replacing a design decision's HP bands. One pattern per fifth: 100-80% is
         // the first, 80-60% the second, and so on. The bands existed to guarantee all five
         // played; this guarantees it by construction, because the last fifth cannot be
         // reached without crossing the four before it.
@@ -381,13 +381,13 @@ class ReckoningDirectorTest {
     }
 
     @Test fun aLapIsSeventyFiveSeconds() {
-        // §8's arithmetic: five patterns at ~15s each. A two-to-four minute fight is
+        // The spec's arithmetic: five patterns at ~15s each. A two-to-four minute fight is
         // two or three laps, so most fights never repeat a pattern at all.
         assertEquals(75f, ReckoningDirector.DEFAULT_PATTERNS.sumOf { it.duration.toDouble() }.toFloat(), 0.01f)
     }
 
     @Test fun everyPatternBindsOnATermThatActuallyTightens() {
-        // The trap Task 6 found: a pattern whose narrowest opening is geometric can
+        // The trap an earlier change found: a pattern whose narrowest opening is geometric can
         // satisfy rule 1 forever and never satisfy rule 5, because geometry does not
         // scale with tighten. Checked here rather than per pattern so a sixth pattern
         // added later cannot slip through.

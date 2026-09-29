@@ -59,7 +59,7 @@ class UpgradeSystemTest {
             state.reset()
             val options = upgradeSystem.generateUpgradeOptions(state)
             if (options.any { it.isWeapon && !it.isEvolution }) foundWeapon = true
-            if (options.any { !it.isWeapon && !it.isEvolution && !it.isFallback }) foundPassive = true
+            if (options.any { !it.isWeapon && !it.isEvolution }) foundPassive = true
             if (foundWeapon && foundPassive) return@repeat
         }
 
@@ -122,7 +122,7 @@ class UpgradeSystemTest {
 
         // New passives should not be offered
         val newPassiveOptions = options.filter {
-            !it.isWeapon && !it.isEvolution && !it.isFallback &&
+            !it.isWeapon && !it.isEvolution &&
             state.getPassiveStacks(it.id) == 0
         }
 
@@ -269,19 +269,6 @@ class UpgradeSystemTest {
         state.addPassive("duplicator_core")
         val eligible = upgradeSystem.getEligibleEvolutions(state)
         assertFalse("Normal mode has no time gate", eligible.isEmpty())
-    }
-
-    @Test
-    fun `generateWeaponOnlyOptions returns only weapons`() {
-        val options = upgradeSystem.generateWeaponOnlyOptions(state)
-
-        assertTrue("All options should be weapons", options.all { it.isWeapon })
-    }
-
-    @Test
-    fun `generateWeaponOnlyOptions returns correct number of choices`() {
-        val options = upgradeSystem.generateWeaponOnlyOptions(state)
-        assertEquals(GameConfig.UPGRADE_CHOICES, options.size)
     }
 
     // ─── Option Selection ────────────────────────────────────────────
@@ -474,7 +461,7 @@ class UpgradeSystemTest {
 
             // At least one option should be for something we don't own
             val hasNew = options.any { option ->
-                !option.isEvolution && !option.isFallback &&
+                !option.isEvolution &&
                 if (option.isWeapon) {
                     state.getWeaponLevel(option.id) == 0
                 } else {
@@ -494,28 +481,16 @@ class UpgradeSystemTest {
         repeat(20) {
             val options = upgradeSystem.generateUpgradeOptions(state)
             for (opt in options) {
-                if (opt.isWeapon && !opt.isEvolution && !opt.isFallback) {
+                if (opt.isWeapon && !opt.isEvolution) {
                     assertTrue("Weapon ${opt.id} should be unlocked",
                         opt.id in upgradeSystem.unlockedWeaponIds)
                 }
-                if (!opt.isWeapon && !opt.isEvolution && !opt.isFallback) {
+                if (!opt.isWeapon && !opt.isEvolution) {
                     assertTrue("Passive ${opt.id} should be unlocked",
                         opt.id in upgradeSystem.unlockedPassiveIds)
                 }
             }
         }
-    }
-
-    @Test
-    fun `generateWeaponOnlyOptions only offers unlocked weapons`() {
-        upgradeSystem.unlockedWeaponIds = setOf("pulse_cannon", "railgun")
-
-        val options = upgradeSystem.generateWeaponOnlyOptions(state)
-        for (opt in options) {
-            assertTrue("Weapon ${opt.id} should be unlocked",
-                opt.id in upgradeSystem.unlockedWeaponIds)
-        }
-        assertTrue("Should have options", options.isNotEmpty())
     }
 
     @Test
@@ -538,7 +513,7 @@ class UpgradeSystemTest {
             val options = upgradeSystem.generateUpgradeOptions(state)
             if (options.size >= 2) {
                 val weapons = options.filter { it.isWeapon && !it.isEvolution }
-                val passives = options.filter { !it.isWeapon && !it.isFallback }
+                val passives = options.filter { !it.isWeapon }
                 assertTrue("Must have at least one weapon", weapons.isNotEmpty())
                 assertTrue("Must have at least one passive", passives.isNotEmpty())
             }

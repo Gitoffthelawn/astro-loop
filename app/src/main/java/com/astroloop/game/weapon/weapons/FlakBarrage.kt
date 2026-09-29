@@ -13,8 +13,7 @@ import kotlin.random.Random
 
 class FlakBarrage : Weapon(
     id = "flak_barrage",
-    name = "Flak Barrage",
-    description = "Rapid cluster of exploding shells"
+    name = "Flak Barrage"
 ) {
     override val baseDamage = 25f
     override val baseCooldown = 0.5f

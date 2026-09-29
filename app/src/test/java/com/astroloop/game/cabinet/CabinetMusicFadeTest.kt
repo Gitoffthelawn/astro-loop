@@ -4,9 +4,9 @@ import org.junit.Assert.*
 import org.junit.Test
 
 /**
- * When the hangar bed gets out of the way — decision 111.
+ * When the hangar bed gets out of the way — a design decision.
  *
- * The bed is not silenced for the whole cabinet session (decision 104's first form) and it is
+ * The bed is not silenced for the whole cabinet session (a design decision's first form) and it is
  * not ducked either: it plays under the bezel and the menu, and once a RUN starts it fades to
  * nothing over a few seconds and stays gone until you leave the machine.
  *

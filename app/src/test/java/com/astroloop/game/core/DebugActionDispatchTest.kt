@@ -6,10 +6,10 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
- * Covers the run-only classification, which is the pure part and the property Task 3 depends on.
+ * Covers the run-only classification, which is the pure part and the property the per-row dimming depends on.
  *
  * `handle`'s persistence branches are not covered here: `PersistenceManager` needs a `Context` and
- * this project has no Robolectric. That is the same boundary stage 1 Task 7 drew, and its coverage
+ * this project has no Robolectric. That is the same boundary an earlier change drew, and its coverage
  * gap is written up in the ledger rather than papered over with a mock.
  */
 class DebugActionDispatchTest {
@@ -25,7 +25,7 @@ class DebugActionDispatchTest {
         "ARCADE_OPEN", "ARCADE_PLAY", "GRANT_BANDANAS", "CLEAR_BANDANAS",
         "BUY_CRYSTAL", "RESET_STORY", "SET_LOOP_1", "SET_LOOP_2",
         "SET_LOOP_3", "SET_CORRUPT", "TOGGLE_ASTRO_LOOP", "CLR_DESERT",
-        "SET_DESERT_FLAGS", "UNBRICK", "RESET_SMALL", "RESET_BIG",
+        "SET_DESERT_FLAGS", "RESET_SMALL", "RESET_BIG",
         "KILL_PILOT", "KILL_ALL"
     )
 
@@ -48,7 +48,7 @@ class DebugActionDispatchTest {
 
     @Test
     fun theRunOnlySurfaceIsExactlySevenActions() {
-        // The tripwire for Task 3's per-row dimming: every action in this set needs a dimmed row
+        // The tripwire for the per-row dimming: every action in this set needs a dimmed row
         // in the hangar, and one added here without a matching row is a live button that no-ops.
         val all = runOnly + persistenceBacked
         assertEquals(7, all.count { DebugActionDispatch.isRunOnly(it) })

@@ -51,13 +51,13 @@ class PulsePattern : ReckoningPattern {
      * The arc between neighbouring bullets, at engagement range — **the way through, now
      * that there is no hole.**
      *
-     * Device pass 7: *"the bullet patterns shot by the boss also don't need a gap in them,
+     * A device pass: *"the bullet patterns shot by the boss also don't need a gap in them,
      * it's easy enough right now to dodge even without the gap."* The ring used to carry a
      * three-slot door and `minSpacing` measured THAT; the door is gone and the opening is
      * every gap instead of one.
      *
-     * Does not scale with `tighten`: escalation tightens intervals, not geometry (decision
-     * 58), so late laps close the radial gap while this stays put — which is why the radial
+     * Does not scale with `tighten`: escalation tightens intervals, not geometry,
+     * so late laps close the radial gap while this stays put — which is why the radial
      * term is what breaches the floor at lap 4 and drives fairness rule 5.
      */
     private fun neighbourArc(m: CabinetMetrics): Float =
@@ -72,7 +72,7 @@ class PulsePattern : ReckoningPattern {
         t: Float, dt: Float, tighten: Float, m: CabinetMetrics, shipX: Float, shipY: Float
     ): List<CabinetBullet> {
         val out = ArrayList<CabinetBullet>()
-        // Every slot fires. Decision 88 retired fairness rule 2: there is no rest
+        // Every slot fires. A design decision retired fairness rule 2: there is no rest
         // between bursts any more, so the rings arrive at a fixed unbroken cadence.
         forEachTick(t, dt, RING_INTERVAL * tighten) { _, _ ->
             ring(m, shipX, shipY, out)
@@ -94,7 +94,7 @@ class PulsePattern : ReckoningPattern {
         // the door stayed within the ship's reach — existed only to serve it. A uniform
         // ring has no door to outrun, so all of that goes with it.
         //
-        // ANCHORED TO THE SHIP, as of device pass 7. A ring is COUNT bullets over the whole
+        // ANCHORED TO THE SHIP, as of a device pass. A ring is COUNT bullets over the whole
         // circle and therefore rotation INVARIANT, so this cannot make it denser or sparser
         // — it only decides which bearing a bullet sits on, and now one of them always sits
         // on yours. Spacing is untouched, so rule 1 sees exactly what it saw.

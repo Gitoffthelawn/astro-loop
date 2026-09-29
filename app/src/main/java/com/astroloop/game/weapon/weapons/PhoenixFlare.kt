@@ -14,8 +14,7 @@ import kotlin.math.sin
 
 class PhoenixFlare : Weapon(
     id = "phoenix_flare",
-    name = "Phoenix Flare",
-    description = "Three expanding pulse rings that burn everything in their path"
+    name = "Phoenix Flare"
 ) {
     override val baseDamage = 50f
     override val baseCooldown = 2.0f

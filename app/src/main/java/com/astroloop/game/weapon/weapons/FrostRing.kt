@@ -13,8 +13,7 @@ import kotlin.math.PI
 
 class FrostRing : Weapon(
     id = "frost_ring",
-    name = "Frost Ring",
-    description = "Permanent frost ring"
+    name = "Frost Ring"
 ) {
     override val baseDamage = 20f
     override val baseCooldown = 2f

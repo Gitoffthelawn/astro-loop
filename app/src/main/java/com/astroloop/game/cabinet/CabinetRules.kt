@@ -3,18 +3,18 @@ package com.astroloop.game.cabinet
 /**
  * What the cabinet knows about a pilot: their initials, and nothing else.
  *
- * This carried twelve per-pilot twists until device pass 2, when the owner cut them —
+ * This carried twelve per-pilot twists until a device pass, when the owner cut them —
  * they are recoverable from git history if a future pass wants them back. What remains
  * is load-bearing three times over: the high score board ranks by initials, the HUD
  * strip shows them, and the stage 3 gate reads a per-pilot score table.
  *
  * The consequence is recorded rather than hidden: with no twists, the gate's twelve
- * runs are the same run twelve times. Original spec decision 10 existed to prevent
+ * runs are the same run twelve times. Original spec decision existed to prevent
  * exactly that.
  *
  * **Settled 2026-08-21: accepted.** The reckoning is an easter egg rather than a
  * mandatory ending, so twelve identical runs is a price the player opts into rather than
- * one the game charges. Decision 10 is retired, not deferred — do not reintroduce the
+ * one the game charges. A design decision is retired, not deferred — do not reintroduce the
  * twists to "fix" a gate that is no longer considered broken.
  */
 data class CabinetRules(val initials: String) {

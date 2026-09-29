@@ -14,15 +14,8 @@ data class UpgradeOption(
     val isWeapon: Boolean,
     val isEvolution: Boolean = false,
     val baseWeaponId: String? = null,
-    val requiredPassiveId: String? = null,
-    val isFallback: Boolean = false,  // True for health/gold options when fully upgraded
-    val fallbackType: FallbackType? = null
+    val requiredPassiveId: String? = null
 )
-
-enum class FallbackType {
-    HEALTH_RESTORE,  // Restore 20% health
-    GOLD_BONUS       // Bonus gold
-}
 
 class UpgradeSystem(
     private val powerUpPool: EntityPool<PowerUp>
@@ -32,19 +25,12 @@ class UpgradeSystem(
     var unlockedWeaponIds: Set<String> = emptySet()
     var unlockedPassiveIds: Set<String> = emptySet()
 
-    fun generateUpgradeOptions(state: GameState, fromAsteroid: Boolean = false): List<UpgradeOption> {
+    fun generateUpgradeOptions(state: GameState): List<UpgradeOption> {
         val options = mutableListOf<UpgradeOption>()
         val selected = mutableSetOf<String>()
 
         // Check if fully upgraded - no more regular upgrades to offer
         if (state.isFullyUpgraded()) {
-            // DISABLED: fallback upgrades kept for potential future use
-            // if (!fromAsteroid) {
-            //     options.add(UpgradeOption(id = "fallback_health", isWeapon = false, isFallback = true, fallbackType = FallbackType.HEALTH_RESTORE))
-            //     options.add(UpgradeOption(id = "fallback_gold", isWeapon = false, isFallback = true, fallbackType = FallbackType.GOLD_BONUS))
-            //     pendingOptions = options
-            //     return options
-            // }
             pendingOptions = emptyList()
             return emptyList()
         }
@@ -96,7 +82,6 @@ class UpgradeSystem(
             // Skip one-time passives if already owned
             if (passiveDef.id in oneTimePassives && currentStacks > 0) continue
 
-            // Skip tb26 in first upgrade (handled by generateWeaponOnlyOptions anyway)
             // Skip extra_weapon_slot if already using extra weapon slot
             if (passiveDef.id == "extra_weapon_slot" && state.hasExtraWeaponSlot) continue
 
@@ -144,32 +129,16 @@ class UpgradeSystem(
             }
         }
 
-        // DISABLED: fallback upgrades kept for potential future use
-        // When fewer than 3 options available, show fewer cards instead of adding fallbacks
-        // if (!fromAsteroid) {
-        //     while (options.size < GameConfig.UPGRADE_CHOICES) {
-        //         if (!selected.contains("fallback_health")) {
-        //             options.add(UpgradeOption(id = "fallback_health", isWeapon = false, isFallback = true, fallbackType = FallbackType.HEALTH_RESTORE))
-        //             selected.add("fallback_health")
-        //         } else if (!selected.contains("fallback_gold")) {
-        //             options.add(UpgradeOption(id = "fallback_gold", isWeapon = false, isFallback = true, fallbackType = FallbackType.GOLD_BONUS))
-        //             selected.add("fallback_gold")
-        //         } else {
-        //             break
-        //         }
-        //     }
-        // }
-
         // Guarantee at least one weapon and one passive when both types are available
         val allWeapons = ownedWeapons + newWeapons
         val allPassives = ownedPassives + newPassives
         if (allWeapons.isNotEmpty() && allPassives.isNotEmpty()) {
             val hasWeapon = options.any { it.isWeapon && !it.isEvolution }
-            val hasPassive = options.any { !it.isWeapon && !it.isFallback }
+            val hasPassive = options.any { !it.isWeapon }
 
             if (!hasWeapon) {
                 // All cards are passives — replace one with a weapon
-                val replaceIdx = options.indexOfLast { !it.isWeapon && !it.isFallback }
+                val replaceIdx = options.indexOfLast { !it.isWeapon }
                 if (replaceIdx >= 0) {
                     val candidate = allWeapons.firstOrNull { !selected.contains(it.id) }
                     if (candidate != null) {
@@ -197,11 +166,11 @@ class UpgradeSystem(
         // so its non-emptiness is sufficient to confirm room exists.
         if (newUpgrades.isNotEmpty()) {
             val hasNewInOptions = options.any { opt ->
-                !opt.isEvolution && !opt.isFallback && newUpgrades.any { it.id == opt.id }
+                !opt.isEvolution && newUpgrades.any { it.id == opt.id }
             }
             if (!hasNewInOptions) {
-                // Find the last option that is safe to replace (not an evolution, not a fallback)
-                val replaceIndex = options.indexOfLast { !it.isEvolution && !it.isFallback }
+                // Find the last option that is safe to replace (not an evolution)
+                val replaceIndex = options.indexOfLast { !it.isEvolution }
                 if (replaceIndex >= 0) {
                     val newCandidate = newUpgrades.firstOrNull { !selected.contains(it.id) }
                     if (newCandidate != null) {
@@ -229,7 +198,7 @@ class UpgradeSystem(
             if (options.size < GameConfig.UPGRADE_CHOICES) {
                 options.add(promoted)
             } else {
-                val replaceIdx = options.indexOfLast { !it.isWeapon && !it.isFallback }
+                val replaceIdx = options.indexOfLast { !it.isWeapon }
                 if (replaceIdx >= 0) {
                     selected.remove(options[replaceIdx].id)
                     options[replaceIdx] = promoted
@@ -350,31 +319,6 @@ class UpgradeSystem(
 
     fun clearPendingOptions() {
         pendingOptions = emptyList()
-    }
-
-    /**
-     * Generate weapon-only options for the first upgrade pick.
-     * Excludes utility weapons and tb26 (which is now a passive).
-     */
-    fun generateWeaponOnlyOptions(state: GameState): List<UpgradeOption> {
-        val options = mutableListOf<UpgradeOption>()
-        val candidates = mutableListOf<UpgradeOption>()
-
-        for (weaponDef in WeaponDefinitions.getBaseWeapons()
-            .filter { it.id in unlockedWeaponIds && !state.hasEvolutionOf(it.id) }) {
-            candidates.add(UpgradeOption(weaponDef.id, isWeapon = true))
-        }
-
-        // Select random unique options
-        candidates.shuffle()
-        for (candidate in candidates) {
-            if (options.size < GameConfig.UPGRADE_CHOICES) {
-                options.add(candidate)
-            }
-        }
-
-        pendingOptions = options
-        return options
     }
 
     /**

@@ -7,7 +7,7 @@ import kotlin.math.hypot
  * One of the crystal's five attacks.
  *
  * Every pattern **declares its own fairness figures** and the harness checks the
- * declaration against what the pattern actually emits (decision 50). Declaring alone is
+ * declaration against what the pattern actually emits. Declaring alone is
  * cheap and is how `CrystalFightSystem`'s tests stay three lines each — but a declaration
  * nothing verifies is precisely the failure this branch keeps catching, most sharply in
  * the stage 1 final review, where tests ran green over a path the product never took.
@@ -19,13 +19,13 @@ import kotlin.math.hypot
  */
 interface ReckoningPattern {
 
-    /** Shown in no UI; used by tests and reports. Keep it the §8 name. */
+    /** Shown in no UI; used by tests and reports. Keep it the spec name. */
     val name: String
 
     /**
      * Seconds this pattern runs in one lap.
      *
-     * Does NOT scale with `tighten` — decision 58. Escalation tightens emission intervals
+     * Does NOT scale with `tighten` — a design decision. Escalation tightens emission intervals
      * only, so the fight densifies without accelerating and a lap stays ~75s.
      *
      * **Must be > 0, and must not change between reads.** [ReckoningDirector] drains
@@ -48,7 +48,7 @@ interface ReckoningPattern {
      * **Measured at engagement range, not at the crystal's surface**, and that choice is
      * load-bearing — see [ReckoningFairness.ENGAGEMENT_RANGE_FRAC]. Radial patterns are
      * geometrically tighter the closer you are, so closing on the crystal costs the
-     * player room. That is §8's *"damage is never free"* expressed as geometry rather
+     * player room. That is the spec's *"damage is never free"* expressed as geometry rather
      * than as a rule, and it is a property to preserve, not to engineer away.
      */
     fun minSpacing(m: CabinetMetrics, tighten: Float): Float
@@ -109,7 +109,7 @@ inline fun forEachTick(t: Float, dt: Float, interval: Float, body: (Int, Float) 
 fun crossingLife(m: CabinetMetrics, speed: Float): Float = hypot(m.width, m.height) / speed
 
 /**
- * The crystal is anchored at the field's centre (§8 — *"You always know where to point"*),
+ * The crystal is anchored at the field's centre (the spec — *"You always know where to point"*),
  * so patterns emit from there rather than being handed a position they cannot influence.
  */
 fun crystalX(m: CabinetMetrics): Float = m.width / 2f

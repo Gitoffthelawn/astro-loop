@@ -25,8 +25,8 @@ import kotlin.math.sin
  * pattern that cannot be survived by reflex: the arc is visible long before it arrives
  * and the hole is somewhere you have to go.
  *
- * **Rebuilt for decision 78.** It used to spawn full-width walls just inside the top or
- * bottom edge, alternating. Device pass 6: *"all patterns should emit from the ship
+ * **Rebuilt for a design decision.** It used to spawn full-width walls just inside the top or
+ * bottom edge, alternating. A device pass: *"all patterns should emit from the ship
  * instead of having patterns that start from outside of the screen."* Read against the
  * code, CURTAIN was the only one of the five that did — the other four all spawn at
  * [crystalX]/[crystalY]. The objection is readability, and it lands hardest here: a wall
@@ -115,7 +115,7 @@ class CurtainPattern : ReckoningPattern {
         val life = crossingLife(m, sp)
         val step = angularStep(m, tighten)
         val half = ARC_SPAN / 2f
-        // AIMED AT THE SHIP, as of device pass 7 — owner: "it's easy to just camp and
+        // AIMED AT THE SHIP, as of a device pass — owner: "it's easy to just camp and
         // easily damage the crystal."
         //
         // The arc used to walk a fixed irrational fraction each time, which meant a player
@@ -137,7 +137,7 @@ class CurtainPattern : ReckoningPattern {
         // ±0.31 rad, well inside the arc's ±1.73 half-span, so the ship is always covered.
         val bearing = aim + sin(k * BEARING_STEP_FRAC * TWO_PI) * (AIM_JITTER * half)
         val slots = floor(ARC_SPAN / step).toInt()
-        // Unbroken. The arc used to carry a walking opening; device pass 7 retired it —
+        // Unbroken. The arc used to carry a walking opening; a device pass retired it —
         // "it's easy enough right now to dodge even without the gap" — so the way through
         // is now the same everywhere along it, which is what neighbourSpacing measures.
         for (i in 0..slots) {
@@ -186,7 +186,7 @@ class CurtainPattern : ReckoningPattern {
          *
          * ⚠️ This scales a BOUNDED offset, not an accumulating walk. It used to multiply
          * `k * BEARING_STEP_FRAC * TWO_PI` directly, which grows without limit — and since
-         * decision 92 made phases advance on DAMAGE, a player who never shoots never leaves
+         * a design decision made phases advance on DAMAGE, a player who never shoots never leaves
          * the phase, so `k` never resets and the drift never stops. Nine of every nineteen
          * walls missed. `everyArcArrivesOnTheShipsBearing_notOnlyTheFirst` pins this.
          */

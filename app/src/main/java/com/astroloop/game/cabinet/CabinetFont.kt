@@ -61,7 +61,7 @@ object CabinetFont {
         '9' to arrayOf(s(0f,9f, 2f,10f, 4f,10f, 6f,7f, 6f,2f, 4f,0f, 2f,0f, 0f,2f, 0f,4f, 2f,6f, 6f,5f)),
         '-' to arrayOf(s(1f,5f, 5f,5f)),
         '.' to arrayOf(s(3f,9f, 3f,10f)),
-        // Device pass 7: sentences with an apostrophe rendered a hole. The crystal's own
+        // A device pass: sentences with an apostrophe rendered a hole. The crystal's own
         // lines are full of them - "You don't get to stop.", "They're all still in here."
         // A short stroke at cap height, leaning the way a typed apostrophe does.
         '\'' to arrayOf(s(3f,0f, 2f,3f)),
@@ -90,7 +90,7 @@ object CabinetFont {
      * Returns [cap] untouched when it already fits, so a roomy column is not penalised for
      * a narrow one's sake.
      *
-     * **Why this exists.** Device pass 7 found the high score board clipping. Its text was
+     * **Why this exists.** A device pass found the high score board clipping. Its text was
      * sized from `lineHeight` — `reelHeight / 7`, a VERTICAL measure — while the panel it
      * had to fit is 15% of the machine's WIDTH, so "HIGH SCORE" rendered 386px wide inside
      * a 127px plate. The Exo 2 code it replaced never hit that because it carried a hard

@@ -14,8 +14,7 @@ import kotlin.math.sqrt
 
 class WarpSaw : Weapon(
     id = "warp_saw",
-    name = "Warp Saw",
-    description = "The blade detaches and hunts on its own"
+    name = "Warp Saw"
 ) {
     override val baseDamage = 15f
     override val baseCooldown = 0.1f

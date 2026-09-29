@@ -77,15 +77,6 @@ class PersistenceManagerTest {
     }
 
     @Test
-    fun testResetAllProgressClearsCrystalBroken() {
-        persistence.setCrystalBroken()
-        assertTrue(persistence.isCrystalBroken())
-
-        persistence.resetAllProgress()
-        assertFalse(persistence.isCrystalBroken())
-    }
-
-    @Test
     fun testResetAllProgressResetsStoryLoop() {
         persistence.setStoryLoop(3)
         assertEquals(3, persistence.getStoryLoop())

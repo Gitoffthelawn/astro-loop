@@ -8,8 +8,7 @@ import com.astroloop.game.weapon.Weapon
 
 class SolarStorm : Weapon(
     id = "solar_storm",
-    name = "Solar Storm",
-    description = "Random piercing strikes"
+    name = "Solar Storm"
 ) {
     override val baseDamage = 29f
     override val baseCooldown = 2.0f

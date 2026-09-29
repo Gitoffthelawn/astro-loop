@@ -14,8 +14,7 @@ import kotlin.math.sin
 
 class LingeringNova : Weapon(
     id = "lingering_nova",
-    name = "Lingering Nova",
-    description = "AoE burst that detonates, lingers, then detonates again"
+    name = "Lingering Nova"
 ) {
     override val baseDamage = 30f
     override val baseCooldown = 4f
@@ -29,7 +28,18 @@ class LingeringNova : Weapon(
     private var pendingIsEnemy: Boolean = false
     private var pendingIsCorruption: Boolean = false
 
-    private fun getBlastRadius(state: GameState): Float = 360f * state.areaMultiplier
+    companion object {
+        /**
+         * The blast's reach, scaled by [areaMultiplier].
+         *
+         * Public for the same reason [NovaBlast.blastRadiusFor] is: the effect ring draws this
+         * exact number, and the ring and the blast must never be able to disagree. Note this is
+         * LARGER than Nova Blast's top rung (351f) — evolving grows the blast.
+         */
+        fun blastRadiusFor(areaMultiplier: Float): Float = 360f * areaMultiplier
+    }
+
+    private fun getBlastRadius(state: GameState): Float = blastRadiusFor(state.areaMultiplier)
 
     private fun fireRingBurst(
         x: Float,

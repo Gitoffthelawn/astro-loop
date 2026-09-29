@@ -6,8 +6,7 @@ import com.astroloop.game.entity.Firer
 
 abstract class Weapon(
     val id: String,
-    val name: String,
-    val description: String
+    val name: String
 ) {
     var level: Int = 1
     var cooldownTimer: Float = 0f

@@ -3,6 +3,8 @@ package com.astroloop.game.cabinet
 import android.graphics.Canvas
 import com.astroloop.game.data.CrystalFightLines
 import android.graphics.RectF
+import com.astroloop.game.input.FocusRegistry
+import com.astroloop.game.input.FocusTarget
 
 enum class ShellButton { PLAY, SCORES, EXIT, RESUME, QUIT, AGAIN, BACK, REPLAY }
 
@@ -52,6 +54,15 @@ class CabinetShellRenderer(
     @Volatile private var hitRects: Map<ShellButton, RectF> = emptyMap()
 
     /**
+     * The shell's own registry. The cabinet overlay is modal, so while it is up this is the
+     * only registry the hangar's activeFocus() will hand directional input to.
+     */
+    val focusRegistry = FocusRegistry()
+
+    /** Set by HangarSurfaceView, pointing at the same dispatch the tap path uses. */
+    var onShellButton: ((ShellButton) -> Unit)? = null
+
+    /**
      * Display cutout, in playfield pixels. Every screen in this class lays out from here
      * rather than from y=0, so BELT RUN at 0.13 of the height clears a Pixel's camera.
      */
@@ -79,7 +90,7 @@ class CabinetShellRenderer(
      *   in rather than read off persistence directly, the same reason [credits] and
      *   [canAfford] are: [CabinetShell] and this renderer are pure and know nothing of
      *   persistence, so whether the crystal has been released is the host's knowledge.
-     * @param takeoverMs the wall clock driving decision 84's glitch, or null when the gate
+     * @param takeoverMs the wall clock driving a design decision's glitch, or null when the gate
      *   is shut. Passed in for the same reason [replayAvailable] is — the gate is
      *   `CrystalReckoning.shouldEnter`, which needs persistence, which this class does not
      *   have. **MENU only.** SCORES is where the asterisks make gate progress legible and
@@ -95,7 +106,7 @@ class CabinetShellRenderer(
         coinCost: Int,
         replayAvailable: Boolean = false,
         takeoverMs: Long? = null,
-        /** Best release in whole seconds, 0 for none — decision 112. */
+        /** Best release in whole seconds, 0 for none — a design decision. */
         bestReleaseSeconds: Int = 0
     ) {
         pending.clear()
@@ -119,6 +130,11 @@ class CabinetShellRenderer(
         // what hitTest reads. Four entries at most, in a class that already allocates a
         // RectF per button per frame, so the cost is noise.
         hitRects = HashMap(pending)
+        // Rebuilt in the same pass that laid the buttons out, so a rect can never outlive the
+        // screen that drew it — the shell swaps its whole button set between states.
+        focusRegistry.begin()
+        publishShellTargets(focusRegistry, hitRects) { button -> onShellButton?.invoke(button) }
+        focusRegistry.commit()
     }
 
     private fun centred(
@@ -139,10 +155,10 @@ class CabinetShellRenderer(
      */
     private fun button(
         canvas: Canvas, b: ShellButton, label: String, y: Float, size: Float,
-        ghostMs: Long? = null
+        ghostMs: Long? = null, cx: Float = m.width / 2f
     ) {
         val w = CabinetFont.width(label, size)
-        val x = m.width / 2f - w / 2f
+        val x = cx - w / 2f
         if (ghostMs != null) r.ghostText(canvas, label, x, y, size, 1.5f, ghostMs, CabinetTakeover.MENU)
         r.text(canvas, label, x, y, size, 1.5f)
         val rect = RectF(x - size, y - size * 0.6f, x + w + size, y + size * 1.6f)
@@ -153,7 +169,7 @@ class CabinetShellRenderer(
     /**
      * A button that names its own price when pressing it will take a coin.
      *
-     * Device pass 2 found PLAY silently spending ¥100 through the host's
+     * A device pass found PLAY silently spending ¥100 through the host's
      * `onPlay() || chargeAndPlay` fallthrough while the readout still said CREDIT 0.
      * The one-tap charge is wanted — the spec argues for it directly — so the fix is
      * that the tap is never a surprise, not that the tap is refused.
@@ -164,22 +180,39 @@ class CabinetShellRenderer(
     private fun pricedButton(
         canvas: Canvas, b: ShellButton, base: String,
         y: Float, size: Float, credits: Int, canAfford: Boolean, coinCost: Int,
-        ghostMs: Long? = null
+        ghostMs: Long? = null, cx: Float = m.width / 2f
     ) {
-        if (credits > 0) { button(canvas, b, base, y, size, ghostMs); return }
-        if (!canAfford) {
-            val label = "NO ¥"
+        val label = pricedLabel(base, credits, canAfford, coinCost)
+        if (credits > 0 || canAfford) { button(canvas, b, label, y, size, ghostMs, cx); return }
+        run {
             val w = CabinetFont.width(label, size)
-            val x = m.width / 2f - w / 2f
+            val x = cx - w / 2f
             // The dim, inert branch glitches too. It is still the ??? row — the machine does
             // not stop half-remembering because the player is broke — and leaving this one
             // clean would make the effect read as a function of the wallet.
             if (ghostMs != null) r.ghostText(canvas, label, x, y, size, 1.5f, ghostMs, CabinetTakeover.MENU)
             r.text(canvas, label, x, y, size, 1.5f, alphaScale = DIM)
-            return
         }
-        button(canvas, b, "$base - $coinCost¥", y, size, ghostMs)
     }
+
+    /** What [pricedButton] writes: the bare label on credit, the price on yen, NO ¥ on neither. */
+    private fun pricedLabel(base: String, credits: Int, canAfford: Boolean, coinCost: Int): String =
+        when {
+            credits > 0 -> base
+            !canAfford -> "NO ¥"
+            else -> "$base - $coinCost¥"
+        }
+
+    /** Landscape: the playfield is wider than it is tall. The menu and board re-lay out for it. */
+    private val landscape: Boolean get() = m.width > m.height
+
+    /**
+     * X of a portrait column fraction, inside a band the portrait width wide centred on the
+     * screen. Identical to `m.width * frac` in portrait; in landscape it keeps the board the size
+     * it is in portrait instead of stretching its columns across the whole tube.
+     */
+    private fun colX(frac: Float, bandCentre: Float = m.width / 2f): Float =
+        bandCentre + (frac - 0.5f) * m.minEdge
 
     private fun drawMenu(
         canvas: Canvas, credits: Int, canAfford: Boolean, coinCost: Int, board: List<BoardRow>,
@@ -202,13 +235,18 @@ class CabinetShellRenderer(
         centred(canvas, "CREDIT $credits", vy(0.13f) + big * 1.7f, big * 0.26f, 1.1f)
 
         val s = m.minEdge / 20f
-        centred(canvas, "HIGH SCORE", vy(0.40f), s * 0.85f, 1.3f)
+        // Landscape has a short edge's worth of height for what portrait spreads over its long
+        // one, so the board tightens (1.3 rows instead of 1.5) and starts higher, leaving room for
+        // the status line and one horizontal button row underneath. See [drawMenuButtonRow].
+        val boardTop = if (landscape) 0.40f else 0.46f
+        val rowStep = if (landscape) 1.3f else 1.5f
+        centred(canvas, "HIGH SCORE", vy(boardTop - 0.06f), s * 0.85f, 1.3f)
         board.take(5).forEachIndexed { i, row ->
-            val y = vy(0.46f) + i * s * 1.5f
-            r.text(canvas, "${i + 1}", m.width * 0.20f, y, s * 0.8f, 1.1f)
-            r.text(canvas, row.initials, m.width * 0.34f, y, s, 1.4f)
+            val y = vy(boardTop) + i * s * rowStep
+            r.text(canvas, "${i + 1}", colX(0.20f), y, s * 0.8f, 1.1f)
+            r.text(canvas, row.initials, colX(0.34f), y, s, 1.4f)
             val txt = row.score.toString().padStart(3, '0')
-            r.text(canvas, txt, m.width * 0.80f - CabinetFont.width(txt, s), y, s, 1.4f)
+            r.text(canvas, txt, colX(0.80f) - CabinetFont.width(txt, s), y, s, 1.4f)
         }
 
         // The coin rule. Set dressing, not a live value, so it reads fine down here —
@@ -220,8 +258,72 @@ class CabinetShellRenderer(
         // text. At vy(0.70f) the line runs 1680-1712.4, comfortably clear of the box
         // below (see [by]'s own doc for its numbers).
         val statusSize = s * 0.6f
-        centred(canvas, "1 COIN 1 PLAY", vy(0.70f), statusSize, 1.1f)
+        centred(canvas, "1 COIN 1 PLAY", vy(if (landscape) 0.75f else 0.70f), statusSize, 1.1f)
 
+        if (landscape) {
+            drawMenuButtonRow(canvas, s, credits, canAfford, coinCost, replayAvailable)
+        } else {
+            drawMenuButtonColumn(canvas, s, credits, canAfford, coinCost, replayAvailable)
+        }
+
+        // Last, so the dropped rows sit over the menu AND over the attract demo running
+        // behind it — one machine losing lock, not an overlay with a hole in it. Drawn
+        // below the cutout only: a band inside the inset would land on the camera notch.
+        if (takeoverMs != null) {
+            bandRect.set(0f, topInset, m.width, m.height)
+            r.dropout(canvas, bandRect, takeoverMs, CabinetTakeover.MENU)
+        }
+    }
+
+    /**
+     * Landscape: PLAY, SCORES, EXIT (and the ??? row once it exists) side by side along the
+     * bottom, in the portrait column's order left to right.
+     *
+     * The portrait column needs ~6.4 button heights below vy(0.75) — more than a landscape
+     * screen has, which is what clipped EXIT off the bottom. A row needs one. Each keeps its
+     * portrait size, and PLAY stays the big one; the smaller labels sit on PLAY's centre line
+     * rather than its top, so the row reads as a row. If the row would ever be wider than the
+     * screen (it is not on any 16:9-or-wider device) every size shrinks together to fit.
+     */
+    private fun drawMenuButtonRow(
+        canvas: Canvas, s: Float, credits: Int, canAfford: Boolean, coinCost: Int,
+        replayAvailable: Boolean
+    ) {
+        val playLabel = pricedLabel("PLAY", credits, canAfford, coinCost)
+        val replayLabel = pricedLabel("? ? ?", credits, canAfford, coinCost)
+        val labels = if (replayAvailable) listOf(playLabel, "SCORES", "EXIT", replayLabel)
+        else listOf(playLabel, "SCORES", "EXIT")
+        val sizes = FloatArray(labels.size) { if (it == 0) s else s * 0.8f }
+        // A button's box is its label plus one size of padding each side — see [button].
+        val gap = s
+        var total = gap * (labels.size - 1)
+        for (i in labels.indices) total += CabinetFont.width(labels[i], sizes[i]) + sizes[i] * 2f
+        val fit = (m.width * 0.94f / total).coerceAtMost(1f)
+        for (i in sizes.indices) sizes[i] *= fit
+
+        val by = vy(0.86f)
+        var left = m.width / 2f - total * fit / 2f
+        for (i in labels.indices) {
+            val size = sizes[i]
+            val boxW = CabinetFont.width(labels[i], size) + size * 2f
+            val cx = left + boxW / 2f
+            val y = by + (sizes[0] - size) / 2f
+            when (i) {
+                0 -> pricedButton(canvas, ShellButton.PLAY, "PLAY", y, size, credits, canAfford, coinCost, cx = cx)
+                1 -> button(canvas, ShellButton.SCORES, "SCORES", y, size, cx = cx)
+                2 -> button(canvas, ShellButton.EXIT, "EXIT", y, size, cx = cx)
+                else -> pricedButton(canvas, ShellButton.REPLAY, "? ? ?", y, size,
+                    credits, canAfford, coinCost, ghostMs = System.currentTimeMillis(), cx = cx)
+            }
+            left += boxW + gap * fit
+        }
+    }
+
+    /** Portrait: the original vertical column. Unchanged — see the numbers in its comments. */
+    private fun drawMenuButtonColumn(
+        canvas: Canvas, s: Float, credits: Int, canAfford: Boolean, coinCost: Int,
+        replayAvailable: Boolean
+    ) {
         // vy(0.75f), moved down from 0.74f to widen the gap from the status line above.
         // At the 1080x2400 reference (s = 54) the three boxes land at:
         //   PLAY   by=1800,          rect  1767.6-1886.4
@@ -235,7 +337,7 @@ class CabinetShellRenderer(
 
         // The machine half-remembers, the way Tobar does — a fourth line that does not
         // belong to BELT RUN's own game. Only once the crystal has been released, and
-        // priced like everything else per decision 60: the finale stopped being free.
+        // priced like everything else per a design decision: the finale stopped being free.
         //
         // by + s * 6.4f extends the existing spacing rather than re-deriving the column:
         // at the 1080x2400 reference (s = 54) the rect lands 2119.68-2214.72, clear of the
@@ -244,7 +346,7 @@ class CabinetShellRenderer(
         if (replayAvailable) {
             // THE ??? ROW GLITCHES, ALWAYS, AND IT IS THE ONLY ROW THAT DOES.
             //
-            // Decision 84's takeover is a WARNING: it runs while the crystal is coming for
+            // A design decision's takeover is a WARNING: it runs while the crystal is coming for
             // BELT RUN and stops once the fight is over, which is why `takeoverMs` above is
             // null by the time this row exists at all — the two are mutually exclusive, the
             // gate needing the crystal unreleased and this row needing it released. So this
@@ -261,38 +363,41 @@ class CabinetShellRenderer(
             pricedButton(canvas, ShellButton.REPLAY, "? ? ?", by + s * 6.4f, s * 0.8f,
                 credits, canAfford, coinCost, ghostMs = System.currentTimeMillis())
         }
-
-        // Last, so the dropped rows sit over the menu AND over the attract demo running
-        // behind it — one machine losing lock, not an overlay with a hole in it. Drawn
-        // below the cutout only: a band inside the inset would land on the camera notch.
-        if (takeoverMs != null) {
-            bandRect.set(0f, topInset, m.width, m.height)
-            r.dropout(canvas, bandRect, takeoverMs, CabinetTakeover.MENU)
-        }
     }
 
     private fun drawScores(canvas: Canvas, board: List<BoardRow>, bestReleaseSeconds: Int) {
         val s = m.minEdge / 24f
         centred(canvas, "ALL PILOTS", vy(0.10f), s, 1.4f)
+        // Landscape: twelve rows at portrait spacing run into BACK, so the board splits into two
+        // columns of portrait-sized rows, side by side. Portrait is one column, as it always was.
+        val perColumn = if (landscape) (board.size + 1) / 2 else board.size
+        val bandOffset = m.minEdge * 0.35f
         board.forEachIndexed { i, row ->
-            val y = vy(0.18f) + i * s * 1.45f
-            r.text(canvas, row.initials, m.width * 0.24f, y, s, 1.4f)
+            val column = if (perColumn > 0) i / perColumn else 0
+            val band = when {
+                !landscape -> m.width / 2f
+                column == 0 -> m.width / 2f - bandOffset
+                else -> m.width / 2f + bandOffset
+            }
+            val y = vy(0.18f) + (i % perColumn.coerceAtLeast(1)) * s * 1.45f
+            r.text(canvas, row.initials, colX(0.24f, band), y, s, 1.4f)
             val txt = row.score.toString().padStart(3, '0')
-            r.text(canvas, txt, m.width * 0.62f, y, s, 1.4f)
+            r.text(canvas, txt, colX(0.62f, band), y, s, 1.4f)
             // A cleared pilot is marked; this is how gate progress is legible.
-            if (row.cleared) r.text(canvas, "*", m.width * 0.76f, y, s, 1.4f)
+            if (row.cleared) r.text(canvas, "*", colX(0.76f, band), y, s, 1.4f)
         }
-        // THE RECKONING'S ONE NUMBER — decision 112. Its own labelled row beneath the
+        // THE RECKONING'S ONE NUMBER — a design decision. Its own labelled row beneath the
         // board rather than a thirteenth row inside it: the board is initials x score x
         // cleared, and the reckoning has no initials and is not a pilot.
         //
         // Drawn only once there IS one, which doubles as the spoiler gate — a player who
         // has never found the ending sees a board that looks exactly as it always did.
         if (bestReleaseSeconds > 0) {
-            val y = vy(0.18f) + board.size * s * 1.45f + s * 1.2f
-            r.text(canvas, "BEST RELEASE", m.width * 0.24f, y, s, 1.4f)
+            val y = vy(0.18f) + perColumn * s * 1.45f + s * 1.2f
+            val band = if (landscape) m.width / 2f - bandOffset else m.width / 2f
+            r.text(canvas, "BEST RELEASE", colX(0.24f, band), y, s, 1.4f)
             val t = bestReleaseSeconds.coerceAtMost(999).toString().padStart(3, '0')
-            r.text(canvas, t, m.width * 0.62f, y, s, 1.4f)
+            r.text(canvas, t, colX(0.62f, band), y, s, 1.4f)
         }
         button(canvas, ShellButton.BACK, "BACK", vy(0.90f), s * 0.85f)
     }
@@ -300,7 +405,7 @@ class CabinetShellRenderer(
     /**
      * The paused screen — and in the reckoning, the crystal taking it.
      *
-     * Decision 90. For [CabinetShell.PAUSE_HELD_SECONDS] this is an ordinary pause, so the
+     * A design decision. For [CabinetShell.PAUSE_HELD_SECONDS] this is an ordinary pause, so the
      * refusal reads as a refusal rather than as a dropped input. Then the buttons go and
      * the crystal answers, and [CabinetShell] hands the fight back on its own.
      *
@@ -339,18 +444,18 @@ class CabinetShellRenderer(
         }
         // AGAIN, not CONTINUE: a fresh run from zero, so every 999 is one unbroken life.
         //
-        // Priced in every state, including the reckoning. Decision 60 retired the free
+        // Priced in every state, including the reckoning. A design decision retired the free
         // finale: one economy, no special case. A broke player who loses the ending sees
         // this drawn unaffordable with no tap target and LEAVE as their only move.
         //
         // That last clause used to carry a second argument — the walk back to the bar was
-        // "the only thing that makes the round counter advance at all". Decision 79 deleted
+        // "the only thing that makes the round counter advance at all". A design decision deleted
         // the counter, so that argument is gone. The pricing stands on its own terms, and
-        // decision 79 records this knock-on precisely so it is not re-derived from it.
+        // a design decision records this knock-on precisely so it is not re-derived from it.
         pricedButton(canvas, ShellButton.AGAIN, "AGAIN?", vy(0.64f), s, credits, canAfford, coinCost)
         // MENU, not EXIT. This button has always gone to the menu — onBack() from OVER
         // returns there — and the old label said otherwise. In the reckoning it leaves
-        // altogether: decision 55 rejected dropping a player out of an ending into the
+        // altogether: a design decision rejected dropping a player out of an ending into the
         // attract demo, and that argument does not care which button got them there.
         button(canvas, ShellButton.BACK, if (reckoning) "LEAVE" else "MENU", vy(0.76f), s * 0.8f)
     }
@@ -367,6 +472,26 @@ class CabinetShellRenderer(
     }
 
     companion object {
+        /**
+         * hitRects is already keyed by ShellButton, so the map is the target list.
+         *
+         * Sorted by the buttons' own vertical position, then left to right, because hitRects is a
+         * HashMap and its iteration order is arbitrary — focus order has to follow the layout, or
+         * DOWN from the top button lands wherever the hash put things. The left-to-right tiebreak
+         * is for the landscape menu, whose buttons share a row.
+         */
+        fun publishShellTargets(
+            focus: FocusRegistry,
+            rects: Map<ShellButton, RectF>,
+            onPress: (ShellButton) -> Unit
+        ) {
+            for ((button, rect) in rects.entries.sortedWith(
+                compareBy({ it.value.top }, { it.value.left })
+            )) {
+                focus.add(FocusTarget("shell:${button.name}", RectF(rect)) { onPress(button) })
+            }
+        }
+
         /**
          * Brightness of a control that is deliberately inert.
          *

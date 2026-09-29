@@ -25,7 +25,7 @@ class ReckoningRunTest {
     }
 
     @Test fun aPhaseJumpSkipsStraightToTheFight() {
-        // Decision 57. Tuning a pattern must not cost the opening every time.
+        // A design decision. Tuning a pattern must not cost the opening every time.
         val s = sim()
         val r = ReckoningRun(m, startPhase = 3)
         r.begin(s)
@@ -62,7 +62,7 @@ class ReckoningRunTest {
         val s = sim()
         val r = ReckoningRun(m, startPhase = 0)
         r.begin(s)
-        // Past the entrance AND past the seam the first pattern opens with — decision 94
+        // Past the entrance AND past the seam the first pattern opens with — a design decision
         // gives the crystal five seconds to speak before it fires a shot.
         run(
             r, s, ReckoningOpening.OPENING_SECONDS + ReckoningOpening.ARRIVAL_SECONDS +
@@ -73,7 +73,7 @@ class ReckoningRunTest {
     }
 
     @Test fun theRunTellsTheDirectorTheCrystalsHealth() {
-        // Decision 92's one wiring line. The director knows nothing about the crystal — it
+        // A design decision's one wiring line. The director knows nothing about the crystal — it
         // is handed a number — so if the run stops passing it, the fight silently stays on
         // its first pattern for ever however much damage is done.
         val s = sim()

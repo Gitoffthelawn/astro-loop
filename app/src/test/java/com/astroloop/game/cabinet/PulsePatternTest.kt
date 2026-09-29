@@ -17,9 +17,9 @@ class PulsePatternTest : ReckoningPatternContract() {
     }
 
     @Test fun ringsArriveAtAnUnbrokenCadence() {
-        // Decision 88 retired fairness rule 2. This used to assert the OPPOSITE — a rest
+        // A design decision retired fairness rule 2. This used to assert the OPPOSITE — a rest
         // of about 2.4s between bursts — on the grounds that without it "there is never a
-        // moment to turn and shoot". Device pass 6 disproved the fear it was written
+        // moment to turn and shoot". A device pass disproved the fear it was written
         // against: the owner flew the fight and won on a first attempt, and asked for the
         // pauses to go. Inverted rather than deleted, so re-adding a rest gate fails here.
         val e = emissions(1f)
@@ -31,7 +31,7 @@ class PulsePatternTest : ReckoningPatternContract() {
     }
 
     @Test fun everyRingIsUnbrokenAndEvenlySpaced() {
-        // INVERTED at device pass 7. The ring used to carry a rotating three-slot door and
+        // INVERTED at a device pass. The ring used to carry a rotating three-slot door and
         // this asserted its existence and its rotation. Owner: "the bullet patterns shot by
         // the boss also don't need a gap in them, it's easy enough right now to dodge even
         // without the gap." So the door is gone and the way through is every arc equally.

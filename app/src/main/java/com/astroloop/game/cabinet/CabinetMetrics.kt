@@ -12,9 +12,26 @@ import kotlin.math.min
  *
  * Reference figures below are for a 1080px short edge, which is the design device.
  */
-class CabinetMetrics(val width: Float, val height: Float) {
+class CabinetMetrics(width: Float, height: Float) {
 
-    val minEdge: Float = min(width, height)
+    /**
+     * The playfield, in screen pixels. Mutable only through [resize]: the cabinet can be open
+     * while the device rotates, and every class in a session shares this one instance, so
+     * changing it here is what makes the whole cabinet follow the new screen at once.
+     */
+    var width: Float = width
+        private set
+    var height: Float = height
+        private set
+
+    /** Unchanged by a rotation — that swaps [width] and [height], not the short edge. */
+    val minEdge: Float get() = min(width, height)
+
+    /** The screen changed under an open cabinet. See [CabinetShell.resize]. */
+    fun resize(newWidth: Float, newHeight: Float) {
+        width = newWidth
+        height = newHeight
+    }
 
     /** 302 px/s at reference — deliberately matched to GameConfig.SHIP_BASE_SPEED (300f). */
     val topSpeed: Float get() = TOP_SPEED_FRAC * minEdge

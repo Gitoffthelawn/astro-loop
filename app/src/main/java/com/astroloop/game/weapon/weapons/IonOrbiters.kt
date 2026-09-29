@@ -14,8 +14,7 @@ import kotlin.math.PI
 
 class IonOrbiters : Weapon(
     id = "ion_orbiters",
-    name = "Ion Orbiters",
-    description = "Orbiting energy spheres"
+    name = "Ion Orbiters"
 ) {
     override val baseDamage = 19f
     override val baseCooldown = 4.0f

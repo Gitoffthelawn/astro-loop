@@ -44,7 +44,7 @@ class ReckoningRun(
         private set
 
     /**
-     * Whether there is a crystal inside the shell — decision 116.
+     * Whether there is a crystal inside the shell — a design decision.
      *
      * False on a replay, and it is the SAME fact [CrystalVoice] reads to substitute the
      * machine's readout for the crystal's lines. You released it; a replay is the cabinet
@@ -62,7 +62,7 @@ class ReckoningRun(
     val crystalHasBody: Boolean get() = !isReplay
 
     /**
-     * Seconds of FIGHT — what the release record measures, decision 112.
+     * Seconds of FIGHT — what the release record measures, a design decision.
      *
      * The director's clock, which starts when the crystal lands: the twelve-second authored
      * opening is choreography nobody can hurry, so including it would only add a constant
@@ -83,7 +83,7 @@ class ReckoningRun(
         outcome = Outcome.RUNNING
         opening.begin(sim)
         if (startPhase > 0) {
-            // Decision 57: 1..5 skip straight in, field cleared and crystal present, so
+            // A design decision: 1..5 skip straight in, field cleared and crystal present, so
             // tuning a pattern does not cost the twelve-second opening every time.
             opening.skipToFight(sim)
             director.startAtPhase(startPhase - 1, startLap)
@@ -149,7 +149,7 @@ class ReckoningRun(
         // undo the entrance's whole image - shots from a thing that is not there yet.
         val c = sim.crystal
         if (c != null && c.alive) {
-            // The crystal's health decides which pattern is live — decision 92. It is
+            // The crystal's health decides which pattern is live — a design decision. It is
             // passed in rather than read, because the director still knows nothing about
             // the crystal: it is handed a number, not a thing.
             for (b in director.update(dt, sim.ship.x, sim.ship.y, c.healthFrac)) {

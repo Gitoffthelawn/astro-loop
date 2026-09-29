@@ -53,7 +53,7 @@ class CabinetCrystalTest {
         assertEquals(10, c.hp)
     }
 
-    // --- Decision 74/75: the band floor -------------------------------------------------
+    // --- Design decisions: the band floor -------------------------------------------------
 
     @Test fun aFreshCrystalHasNoFloorUntilTheFightGivesItOne() {
         // Free play, and every frame before the director is driving. The unbanded
@@ -99,7 +99,7 @@ class CabinetCrystalTest {
     @Test fun wavesDoNotSpawnWhileSuspended() {
         // CabinetSim.kt:150 spawns whenever the field is empty. The fight runs on an
         // empty field, so without this it mints a wave every single frame behind the
-        // crystal - the same class of defect as stage 1's Task 3 and Task 5.
+        // crystal - the same class of defect as two earlier fixes.
         val s = fightSim()
         val waveBefore = s.wave
         repeat(120) { s.update(1f / 60f, 0f, 0f, false) }

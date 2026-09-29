@@ -1,7 +1,7 @@
 package com.astroloop.game.cabinet
 
 /**
- * When the machine glitches, and how hard — decision 84.
+ * When the machine glitches, and how hard — a design decision.
  *
  * Once `CrystalReckoning.shouldEnter` is true the crystal is taking BELT RUN over, and the
  * cabinet has to say so before the player ever presses PLAY. This object owns the *decision*
@@ -14,7 +14,7 @@ package com.astroloop.game.cabinet
  * inside, not a datamosh: constant heavy corruption reads as broken hardware, stops being
  * legible, and would have a player unable to find PLAY. So the machine is clean for
  * [CYCLE_MS] minus [EPISODE_MS] — a ~91% duty cycle of behaving itself — and comes apart in
- * brief episodes. That is also the cheap answer to decision 89's frame-time constraint:
+ * brief episodes. That is also the cheap answer to a design decision's frame-time constraint:
  * outside an episode [intensity] returns 0, every caller early-outs, and the takeover costs
  * literally nothing. Frame time is a standing complaint, and
  * `ReckoningFairness.DENSITY_CEILING` says in as many words that this feature must not

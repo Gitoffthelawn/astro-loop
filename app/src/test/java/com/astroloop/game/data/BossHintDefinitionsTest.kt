@@ -36,6 +36,19 @@ class BossHintDefinitionsTest {
     }
 
     @Test
+    fun `no solo hint presupposes an incomplete roster`() {
+        // Astro unlocks on ALL_OTHERS, so every SOLO line may be read by a player who already
+        // has him — the track keeps firing for as long as they keep flying someone else. A line
+        // that tells that player to go recruit is nonsense: there is nobody left to recruit.
+        for (line in BossHintDefinitions.linesFor(BossHintDefinitions.Track.SOLO)) {
+            assertFalse(
+                "Reads as nonsense once Astro is recruited: $line",
+                line.lowercase().contains("recruit")
+            )
+        }
+    }
+
+    @Test
     fun `hints escalate with repeated failures`() {
         for (track in BossHintDefinitions.Track.values()) {
             val first = BossHintDefinitions.hintFor(track, failures = 1)

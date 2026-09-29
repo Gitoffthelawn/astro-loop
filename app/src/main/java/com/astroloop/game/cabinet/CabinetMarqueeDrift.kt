@@ -7,7 +7,7 @@ import kotlin.random.Random
 
 /**
  * Ambient drift for the marquee plate below the main CRT — a handful of rocks wandering
- * behind the `BELT RUN` lettering, per §2 of the 2026-08-16 polish pass design.
+ * behind the `BELT RUN` lettering, per the 2026-08-16 polish pass design.
  *
  * This is deliberately not a second `CabinetSim`: no ship, no bullets, no collisions, no
  * scoring. The big CRT above already runs the real attract demo and has to stay the thing

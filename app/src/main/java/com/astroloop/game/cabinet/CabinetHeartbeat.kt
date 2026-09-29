@@ -38,7 +38,7 @@ class CabinetHeartbeat {
     }
 
     /**
-     * Back to a full field and the low tone — decision 105.
+     * Back to a full field and the low tone — a design decision.
      *
      * `isHighTone` is seeded TRUE, which reads backwards until you see [update]: it flips
      * BEFORE it reports, so the first beat after a reset inverts this. Seeded false, every

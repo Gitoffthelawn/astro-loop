@@ -6,11 +6,11 @@ object CrystalFightLines {
     // All radio lines <=35 chars — the HUD radio budget for Exo 2 at 24px.
 
     /**
-     * The crystal's first words, over the authored opening — decisions 81 and 82.
+     * The crystal's first words, over the authored opening — design decisions.
      *
      * **Rewritten for the cabinet.** This used to be ASTRO's monologue, shown at 3s/10s/17s
-     * of a fight that no longer exists, and it survived stage 3 only as dead code. Decision
-     * 81 gives the voice to the CRYSTAL, which changes who is speaking and therefore every
+     * of a fight that no longer exists, and it survived stage 3 only as dead code. A design decision
+     * gives the voice to the CRYSTAL, which changes who is speaking and therefore every
      * line.
      *
      * The premise it is authored against, and every word answers to it: **it was never
@@ -47,7 +47,7 @@ object CrystalFightLines {
     }
 
     /**
-     * What the crystal says when you try to stop — decision 90.
+     * What the crystal says when you try to stop — a design decision.
      *
      * The pause belongs to the machine, and the machine is not the machine's any more. It
      * takes the menu, says one of these, and hands the fight back.
@@ -66,7 +66,7 @@ object CrystalFightLines {
     // <=~58 chars each (bar chatter column budget)
 
     /**
-     * The crystal's last word — decision 95. Shown in the gel strip through the win hold.
+     * The crystal's last word — a design decision. Shown in the gel strip through the win hold.
      *
      * It answers *"STAY - STAY..."*, which is SHATTER's lure and therefore the last thing
      * the player hears before killing it. The whole fight is the crystal asking someone not
@@ -83,12 +83,12 @@ object CrystalFightLines {
     const val farewell = "...Thank you."
 
     /**
-     * Bar chatter on the WIN — decision 96, and rewritten from the ground rather than
+     * Bar chatter on the WIN — a design decision, and rewritten from the ground rather than
      * trimmed.
      *
      * **The pilot is not in it.** They say nothing about the fight, anywhere, which is the
      * same refusal they hold through all five patterns — and it fixes a real defect by
-     * deletion: this list hardcodes its speakers, while decision 59 makes the reckoning
+     * deletion: this list hardcodes its speakers, while a design decision makes the reckoning
      * reachable for any of the twelve, so a win on WHISKERS used to show ASTRO reporting
      * what happened out there.
      *

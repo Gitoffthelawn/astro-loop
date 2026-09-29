@@ -32,7 +32,7 @@ object CabinetBezelRenderer {
     /**
      * The CRT area of the bezel, running a real attract demo.
      *
-     * Until device pass 2 this took a [CabinetRenderer] and never used it — it drew a
+     * Until a device pass this took a [CabinetRenderer] and never used it — it drew a
      * black rect and a border, so the machine had never once run attract. The playfield
      * is drawn in the sim's own coordinate space and scaled into [screenRect], which is
      * why the sim gets its own metrics rather than sharing the overlay's.
@@ -81,9 +81,9 @@ object CabinetBezelRenderer {
     /**
      * The readout below the CRT, as the machine's own nameplate.
      *
-     * BELT RUN appeared exactly once as player-facing text before device pass 2 — the
+     * BELT RUN appeared exactly once as player-facing text before a device pass — the
      * overlay's menu title, behind a ¥100 door — so a player could walk past this
-     * cabinet for a whole playthrough and never learn its name. §6 of the original spec
+     * cabinet for a whole playthrough and never learn its name. The original spec
      * called for a marquee; there was none.
      *
      * It stays load-bearing: [message] is the vibration and audio toggles' feedback, and
@@ -91,7 +91,7 @@ object CabinetBezelRenderer {
      * because the amber TTF it replaced was the slot machine's styling on a machine that
      * is no longer a slot machine.
      *
-     * [drift] is the plate's ambient rock drift (polish pass §2) — drawn first so it sits
+     * [drift] is the plate's ambient rock drift (polish pass) — drawn first so it sits
      * behind the text, dimmed, and clipped to [rect] so a rock straddling the plate's
      * edge draws at its wrapped position too rather than being sliced at the seam. It
      * keeps running under [message]: `VIBRATE OFF` replaces the text, not the ambience.
@@ -196,11 +196,11 @@ object CabinetBezelRenderer {
     /**
      * The score board, on **its own lit screen** rather than printed on the panel.
      *
-     * Device pass 6: *"the high scores should be in their own display, with the belt run
+     * A device pass: *"the high scores should be in their own display, with the belt run
      * font, right now they're printed on the display."* They were — drawn straight onto
      * the payout panel through the slot machine's Exo 2 paints, which is the one piece of
      * the machine's old typography that survived the conversion. The board now gets the
-     * same treatment the marquee got in device pass 2: a `SCREEN` plate with a phosphor
+     * same treatment the marquee got in a device pass: a `SCREEN` plate with a phosphor
      * border, and text in [CabinetFont].
      *
      * The [titlePaint]/[valuePaint] fallback is kept deliberately, and mirrors
@@ -229,7 +229,7 @@ object CabinetBezelRenderer {
         val pad = (right - left) * 0.10f
         // Starts AT the panel top, not above it. It used to start at `top - lineHeight *
         // 0.35f`, and payoutTop is only machineTop + 10 — so on device the plate hung 17 to
-        // 22px off the top edge of the cabinet. Device pass 7: "it's clipping (both the
+        // 22px off the top edge of the cabinet. A device pass: "it's clipping (both the
         // screen and the text)".
         val plate = RectF(left, top, right, top + lineHeight * 6.2f)
 

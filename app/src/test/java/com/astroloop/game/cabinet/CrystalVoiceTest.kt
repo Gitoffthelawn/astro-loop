@@ -61,7 +61,7 @@ class CrystalVoiceTest {
     }
 
     @Test fun theCrystalOnlySpeaksIntoTheSeamBetweenPatterns() {
-        // Decision 94. It used to wait for LOCAL room — nothing within two spacing floors —
+        // A design decision. It used to wait for LOCAL room — nothing within two spacing floors —
         // and that was measured as unworkable: against a player holding engagement range
         // there is room for 1.7% of PULSE, 1.4% of VOLLEY and 1.3% of SHATTER, in stretches
         // that leave 29 unbroken seconds of silence. Three of the five patterns never spoke.
@@ -115,7 +115,7 @@ class CrystalVoiceTest {
     }
 
     @Test fun theCrystalThanksYouOnTheWayOut() {
-        // Decision 95. The win hold already exists — the shell stays on PLAY until the
+        // A design decision. The win hold already exists — the shell stays on PLAY until the
         // shatter clears — and until now it played as dead air.
         val s = CabinetSim(m, kotlin.random.Random(3))
         s.start()
@@ -211,7 +211,7 @@ class CrystalVoiceTest {
     // ── the body and the voice answer the same question ───────────────────
 
     @Test fun aReplayFightsAnEmptyShell() {
-        // Decision 116. The crystal is not there on a replay, and that has to be true of
+        // A design decision. The crystal is not there on a replay, and that has to be true of
         // its BODY as well as its voice: you fight the containment with nothing in it.
         val m = CabinetMetrics(1080f, 2400f)
         assertFalse(ReckoningRun(m, isReplay = true).crystalHasBody)

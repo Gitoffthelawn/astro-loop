@@ -126,18 +126,6 @@ class VectorRenderer(
             }
         }
 
-        // Cryo Field visual - faint light-blue circle
-        if (state.cryoSlowPercent > 0f && ship.health > 0f) {
-            val cryoRadius = 100f * state.cryoRadiusMultiplier  // Base cryo radius scaled
-            val pulse = (sin(System.currentTimeMillis() / 500.0) * 0.05 + 0.15).toFloat()
-
-            shapeRenderer.setColor(0xFF88CCFF.toInt())  // Light blue
-            shapeRenderer.setStrokeWidth(2f)
-            shapeRenderer.setAlpha(pulse)
-            shapeRenderer.drawCircle(canvas, ship.position.x, ship.position.y, cryoRadius, false)
-            shapeRenderer.setAlpha(1f)
-        }
-
         // Emergency shield — pulsing retreat aura (same visual as crystal, white-hot ring only)
         if (state.emergencyShieldActive && ship.isActive) {
             val shieldRadius = 60f
@@ -271,6 +259,48 @@ class VectorRenderer(
             shapeRenderer.drawRect(canvas, ship.position.x - barWidth / 2, barY, barWidth * healthPercent, barHeight, true)
             shapeRenderer.setAlpha(1f)
         }
+    }
+
+    /**
+     * The faint radius rings around the ship.
+     *
+     * All the rules live in [EffectRings], which is pure and unit-tested; this is only the Canvas
+     * half. The same split as HudBand and HUDRenderer.
+     *
+     * Called from renderPlaying directly, NOT from renderShip: renderShip early-returns on
+     * !ship.isActive, and gameOver() clears that flag before the death play-out begins, so rings
+     * nested inside it could never survive the ship to fade. renderLeechParticles is placed the
+     * same way for the same reason.
+     */
+    fun renderEffectRings(canvas: Canvas, ship: Ship, state: GameState) {
+        val fade = state.effectRingFadeAlpha
+        if (fade <= 0f) return
+
+        val timeSeconds = (System.currentTimeMillis() % 10000L) / 1000f
+        val alpha = EffectRings.alpha(timeSeconds, fade)
+        if (alpha <= 0f) return
+
+        shapeRenderer.setStrokeWidth(EffectRings.STROKE_WIDTH)
+        for (group in EffectRings.group(EffectRings.ringsFor(state))) {
+            for (arc in EffectRings.arcsFor(group)) {
+                shapeRenderer.setColor(arc.color)
+                shapeRenderer.setAlpha(alpha)
+                if (arc.sweepDegrees >= 360f) {
+                    shapeRenderer.drawCircle(canvas, ship.position.x, ship.position.y, arc.radius, false)
+                } else {
+                    // drawArc takes radians.
+                    shapeRenderer.drawArc(
+                        canvas,
+                        ship.position.x,
+                        ship.position.y,
+                        arc.radius,
+                        Math.toRadians(arc.startDegrees.toDouble()).toFloat(),
+                        Math.toRadians(arc.sweepDegrees.toDouble()).toFloat()
+                    )
+                }
+            }
+        }
+        shapeRenderer.setAlpha(1f)
     }
 
     fun drawCombatDrone(canvas: Canvas, drone: Drone, state: GameState) {

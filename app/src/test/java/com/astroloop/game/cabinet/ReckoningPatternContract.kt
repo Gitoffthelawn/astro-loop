@@ -11,7 +11,7 @@ import kotlin.math.pow
  * Abstract and deliberately NOT named `*Test`, so the runner never instantiates it
  * directly — each pattern's own test class extends it and inherits these cases.
  *
- * **Two-sided by design (decision 50).** Half of these read the pattern's declared
+ * **Two-sided by design.** Half of these read the pattern's declared
  * figures; the other half simulate it and check the declaration was honest. A declaration
  * nothing verifies is exactly the failure the stage 1 final review caught, where two
  * tests ran green over a path the product never took.
@@ -111,7 +111,7 @@ abstract class ReckoningPatternContract {
     // --- Rule 5: escalation bites --------------------------------------------
 
     @Test fun rule5_spacingHasFallenBelowTheFloorByLapFour() {
-        // The other half of decision 51. Rule 1 and rule 5 cannot both hold
+        // The other half of a design decision. Rule 1 and rule 5 cannot both hold
         // unconditionally: breaking rule 1 IS how rule 5 is implemented. Asserting the
         // breach makes the forcing function a positive property rather than something
         // merely permitted by rule 1's silence.
@@ -155,7 +155,7 @@ abstract class ReckoningPatternContract {
     // --- The declaration must be honest --------------------------------------
 
     @Test fun theDeclaredOpeningIsNotAnOverstatement() {
-        // The load-bearing half of decision 50. A pattern that declares 200px of room
+        // The load-bearing half of a design decision. A pattern that declares 200px of room
         // while emitting a wall every 0.1s would pass every rule above.
         //
         // This checks the RADIAL claim — the picket spacing along a stream. The ANGULAR
@@ -185,7 +185,7 @@ abstract class ReckoningPatternContract {
         //
         // TWO events, not one, and that is the load-bearing half: `actualRadialSpacing`
         // returns MAX_VALUE below two emission events, which silently switches OFF
-        // `theDeclaredOpeningIsNotAnOverstatement` — decision 50's whole point. A pattern
+        // `theDeclaredOpeningIsNotAnOverstatement` — a design decision's whole point. A pattern
         // firing a single ten-bullet burst per phase would otherwise clear this entire
         // contract while declaring any opening it liked.
         val e = emissions(1f)

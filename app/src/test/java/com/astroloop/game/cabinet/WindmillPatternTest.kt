@@ -52,7 +52,7 @@ class WindmillPatternTest : ReckoningPatternContract() {
     }
 
     @Test fun tighteningSpinsTheArmsFasterAndShortensTheSector() {
-        // Was asserted through lullLength, which decision 88 deleted. WINDMILL never had
+        // Was asserted through lullLength, which decision deleted. WINDMILL never had
         // a rest to remove — its gap between arm passes is geometry, not silence — so the
         // property survives; only the instrument changed. More arms alive at once is the
         // same fact the old lull figure reported from the other side.

@@ -9,7 +9,7 @@ class CrystalFightLinesTest {
     @Test fun allReckoningRadioLinesFitTheHudBudget() {
         val limit = 35
         val lines = mutableListOf<String>()
-        // The opening is a flat list of the crystal's own beats as of decision 81. It was
+        // The opening is a flat list of the crystal's own beats as of a design decision. It was
         // pairs when it was ASTRO's monologue and each pair had a follow-up half.
         lines += CrystalFightLines.opening
         CrystalPhase.values().forEach { p ->
@@ -23,7 +23,7 @@ class CrystalFightLinesTest {
     }
 
     @Test fun thePilotIsNotInThePostWinBeat() {
-        // Decision 96. They say nothing about the fight anywhere — the same refusal held
+        // A design decision. They say nothing about the fight anywhere — the same refusal held
         // through all five patterns — and it is what keeps this list honest: the speakers
         // are hardcoded, while the reckoning is reachable on any of the twelve, so a pilot
         // named here would be reporting a fight somebody else flew.

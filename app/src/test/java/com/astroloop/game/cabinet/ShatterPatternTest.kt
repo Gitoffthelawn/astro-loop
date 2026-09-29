@@ -16,7 +16,7 @@ class ShatterPatternTest : ReckoningPatternContract() {
     }
 
     @Test fun clustersArriveAtAnUnbrokenCadence() {
-        // Decision 88, and this is the biggest single change it makes: SHATTER's identity
+        // A design decision, and this is the biggest single change it makes: SHATTER's identity
         // used to be "a short burst then a long silence" — a 4/12 duty cycle, the longest
         // rest of the five at 4.95s. That silence is gone and the clusters are continuous.
         // Inverted rather than deleted so a re-added silence fails here.
@@ -42,7 +42,7 @@ class ShatterPatternTest : ReckoningPatternContract() {
     }
 
     @Test fun aClusterPutsABulletOnTheShipsBearing() {
-        // REPLACES "successive clusters land differently". Device pass 7 made SHATTER aim:
+        // REPLACES "successive clusters land differently". A device pass made SHATTER aim:
         // "it's easy to just camp and easily damage the crystal."
         //
         // A cluster is COUNT bullets evenly spread over the whole circle, so it is rotation

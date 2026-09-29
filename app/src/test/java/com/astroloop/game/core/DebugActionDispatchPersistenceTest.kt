@@ -168,7 +168,6 @@ class DebugActionDispatchPersistenceTest {
         p.setCrystalPurchased(true)
         p.addDeadPilot("pilot_medic")
         p.addDeadShip("ship_blue")
-        p.setCrystalBroken()
 
         assertTrue(DebugActionDispatch.handle("RESET_STORY", state, p, host))
 
@@ -178,7 +177,6 @@ class DebugActionDispatchPersistenceTest {
         assertFalse(p.getCrystalPurchased())
         assertTrue(p.getDeadPilots().isEmpty())
         assertTrue(p.getDeadShips().isEmpty())
-        assertFalse(p.isCrystalBroken())
     }
 
     // --- GRANT_BANDANAS / CLEAR_BANDANAS ----------------------------------------------------
@@ -270,24 +268,6 @@ class DebugActionDispatchPersistenceTest {
         assertFalse(p.allPilotsCleared())
         for (pilot in PilotDefinitions.pilots) assertEquals(0, p.getArcadeScore(pilot.id))
         assertEquals(0, p.getCabinetCredits())
-    }
-
-    // --- UNBRICK -------------------------------------------------------------------------------
-
-    @Test
-    fun unbrickClearsAStuckCrystal() {
-        p.setCrystalBroken()
-
-        assertTrue(DebugActionDispatch.handle("UNBRICK", state, p, host))
-
-        assertFalse(p.isCrystalBroken())
-    }
-
-    @Test
-    fun unbrickIsANoOpWhenNothingIsBroken() {
-        assertFalse(p.isCrystalBroken())
-        assertTrue(DebugActionDispatch.handle("UNBRICK", state, p, host))
-        assertFalse(p.isCrystalBroken())
     }
 
     // --- TOGGLE_ASTRO_LOOP ----------------------------------------------------------------------

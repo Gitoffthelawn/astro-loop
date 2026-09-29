@@ -14,8 +14,7 @@ import kotlin.math.PI
 
 class NovaBlast : Weapon(
     id = "nova_blast",
-    name = "Nova Blast",
-    description = "Periodic AOE explosion"
+    name = "Nova Blast"
 ) {
     override val baseDamage = 40f
     override val baseCooldown = 4f
@@ -29,16 +28,28 @@ class NovaBlast : Weapon(
         return baseCooldown * state.cooldownMultiplier
     }
 
-    private fun getBlastRadius(state: GameState): Float {
-        val base = when (level) {
-            1 -> 180f
-            2 -> 234f
-            3 -> 281f
-            4 -> 316f
-            else -> 351f
+    companion object {
+        /**
+         * The blast's reach at [level], scaled by [areaMultiplier].
+         *
+         * Public because the Effect Ring for Nova Blast draws this exact number — the ring and the
+         * blast must never be able to disagree. The `else` branch is the shipped behaviour kept
+         * verbatim: any level past 5 clamps to the top rung.
+         */
+        fun blastRadiusFor(level: Int, areaMultiplier: Float): Float {
+            val base = when (level) {
+                1 -> 180f
+                2 -> 234f
+                3 -> 281f
+                4 -> 316f
+                else -> 351f
+            }
+            return base * areaMultiplier
         }
-        return base * state.areaMultiplier
     }
+
+    private fun getBlastRadius(state: GameState): Float =
+        blastRadiusFor(level, state.areaMultiplier)
 
     override fun fire(
         firer: Firer,
