@@ -10,16 +10,14 @@ import com.astroloop.game.util.Vector2
 import com.astroloop.game.data.ShipDefinitions
 import com.astroloop.game.data.PassiveDefinitions
 import com.astroloop.game.weapon.Weapon
+import com.astroloop.game.tuning.KnobsWeapons
 
 class AutonomousAce : Weapon(
     id = "autonomous_ace",
     name = "Autonomous Ace"
 ) {
-    override val baseDamage = 45f
-    override val baseCooldown = 1.0f
-    override val baseProjectileSpeed = 500f
-    override val baseProjectileCount = 5
-    override fun getProjectileCount(state: GameState): Int = 5 + state.extraProjectiles
+    override val knobs = KnobsWeapons.autonomousAce
+    override fun getProjectileCount(state: GameState): Int = baseProjectileCount + state.extraProjectiles
 
     override fun fire(
         firer: Firer,
@@ -50,11 +48,11 @@ class AutonomousAce : Weapon(
                 vy = direction.y * speed,
                 projectileType = ProjectileType.MISSILE,
                 projectileDamage = damage,
-                projectileLifetime = 4f
+                projectileLifetime = KnobsWeapons.aceLifetime.value
             )
             projectile.isEnemyProjectile = firer.isEnemyFirer
             projectile.weaponId = id
-            projectile.homingStrength = 2.5f
+            projectile.homingStrength = KnobsWeapons.aceHoming.value
             projectile.target = sortedTargets.getOrNull(i % sortedTargets.size.coerceAtLeast(1))
             projectile.color = if (!state.isCorruptionRun &&
                 state.activePilotId == PassiveDefinitions.ASTRO_PILOT_ID && !state.astroLoopMode)

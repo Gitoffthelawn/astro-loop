@@ -6,19 +6,17 @@ import com.astroloop.game.entity.*
 import com.astroloop.game.util.Vector2
 import com.astroloop.game.data.ShipDefinitions
 import com.astroloop.game.weapon.Weapon
+import com.astroloop.game.tuning.KnobsWeapons
 
 class NeedleGun : Weapon(
     id = "needle_gun",
     name = "Needle Gun"
 ) {
-    override val baseDamage = 5f
-    override val baseCooldown = 0.25f
-    override val baseProjectileSpeed = 800f
-    override val baseProjectileCount = 3
+    override val knobs = KnobsWeapons.needleGun
 
     override fun getDamage(state: GameState): Float = baseDamage * state.damageMultiplier
 
-    override fun getProjectileCount(state: GameState): Int = level + 2 + state.extraProjectiles
+    override fun getProjectileCount(state: GameState): Int = baseProjectileCount + (level - 1) * KnobsWeapons.needleCountGrowth.value + state.extraProjectiles
 
     override fun getCooldown(state: GameState): Float {
         return baseCooldown * state.cooldownMultiplier
@@ -37,7 +35,7 @@ class NeedleGun : Weapon(
         val count = getProjectileCount(state)
 
         for (i in 0 until count) {
-            val spreadAngle = (i - (count - 1) / 2f) * 0.08f  // Tight spread
+            val spreadAngle = (i - (count - 1) / 2f) * KnobsWeapons.needleSpread.value
             val angle = firer.rotation + spreadAngle
             val direction = Vector2.fromAngle(angle)
 
@@ -49,12 +47,12 @@ class NeedleGun : Weapon(
                 vy = direction.y * speed,
                 projectileType = ProjectileType.BULLET,
                 projectileDamage = damage,
-                projectileLifetime = 2f
+                projectileLifetime = KnobsWeapons.needleLifetime.value
             )
             projectile.isEnemyProjectile = firer.isEnemyFirer
             projectile.weaponId = id
             projectile.piercing = true
-            projectile.maxPierces = 3  // Pierces through 3 targets
+            projectile.maxPierces = KnobsWeapons.needlePierce.value
             projectile.length = 14f
             projectile.width = 2f
             projectile.color = ShipDefinitions.getWeaponColor("needle_gun", state.isCorruptionRun)

@@ -6,6 +6,7 @@ import com.astroloop.game.data.EnemyDefinitions
 import com.astroloop.game.data.PassiveDefinitions
 import com.astroloop.game.data.WeaponDefinitions
 import com.astroloop.game.entity.*
+import com.astroloop.game.tuning.KnobsDrops
 
 class LootSystem(
     private val state: GameState,
@@ -37,9 +38,9 @@ class LootSystem(
             val baseDropChance = state.getAsteroidDropChance()
             val dropChance = baseDropChance
             val cooldown = if (state.isEarlyGameDropRate()) {
-                if (state.astroLoopMode) GameConfig.ASTRO_LOOP_UPGRADE_EARLY_COOLDOWN else GameConfig.ASTEROID_UPGRADE_EARLY_COOLDOWN
+                if (state.astroLoopMode) KnobsDrops.earlyCooldown.value else GameConfig.ASTEROID_UPGRADE_EARLY_COOLDOWN
             } else {
-                if (state.astroLoopMode) GameConfig.ASTRO_LOOP_UPGRADE_DROP_COOLDOWN else GameConfig.ASTEROID_UPGRADE_DROP_COOLDOWN
+                if (state.astroLoopMode) KnobsDrops.cooldown.value else GameConfig.ASTEROID_UPGRADE_DROP_COOLDOWN
             }
 
             val canDrop = state.survivalTime - state.lastAsteroidUpgradeDropTime >= cooldown
@@ -55,9 +56,9 @@ class LootSystem(
         // hasEvolvedThisGame mirrors astroLoopEvolutionUsed (set together in GameSurfaceView);
         // getEligibleEvolutions() also gates on astroLoopEvolutionUsed as belt-and-suspenders.
         if (state.astroLoopMode && !state.isCorruptionRun
-            && state.survivalTime >= 480f && !state.hasEvolvedThisGame) {
+            && state.survivalTime >= state.evolutionTimeGateSeconds && !state.hasEvolvedThisGame) {
             val eligible = upgradeSystem.getEligibleEvolutions(state)
-            if (eligible.isNotEmpty() && kotlin.random.Random.nextFloat() < 0.05f) {
+            if (eligible.isNotEmpty() && kotlin.random.Random.nextFloat() < KnobsDrops.diamondChance.value) {
                 val diamond = EntityPools.powerUps.obtain()
                 diamond.initializeAsEvolutionDiamond(
                     x = asteroid.position.x,

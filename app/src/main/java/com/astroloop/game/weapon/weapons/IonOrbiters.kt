@@ -11,15 +11,14 @@ import com.astroloop.game.util.Vector2
 import com.astroloop.game.data.ShipDefinitions
 import com.astroloop.game.weapon.Weapon
 import kotlin.math.PI
+import com.astroloop.game.tuning.KnobsWeapons
+import com.astroloop.game.tuning.forLevel
 
 class IonOrbiters : Weapon(
     id = "ion_orbiters",
     name = "Ion Orbiters"
 ) {
-    override val baseDamage = 19f
-    override val baseCooldown = 4.0f
-    override val baseProjectileSpeed = 0f
-    override val baseProjectileCount = 2
+    override val knobs = KnobsWeapons.ionOrbiters
 
     override fun getDamage(state: GameState): Float = baseDamage * state.damageMultiplier
 
@@ -29,23 +28,13 @@ class IonOrbiters : Weapon(
     private var currentOrbitSpeed: Float = 3f
 
     override fun getProjectileCount(state: GameState): Int {
-        val base = when (level) {
-            1 -> 2; 2 -> 3; 3 -> 4; 4 -> 5; 5 -> 6; else -> 6
-        }
-        return base + state.extraProjectiles
+        return baseProjectileCount + (level.coerceAtMost(5) - 1) * KnobsWeapons.ionCountGrowth.value + state.extraProjectiles
     }
 
     private fun getOrbitRadius(state: GameState): Float {
         // Increased radius slightly for better coverage
-        val base = when (level) {
-            1 -> 70f
-            2 -> 85f
-            3 -> 100f
-            4 -> 105f
-            5 -> 110f
-            else -> 110f
-        }
-        return base * state.areaMultiplier
+        val base = KnobsWeapons.ionOrbitRadius.forLevel(level)
+        return base * areaOf(state)
     }
 
     override fun fire(
@@ -67,7 +56,7 @@ class IonOrbiters : Weapon(
         val targetCount = getProjectileCount(state)
         val damage = getDamage(state)
         val orbitRadius = getOrbitRadius(state)
-        currentOrbitSpeed = 3f + level * 0.3f
+        currentOrbitSpeed = KnobsWeapons.ionOrbitSpeed.value + level * KnobsWeapons.ionOrbitSpeedPerLevel.value
 
         while (activeOrbiters.size < targetCount) {
             val projectile = projectilePool.obtain()
@@ -94,7 +83,7 @@ class IonOrbiters : Weapon(
             projectile.orbitSpeed = 0f  // IonOrbiters manages all angles centrally
             projectile.orbitCenter = currentOrbitCenter
             projectile.orbitAngle = spawnAngle
-            projectile.radius = 10f * state.areaMultiplier
+            projectile.radius = KnobsWeapons.ionOrbRadius.value * areaOf(state)
             projectile.piercing = true
             projectile.maxPierces = 1000
             projectile.color = ShipDefinitions.getWeaponColor("ion_orbiters", state.isCorruptionRun)

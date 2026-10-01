@@ -11,15 +11,13 @@ import com.astroloop.game.weapon.Weapon
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
+import com.astroloop.game.tuning.KnobsWeapons
 
 class PhoenixFlare : Weapon(
     id = "phoenix_flare",
     name = "Phoenix Flare"
 ) {
-    override val baseDamage = 50f
-    override val baseCooldown = 2.0f
-    override val baseProjectileSpeed = 0f
-    override val baseProjectileCount = 8  // projectiles per ring
+    override val knobs = KnobsWeapons.phoenixFlare
 
     override fun fire(
         firer: Firer,
@@ -31,10 +29,8 @@ class PhoenixFlare : Weapon(
 
         val damage = getDamage(state)
         val color = ShipDefinitions.getEvolutionColor("solar_storm", state.isCorruptionRun)
-        val ringCount = 8
-        val ringSpeeds = floatArrayOf(350f, 650f, 950f)
-        val ringLifetimes = floatArrayOf(0.7f, 0.65f, 0.6f)
-        val ringRadius = 35f * state.areaMultiplier
+        val ringCount = baseProjectileCount
+        val ringRadius = KnobsWeapons.phoenixRingRadius.value * areaOf(state)
 
         // Fire a pulse ring at each of up to 3 on-screen targets (Solar Storm character: strikes at enemy locations)
         val halfW = state.screenWidth / 2f
@@ -46,8 +42,8 @@ class PhoenixFlare : Weapon(
         }.shuffled().take(3)
 
         for ((r, target) in validTargets.withIndex()) {
-            val speed = ringSpeeds[r] * state.areaMultiplier
-            val lifetime = ringLifetimes[r]
+            val speed = KnobsWeapons.phoenixRingSpeed[r].value * areaOf(state)
+            val lifetime = KnobsWeapons.phoenixRingLifetime[r].value
 
             for (i in 0 until ringCount) {
                 val angle = (2f * PI.toFloat() * i / ringCount)
@@ -65,7 +61,7 @@ class PhoenixFlare : Weapon(
                 projectile.weaponId = id
                 projectile.radius = ringRadius
                 projectile.piercing = true
-                projectile.maxPierces = 20
+                projectile.maxPierces = KnobsWeapons.phoenixPierce.value
                 projectile.color = color
             }
         }

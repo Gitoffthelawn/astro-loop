@@ -2,6 +2,7 @@ package com.astroloop.game.core
 
 import android.graphics.Canvas
 import android.view.SurfaceHolder
+import com.astroloop.game.tuning.RunHooks
 
 class GameThread(
     private val surfaceHolder: SurfaceHolder,
@@ -95,6 +96,7 @@ class GameThread(
                 // OutOfMemoryError during a heavy scene's bitmap rebuild on resume, or
                 // a recycled-bitmap draw racing surfaceChanged — skips the frame and is
                 // logged instead of killing the process. The next frame can recover.
+                try { RunHooks.listener?.onUpdateError(e) } catch (_: Throwable) {}
                 e.printStackTrace()
             } finally {
                 if (canvas != null) {

@@ -1,5 +1,6 @@
 package com.astroloop.game.system
 
+import com.astroloop.game.core.BeatClock
 import com.astroloop.game.core.GameConfig
 import com.astroloop.game.core.GameState
 import com.astroloop.game.entity.*
@@ -15,6 +16,9 @@ class WeaponSystem(
     private val projectilePool: EntityPool<Projectile>
 ) {
     private val activeWeapons = mutableMapOf<String, Weapon>()
+
+    /** Wall clock the beat grid is measured against. Tests replace it with a fake clock. */
+    internal var nowMs: () -> Long = System::currentTimeMillis
 
     fun update(
         deltaTime: Float,
@@ -44,47 +48,40 @@ class WeaponSystem(
         // Auto-fire all weapons (beat-synced)
         for (weapon in activeWeapons.values) {
             if (weapon.canFire()) {
-                // Energy Saw / Warp Saw: no beat sync (continuous damage)
+                // Energy Saw / Warp Saw / Oblivion Beam: no beat sync (continuous damage)
                 // Ion Orbiters / Frost Ring: sound on hit, not on fire
                 val isSaw = weapon.id == "energy_saw" || weapon.id == "warp_saw" || weapon.id == "oblivion_beam"
                 val isOrbiter = weapon.id == "ion_orbiters" || weapon.id == "frost_ring"
-                val skipSound = isSaw || isOrbiter
+                val onGrid = !isSaw && !isOrbiter && SoundManager.beatClock.isRunning
 
-                if (!skipSound && !weapon.beatSynced && SoundManager.beatClock.isRunning) {
-                    // First shot: delay to next subdivision
-                    // Revenge doubles fire rate for all weapons — halve subdivision so all weapons stay on the beat grid
-                    val effectiveCooldownS = if (state.revengeActive) weapon.getCooldown(state) / 2f
-                                             else weapon.getCooldown(state)
-                    val subdivMs = (effectiveCooldownS * 1000f).toLong()
-                    val beatOffset = weapon.beatPhaseOffsetMs + SoundManager.getWeaponBeatOffsetMs(weapon.id)
-                    val delayMs = SoundManager.beatClock.msUntilNextSubdivision(
-                        subdivMs, System.currentTimeMillis(), beatOffset
-                    )
+                // Timers count down at 2x during Revenge, so a real-time delay is doubled to
+                // land on the real-time grid.
+                val timerScale = if (state.revengeActive && !isSaw) 2f else 1f
+
+                if (onGrid && !weapon.beatSynced) {
+                    // First shot: wait for the next tick of this weapon's grid.
                     weapon.beatSynced = true
-                    if (delayMs > 0) {
-                        weapon.cooldownTimer = delayMs / 1000f
+                    val delayUs = SoundManager.beatClock.usUntilNextSubdivision(
+                        gridSubdivisionUs(weapon, state), nowMs(), gridPhaseMs(weapon)
+                    )
+                    if (delayUs > 0) {
+                        weapon.cooldownTimer = delayUs / 1_000_000f * timerScale
                         continue
                     }
                 }
 
                 weapon.fire(ship, state, projectilePool, targets)
-                if (!skipSound) {
+                if (!isSaw && !isOrbiter) {
                     weapon.beatSynced = true
                     SoundManager.playSFX("sfx_weapon_${weapon.id}", SoundManager.getWeaponSfxVolume(weapon.id))
                 }
-                // Needle family: re-anchor the next shot to the beat grid at fire time,
-                // preventing drift over time. (Resetting beatSynced instead made every
-                // cooldown expire a frame past its tick and wait for the following one —
-                // halving the fire rate whenever the beat clock was running.)
-                val isNeedleFamily = weapon.id == "needle_gun" || weapon.id == "siphon_needles"
-                if (isNeedleFamily && SoundManager.beatClock.isRunning) {
-                    val effectiveCooldownS = if (state.revengeActive) weapon.getCooldown(state) / 2f
-                                             else weapon.getCooldown(state)
-                    val subdivMs = (effectiveCooldownS * 1000f).toLong()
-                    val beatOffset = weapon.beatPhaseOffsetMs + SoundManager.getWeaponBeatOffsetMs(weapon.id)
-                    weapon.cooldownTimer = SoundManager.beatClock.gridAnchoredDelayMs(
-                        subdivMs, System.currentTimeMillis(), beatOffset
-                    ) / 1000f
+                // Re-anchor every grid weapon at fire time. Resetting the timer to a full
+                // interval drops the frame the shot was late by, and the lateness then builds
+                // up shot after shot; anchoring to the next tick cannot drift.
+                if (onGrid) {
+                    weapon.cooldownTimer = SoundManager.beatClock.gridAnchoredDelayUs(
+                        gridSubdivisionUs(weapon, state), nowMs(), gridPhaseMs(weapon)
+                    ) / 1_000_000f * timerScale
                 }
             }
         }
@@ -95,6 +92,14 @@ class WeaponSystem(
         // Update ship weapon visuals
         ship.updateWeaponVisuals(activeWeapons.keys)
     }
+
+    private fun gridSubdivisionUs(weapon: Weapon, state: GameState): Long {
+        val seconds = if (state.revengeActive) weapon.getCooldown(state) / 2f else weapon.getCooldown(state)
+        return BeatClock.cooldownToSubdivisionUs(seconds)
+    }
+
+    private fun gridPhaseMs(weapon: Weapon): Long =
+        weapon.beatPhaseOffsetMs + SoundManager.getWeaponBeatOffsetMs(weapon.id)
 
     fun addWeapon(weaponId: String, state: GameState): Boolean {
         val existingWeapon = activeWeapons[weaponId]
@@ -188,6 +193,21 @@ class WeaponSystem(
             }
         }
         activeWeapons.clear()
+    }
+
+    /**
+     * Knobs changed while the run was paused. Every weapon waits for the next tick of its (possibly
+     * new) grid, and orbiters leave through their fade and return at their new count and radius.
+     */
+    fun onKnobsChanged() {
+        for (weapon in activeWeapons.values) {
+            when (weapon) {
+                is IonOrbiters -> weapon.fadeOutOrbiters()
+                is FrostRing -> weapon.fadeOutOrbiters()
+            }
+            weapon.beatSynced = false
+            weapon.cooldownTimer = 0f
+        }
     }
 
     /** Reset beat sync on all weapons so they snap to the nearest subdivision on next fire.

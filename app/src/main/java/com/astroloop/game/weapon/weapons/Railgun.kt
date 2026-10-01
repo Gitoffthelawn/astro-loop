@@ -6,35 +6,30 @@ import com.astroloop.game.entity.*
 import com.astroloop.game.util.Vector2
 import com.astroloop.game.data.ShipDefinitions
 import com.astroloop.game.weapon.Weapon
+import com.astroloop.game.tuning.KnobsWeapons
+import com.astroloop.game.tuning.forLevel
 
 class Railgun : Weapon(
     id = "railgun",
     name = "Railgun"
 ) {
-    companion object {
-        const val PIERCE_COUNT = 10
-    }
-
-    override val baseDamage = 80f
-    override val baseCooldown = 1.5f
-    override val baseProjectileSpeed = 2000f
-    override val baseProjectileCount = 1
+    override val knobs = KnobsWeapons.railgun
 
     override fun getDamage(state: GameState): Float = baseDamage * state.damageMultiplier
 
     override fun getProjectileCount(state: GameState): Int {
-        return 1 + state.extraProjectiles
+        return baseProjectileCount + state.extraProjectiles
     }
 
     override fun getCooldown(state: GameState): Float {
         return baseCooldown * state.cooldownMultiplier  // No fire rate bonus anymore
     }
 
-    fun getPierceCount(): Int = PIERCE_COUNT
+    fun getPierceCount(): Int = KnobsWeapons.railgunPierce.value
 
-    fun getShotRadius(): Float = when (level) { 1 -> 4f; 2 -> 5.5f; 3 -> 7f; 4 -> 8.5f; else -> 10f }
+    fun getShotRadius(): Float = KnobsWeapons.railgunShotRadius.forLevel(level)
 
-    fun getShotWidth(): Float = when (level) { 1 -> 3f; 2 -> 5f; 3 -> 7f; 4 -> 9f; else -> 11f }
+    fun getShotWidth(): Float = KnobsWeapons.railgunShotWidth.forLevel(level)
 
     override fun fire(
         firer: Firer,
@@ -61,7 +56,7 @@ class Railgun : Weapon(
                 vy = direction.y * speed,
                 projectileType = ProjectileType.BULLET,
                 projectileDamage = damage,
-                projectileLifetime = 3f
+                projectileLifetime = KnobsWeapons.railgunLifetime.value
             )
             projectile.isEnemyProjectile = firer.isEnemyFirer
             projectile.weaponId = id

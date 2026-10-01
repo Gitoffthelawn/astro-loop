@@ -11,15 +11,13 @@ import com.astroloop.game.weapon.Weapon
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
+import com.astroloop.game.tuning.KnobsWeapons
 
 class LingeringNova : Weapon(
     id = "lingering_nova",
     name = "Lingering Nova"
 ) {
-    override val baseDamage = 30f
-    override val baseCooldown = 4f
-    override val baseProjectileSpeed = 0f
-    override val baseProjectileCount = 1
+    override val knobs = KnobsWeapons.lingeringNova
 
     // Delayed second detonation ("the lingering core explodes again").
     private var pendingBlastTimer: Float = -1f
@@ -36,7 +34,7 @@ class LingeringNova : Weapon(
          * exact number, and the ring and the blast must never be able to disagree. Note this is
          * LARGER than Nova Blast's top rung (351f) — evolving grows the blast.
          */
-        fun blastRadiusFor(areaMultiplier: Float): Float = 360f * areaMultiplier
+        fun blastRadiusFor(areaMultiplier: Float): Float = KnobsWeapons.lingeringBlastRadius.value * areaMultiplier * KnobsWeapons.lingeringNova.areaScale
     }
 
     private fun getBlastRadius(state: GameState): Float = blastRadiusFor(state.areaMultiplier)
@@ -108,7 +106,7 @@ class LingeringNova : Weapon(
         )
         core.isEnemyProjectile = firer.isEnemyFirer
         core.weaponId = id
-        core.radius = 40f * state.areaMultiplier
+        core.radius = 40f * areaOf(state)
         core.piercing = true
         core.maxPierces = 1000
         core.isVisualOnly = true

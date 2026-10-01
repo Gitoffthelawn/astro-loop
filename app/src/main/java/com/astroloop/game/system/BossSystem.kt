@@ -3,6 +3,7 @@ package com.astroloop.game.system
 import com.astroloop.game.core.GameConfig
 import com.astroloop.game.core.GameState
 import com.astroloop.game.core.SoundManager
+import com.astroloop.game.tuning.KnobsPassives
 import com.astroloop.game.entity.*
 import com.astroloop.game.entity.VisualEffectManager
 import kotlin.math.PI
@@ -61,8 +62,7 @@ class BossSystem(
         val startingPassiveId = com.astroloop.game.data.PilotDefinitions.getPilot(pilotId)?.startingPassiveId
 
         // Instant-max passives get L5, others get L1
-        val instantMaxPassives = setOf("glass_cannon", "phoenix_core", "duplicator_core", "extra_weapon_slot", "lucky_star")
-        val defaultPassiveLevel = if (startingPassiveId != null && instantMaxPassives.contains(startingPassiveId))
+        val defaultPassiveLevel = if (startingPassiveId != null && GameState.INSTANT_MAX_PASSIVES.contains(startingPassiveId))
             GameConfig.PASSIVE_MAX_STACKS else 1
 
         weaponSystem.reset()
@@ -122,7 +122,7 @@ class BossSystem(
             // Revenge Protocol: trigger on ship damage
             val revengeStacks = state.passiveStacks["revenge_protocol"] ?: 0
             if (revengeStacks > 0) {
-                state.revengeTimer = revengeStacks * 2f
+                state.revengeTimer = revengeStacks * KnobsPassives.revengeSecondsPerStack.value
                 state.revengeActive = true
             }
 

@@ -11,16 +11,14 @@ import com.astroloop.game.data.ShipDefinitions
 import com.astroloop.game.weapon.Weapon
 import kotlin.math.PI
 import kotlin.random.Random
+import com.astroloop.game.tuning.KnobsWeapons
 
 class JackpotMines : Weapon(
     id = "jackpot_mines",
     name = "Gambler's Mines"
 ) {
-    override val baseDamage = 90f
-    override val baseCooldown = 2.0f
-    override val baseProjectileSpeed = 0f
-    override val baseProjectileCount = 3
-    override fun getProjectileCount(state: GameState): Int = 3 + state.extraProjectiles
+    override val knobs = KnobsWeapons.jackpotMines
+    override fun getProjectileCount(state: GameState): Int = baseProjectileCount + state.extraProjectiles
 
     override fun fire(
         firer: Firer,
@@ -47,14 +45,14 @@ class JackpotMines : Weapon(
                 vy = 0f,
                 projectileType = ProjectileType.MINE,
                 projectileDamage = damage,
-                projectileLifetime = 30f
+                projectileLifetime = KnobsWeapons.jackpotLifetime.value
             )
             projectile.isEnemyProjectile = firer.isEnemyFirer
             // weaponId set to "jackpot_mines" so the hit system can trigger random effects on explosion
             projectile.weaponId = "jackpot_mines"
-            projectile.radius = 12f
+            projectile.radius = KnobsWeapons.jackpotRadius.value
             projectile.explodeOnDeath = true
-            projectile.explosionRadius = 80f
+            projectile.explosionRadius = KnobsWeapons.jackpotExplosionRadius.value
             projectile.explosionDamage = damage
             projectile.color = if (state.isCorruptionRun)
                 ShipDefinitions.getEvolutionColor("space_mines", true)

@@ -9,15 +9,13 @@ import com.astroloop.game.entity.Firer
 import com.astroloop.game.util.Vector2
 import com.astroloop.game.data.ShipDefinitions
 import com.astroloop.game.weapon.Weapon
+import com.astroloop.game.tuning.KnobsWeapons
 
 class SiphonNeedles : Weapon(
     id = "siphon_needles",
     name = "Siphon Needles"
 ) {
-    override val baseDamage = 9f
-    override val baseCooldown = 0.25f
-    override val baseProjectileSpeed = 900f
-    override val baseProjectileCount = 7
+    override val knobs = KnobsWeapons.siphonNeedles
 
     override fun fire(
         firer: Firer,
@@ -32,8 +30,8 @@ class SiphonNeedles : Weapon(
         val count = getProjectileCount(state)
 
         for (i in 0 until count) {
-            // Same spread constant as NeedleGun (0.08f) to keep identical arc
-            val spreadAngle = (i - (count - 1) / 2f) * 0.08f
+            // Own spread knob; its default matches NeedleGun's so the arcs start identical
+            val spreadAngle = (i - (count - 1) / 2f) * KnobsWeapons.siphonSpread.value
             val angle = firer.rotation + spreadAngle
             val direction = Vector2.fromAngle(angle)
 
@@ -45,13 +43,13 @@ class SiphonNeedles : Weapon(
                 vy = direction.y * speed,
                 projectileType = ProjectileType.BULLET,
                 projectileDamage = damage,
-                projectileLifetime = 2f
+                projectileLifetime = KnobsWeapons.siphonLifetime.value
             )
             projectile.isEnemyProjectile = firer.isEnemyFirer
             // weaponId set to "siphon_needles" so the hit system can detect and apply healing
             projectile.weaponId = "siphon_needles"
             projectile.piercing = true
-            projectile.maxPierces = 1
+            projectile.maxPierces = KnobsWeapons.siphonPierce.value
             projectile.length = 14f
             projectile.width = 2f
             projectile.color = ShipDefinitions.getEvolutionColor("needle_gun", state.isCorruptionRun)

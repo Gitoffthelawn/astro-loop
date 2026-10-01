@@ -10,8 +10,8 @@ import com.astroloop.game.entity.Firer
 import com.astroloop.game.util.Vector2
 import com.astroloop.game.data.ShipDefinitions
 import com.astroloop.game.weapon.Weapon
-import kotlin.math.PI
 import kotlin.random.Random
+import com.astroloop.game.tuning.KnobsWeapons
 
 class ScatterShot : Weapon(
     id = "scatter_shot",
@@ -21,7 +21,7 @@ class ScatterShot : Weapon(
         /**
          * How wide the pellets throw, before `areaMultiplier`.
          *
-         * **30 degrees, halved from 60 on 2026-08-11.** Reported independently by two
+         * **Defaults to 30 degrees, halved from 60 on 2026-08-11.** Reported independently by two
          * players: the weapon's damage stat is mid-table, but a 60-degree throw put most of the
          * pellets nowhere near the target, so the shortfall was accuracy rather than damage.
          * Narrowing the cone raises effective damage without touching the damage number, which is
@@ -34,19 +34,16 @@ class ScatterShot : Weapon(
          * declaring its own, so the evolution can never end up throwing wider than the weapon it
          * replaced. It previously carried a copy and a comment saying they matched.
          */
-        val SPREAD_CONE_RADIANS = PI.toFloat() / 6f
+        val SPREAD_CONE_RADIANS: Float get() = KnobsWeapons.scatterCone.value
     }
 
-    override val baseDamage = 10f
-    override val baseCooldown = 1.0f
+    override val knobs = KnobsWeapons.scatterShot
     override val beatPhaseOffsetMs: Long = 500L
-    override val baseProjectileSpeed = 500f
-    override val baseProjectileCount = 5
 
     override fun getDamage(state: GameState): Float = baseDamage * state.damageMultiplier
 
     override fun getProjectileCount(state: GameState): Int =
-        5 + (level - 1) * 2 + state.extraProjectiles
+        baseProjectileCount + (level - 1) * KnobsWeapons.scatterCountGrowth.value + state.extraProjectiles
 
     override fun getCooldown(state: GameState): Float {
         return baseCooldown * state.cooldownMultiplier
@@ -63,7 +60,7 @@ class ScatterShot : Weapon(
         val damage = getDamage(state)
         val speed = getProjectileSpeed(state)
         val count = getProjectileCount(state)
-        val spreadAngle = SPREAD_CONE_RADIANS * state.areaMultiplier
+        val spreadAngle = SPREAD_CONE_RADIANS * areaOf(state)
 
         for (i in 0 until count) {
             // Random spread within cone
@@ -81,11 +78,11 @@ class ScatterShot : Weapon(
                 vy = direction.y * projectileSpeed,
                 projectileType = ProjectileType.BULLET,
                 projectileDamage = damage,
-                projectileLifetime = 1.5f
+                projectileLifetime = KnobsWeapons.scatterLifetime.value
             )
             projectile.isEnemyProjectile = firer.isEnemyFirer
             projectile.weaponId = id
-            projectile.radius = 3f
+            projectile.radius = KnobsWeapons.scatterPelletRadius.value
             projectile.color = ShipDefinitions.getWeaponColor("scatter_shot", state.isCorruptionRun)
         }
 

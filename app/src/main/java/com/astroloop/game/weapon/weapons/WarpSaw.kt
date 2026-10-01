@@ -11,21 +11,19 @@ import com.astroloop.game.weapon.Weapon
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.sqrt
+import com.astroloop.game.tuning.KnobsWeapons
 
 class WarpSaw : Weapon(
     id = "warp_saw",
     name = "Warp Saw"
 ) {
-    override val baseDamage = 15f
-    override val baseCooldown = 0.1f
-    override val baseProjectileSpeed = 0f
-    override val baseProjectileCount = 1
+    override val knobs = KnobsWeapons.warpSaw
 
     // Identical to the L5 Energy Saw blade — the evolution reads as the blade detaching
-    val discRadius: Float = 55f
-    val reach: Float = 125f
-    val leashRange: Float = 600f
-    val roamSpeed: Float = 450f
+    val discRadius: Float get() = KnobsWeapons.warpDiscRadius.value
+    val reach: Float get() = KnobsWeapons.warpReach.value
+    val leashRange: Float get() = KnobsWeapons.warpLeash.value
+    val roamSpeed: Float get() = KnobsWeapons.warpRoamSpeed.value
 
     enum class Phase { IDLE, ROAM, WARP }
 
@@ -38,7 +36,7 @@ class WarpSaw : Weapon(
     var currentY: Float = 0f
         private set
 
-    companion object { const val WARP_DURATION = 0.3f }
+    companion object { val WARP_DURATION: Float get() = KnobsWeapons.warpDuration.value }
 
     // Chrono warp transit: the blade dashes out of (warpFromX, warpFromY) and warps in at
     // the ship front over WARP_DURATION. No blade / no damage while in transit.

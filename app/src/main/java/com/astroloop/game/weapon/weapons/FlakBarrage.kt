@@ -10,15 +10,13 @@ import com.astroloop.game.util.Vector2
 import com.astroloop.game.data.ShipDefinitions
 import com.astroloop.game.weapon.Weapon
 import kotlin.random.Random
+import com.astroloop.game.tuning.KnobsWeapons
 
 class FlakBarrage : Weapon(
     id = "flak_barrage",
     name = "Flak Barrage"
 ) {
-    override val baseDamage = 25f
-    override val baseCooldown = 0.5f
-    override val baseProjectileSpeed = 450f
-    override val baseProjectileCount = 5
+    override val knobs = KnobsWeapons.flakBarrage
 
     override fun fire(
         firer: Firer,
@@ -34,8 +32,8 @@ class FlakBarrage : Weapon(
 
         for (i in 0 until count) {
             // Wide spread with slight random jitter (matches FlakCannon pattern)
-            val spreadAngle = (i - (count - 1) / 2f) * 0.15f
-            val angle = firer.rotation + spreadAngle + (Random.nextFloat() - 0.5f) * 0.1f
+            val spreadAngle = (i - (count - 1) / 2f) * KnobsWeapons.barrageSpread.value
+            val angle = firer.rotation + spreadAngle + (Random.nextFloat() - 0.5f) * KnobsWeapons.barrageJitter.value
             val direction = Vector2.fromAngle(angle)
 
             val projectile = projectilePool.obtain()
@@ -46,14 +44,14 @@ class FlakBarrage : Weapon(
                 vy = direction.y * speed,
                 projectileType = ProjectileType.FLAK,
                 projectileDamage = damage,
-                projectileLifetime = 1.5f
+                projectileLifetime = KnobsWeapons.barrageFuse.value
             )
             projectile.isEnemyProjectile = firer.isEnemyFirer
             projectile.weaponId = id
-            projectile.radius = 6f
+            projectile.radius = KnobsWeapons.barrageShellRadius.value
             projectile.explodeOnDeath = true
-            projectile.explosionRadius = 60f * state.areaMultiplier
-            projectile.explosionDamage = damage * 0.7f
+            projectile.explosionRadius = KnobsWeapons.barrageExplosionRadius.value * areaOf(state)
+            projectile.explosionDamage = damage * KnobsWeapons.barrageExplosionFraction.value
             projectile.proximityFuse = true
             projectile.color = ShipDefinitions.getEvolutionColor("flak_cannon", state.isCorruptionRun)
         }

@@ -7,9 +7,10 @@ plugins {
 }
 
 // Release signing is applied only when keystore.properties exists at the repo root.
-// F-Droid builds without it (produces an unsigned release, which F-Droid then signs
-// with its own key); a local/Accrescent build with it present is signed with your
-// release key. keystore.properties and the keystore itself are gitignored.
+// F-Droid builds without it: its unsigned build must match the signed APK on the GitHub
+// release byte for byte, and F-Droid then ships that signed APK. A local build with the
+// file present is signed with the release key. keystore.properties and the keystore
+// itself are gitignored.
 val keystorePropertiesFile = rootProject.file("keystore.properties")
 val hasReleaseKeystore = keystorePropertiesFile.exists()
 val keystoreProperties = Properties().apply {
@@ -36,6 +37,22 @@ android {
         versionName = "1.4"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    flavorDimensions += "edition"
+    productFlavors {
+        create("game") {
+            dimension = "edition"
+            buildConfigField("boolean", "LAB", "false")
+        }
+        create("tuning") {
+            dimension = "edition"
+            applicationIdSuffix = ".tuning"
+            versionCode = 1
+            versionName = "1.5-lab.1"
+            minSdk = 26
+            buildConfigField("boolean", "LAB", "true")
+        }
     }
 
     signingConfigs {

@@ -12,21 +12,20 @@ import com.astroloop.game.data.ShipDefinitions
 import com.astroloop.game.weapon.Weapon
 import kotlin.math.PI
 import kotlin.random.Random
+import com.astroloop.game.tuning.KnobsWeapons
+import com.astroloop.game.tuning.forLevel
 
 class SpaceMines : Weapon(
     id = "space_mines",
     name = "Space Mines"
 ) {
-    override val baseDamage = 60f
-    override val baseCooldown = 2f
+    override val knobs = KnobsWeapons.spaceMines
     override val beatPhaseOffsetMs: Long = 1500L
-    override val baseProjectileSpeed = 0f
-    override val baseProjectileCount = 1
 
     // Stagger mine drops
     private var pendingMineCount: Int = 0
     private var mineSpawnTimer: Float = 0f
-    private val mineSpawnDelay: Float = 0.2f  // 0.2 second delay between mines
+    private val mineSpawnDelay: Float get() = KnobsWeapons.minesSpawnDelay.value  // delay between mines
     private var pendingMineData: MineSpawnData? = null
 
     private data class MineSpawnData(
@@ -43,17 +42,12 @@ class SpaceMines : Weapon(
     override fun getDamage(state: GameState): Float = baseDamage * state.damageMultiplier
 
     override fun getProjectileCount(state: GameState): Int {
-        val base = when (level) { 1->1; 2->1; 3->2; 4->2; else->3 }
-        return base + state.extraProjectiles
+        return baseProjectileCount + ((level.coerceAtMost(5) - 1) * KnobsWeapons.minesCountGrowth.value).toInt() + state.extraProjectiles
     }
 
     private fun getExplosionRadius(state: GameState): Float {
-        val base = when {
-            level >= 4 -> 110f
-            level >= 2 -> 80f
-            else -> 40f
-        }
-        return base * state.areaMultiplier
+        val base = KnobsWeapons.minesExplosionRadius.forLevel(level)
+        return base * areaOf(state)
     }
 
     override fun fire(
@@ -103,11 +97,11 @@ class SpaceMines : Weapon(
             vy = -firer.velocity.y * 0.3f,
             projectileType = ProjectileType.MINE,
             projectileDamage = damage,
-            projectileLifetime = 30f
+            projectileLifetime = KnobsWeapons.minesLifetime.value
         )
         projectile.isEnemyProjectile = firer.isEnemyFirer
         projectile.weaponId = id
-        projectile.radius = 12f
+        projectile.radius = KnobsWeapons.minesRadius.value
         projectile.explodeOnDeath = true
         projectile.explosionRadius = explosionRadius
         projectile.explosionDamage = damage
@@ -127,11 +121,11 @@ class SpaceMines : Weapon(
             vy = -data.shipVelocity.y * 0.3f,
             projectileType = ProjectileType.MINE,
             projectileDamage = data.damage,
-            projectileLifetime = 30f
+            projectileLifetime = KnobsWeapons.minesLifetime.value
         )
         projectile.isEnemyProjectile = data.isEnemy
         projectile.weaponId = id
-        projectile.radius = 12f
+        projectile.radius = KnobsWeapons.minesRadius.value
         projectile.explodeOnDeath = true
         projectile.explosionRadius = data.explosionRadius
         projectile.explosionDamage = data.damage

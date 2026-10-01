@@ -10,15 +10,13 @@ import com.astroloop.game.util.Vector2
 import com.astroloop.game.data.ShipDefinitions
 import com.astroloop.game.weapon.Weapon
 import kotlin.math.PI
+import com.astroloop.game.tuning.KnobsWeapons
 
 class FrostRing : Weapon(
     id = "frost_ring",
     name = "Frost Ring"
 ) {
-    override val baseDamage = 20f
-    override val baseCooldown = 2f
-    override val baseProjectileSpeed = 0f
-    override val baseProjectileCount = 18  // 6 inner + 12 outer (approximate, not used directly)
+    override val knobs = KnobsWeapons.frostRing
 
     // Shared orbit center (both rings track ship)
     private var currentOrbitCenter: Vector2? = null
@@ -26,20 +24,20 @@ class FrostRing : Weapon(
     // Inner ring — clockwise, L5 IonOrbiters equivalent
     private var innerOrbiters = mutableListOf<Projectile>()
     private var innerBaseAngle: Float = 0f
-    private val innerOrbitSpeed: Float = 3.5f   // clockwise (+)
+    private val innerOrbitSpeed: Float get() = KnobsWeapons.frostInnerSpeed.value   // clockwise (+)
 
     // Outer ring — counter-clockwise
     private var outerOrbiters = mutableListOf<Projectile>()
     private var outerBaseAngle: Float = 0f
-    private val outerOrbitSpeed: Float = 2.5f   // counter-clockwise (-)
+    private val outerOrbitSpeed: Float get() = KnobsWeapons.frostOuterSpeed.value   // counter-clockwise (-)
 
-    private fun getInnerCount(state: GameState): Int = 6 + state.extraProjectiles
+    private fun getInnerCount(state: GameState): Int = KnobsWeapons.frostInnerCount.value + state.extraProjectiles
 
-    private fun getInnerRadius(state: GameState): Float = 110f * state.areaMultiplier
+    private fun getInnerRadius(state: GameState): Float = KnobsWeapons.frostInnerRadius.value * areaOf(state)
 
-    private fun getOuterCount(): Int = 12
+    private fun getOuterCount(): Int = KnobsWeapons.frostOuterCount.value
 
-    private fun getOuterRadius(state: GameState): Float = 225f * state.areaMultiplier
+    private fun getOuterRadius(state: GameState): Float = KnobsWeapons.frostOuterRadius.value * areaOf(state)
 
     override fun fire(
         firer: Firer,
@@ -61,7 +59,7 @@ class FrostRing : Weapon(
         // --- Inner ring ---
         val innerCount = getInnerCount(state)
         val innerRadius = getInnerRadius(state)
-        val orbRadius = 10f * state.areaMultiplier
+        val orbRadius = KnobsWeapons.frostOrbRadius.value * areaOf(state)
 
         while (innerOrbiters.size < innerCount) {
             val spawnAngle = if (innerOrbiters.isNotEmpty()) innerOrbiters.last().orbitAngle else innerBaseAngle

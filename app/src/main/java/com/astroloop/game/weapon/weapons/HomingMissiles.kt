@@ -10,20 +10,18 @@ import com.astroloop.game.entity.Firer
 import com.astroloop.game.util.Vector2
 import com.astroloop.game.data.ShipDefinitions
 import com.astroloop.game.weapon.Weapon
+import com.astroloop.game.tuning.KnobsWeapons
 
 class HomingMissiles : Weapon(
     id = "homing_missiles",
     name = "Homing Missiles"
 ) {
-    override val baseDamage = 35f
-    override val baseCooldown = 1.0f
+    override val knobs = KnobsWeapons.homingMissiles
     override val beatPhaseOffsetMs: Long = 250L
-    override val baseProjectileSpeed = 350f
-    override val baseProjectileCount = 1
 
     override fun getDamage(state: GameState): Float = baseDamage * state.damageMultiplier
 
-    override fun getProjectileCount(state: GameState): Int = level + state.extraProjectiles
+    override fun getProjectileCount(state: GameState): Int = baseProjectileCount + (level - 1) + state.extraProjectiles
 
     override fun fire(
         firer: Firer,
@@ -43,7 +41,7 @@ class HomingMissiles : Weapon(
             .sortedBy { firer.position.distanceSquared(it.position) }
 
         for (i in 0 until count) {
-            val offsetAngle = (i - (count - 1) / 2f) * 0.3f
+            val offsetAngle = (i - (count - 1) / 2f) * KnobsWeapons.homingFan.value
             val angle = firer.rotation + offsetAngle
             val direction = Vector2.fromAngle(angle)
 
@@ -55,11 +53,11 @@ class HomingMissiles : Weapon(
                 vy = direction.y * speed,
                 projectileType = ProjectileType.MISSILE,
                 projectileDamage = damage,
-                projectileLifetime = 4f
+                projectileLifetime = KnobsWeapons.homingLifetime.value
             )
             projectile.isEnemyProjectile = firer.isEnemyFirer
             projectile.weaponId = id
-            projectile.homingStrength = 3.5f  // flat for all levels
+            projectile.homingStrength = KnobsWeapons.homingStrength.value
             projectile.target = sortedTargets.getOrNull(i % sortedTargets.size.coerceAtLeast(1))
             projectile.color = ShipDefinitions.getWeaponColor("homing_missiles", state.isCorruptionRun)
         }

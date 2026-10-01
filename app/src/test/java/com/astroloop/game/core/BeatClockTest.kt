@@ -176,4 +176,50 @@ class BeatClockTest {
             )
         }
     }
+
+    @Test
+    fun `a second pause keeps the first pause time`() {
+        val clock = BeatClock(120f)
+        clock.start(0L)
+        clock.pause(1000L)
+        clock.pause(5000L)
+        clock.resumeFromPause(9000L)
+        assertEquals(1000L, clock.elapsedMs(9000L))
+    }
+
+    @Test
+    fun `weapon anchored after pause, second pause, resume stays on the music grid`() {
+        val clock = BeatClock(120f)
+        clock.start(0L)
+        clock.pause(1000L)
+        clock.pause(5130L)
+        clock.resumeFromPause(9000L)
+        // Music resumed at its own 1000ms position at real time 9000: next beat is 500ms of music away.
+        assertEquals(0L, clock.usUntilNextSubdivision(500_000L, 9000L))
+        assertEquals(300_000L, clock.usUntilNextSubdivision(500_000L, 9200L))
+    }
+
+    @Test
+    fun `pause records again after a resume`() {
+        val clock = BeatClock(120f)
+        clock.start(0L)
+        clock.pause(1000L)
+        clock.resumeFromPause(2000L)
+        clock.pause(3000L)
+        clock.resumeFromPause(7000L)
+        assertEquals(2000L, clock.elapsedMs(7000L))
+    }
+
+    @Test
+    fun `a new start forgets an unresumed pause`() {
+        val clock = BeatClock(120f)
+        clock.start(0L)
+        clock.pause(1000L)
+        // Never resumed; start fresh at a later time.
+        clock.start(10_000L)
+        clock.pause(11_000L)
+        clock.resumeFromPause(15_000L)
+        // Only the 4s second pause should be skipped.
+        assertEquals(1000L, clock.elapsedMs(15_000L))
+    }
 }

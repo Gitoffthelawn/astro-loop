@@ -11,16 +11,13 @@ import com.astroloop.game.util.Vector2
 import com.astroloop.game.data.ShipDefinitions
 import com.astroloop.game.weapon.SpreadFan
 import com.astroloop.game.weapon.Weapon
-import kotlin.math.PI
+import com.astroloop.game.tuning.KnobsWeapons
 
 class PulseCannon : Weapon(
     id = "pulse_cannon",
     name = "Pulse Cannon"
 ) {
-    override val baseDamage = 15f
-    override val baseCooldown = 0.5f
-    override val baseProjectileSpeed = 600f
-    override val baseProjectileCount = 1
+    override val knobs = KnobsWeapons.pulseCannon
 
     override fun getDamage(state: GameState): Float = baseDamage * state.damageMultiplier
 
@@ -32,7 +29,7 @@ class PulseCannon : Weapon(
      */
     private var mirrorLeftover = false
 
-    override fun getProjectileCount(state: GameState): Int = level + state.extraProjectiles
+    override fun getProjectileCount(state: GameState): Int = baseProjectileCount + (level - 1) + state.extraProjectiles
 
     override fun fire(
         firer: Firer,
@@ -60,7 +57,7 @@ class PulseCannon : Weapon(
             firer.rotation
         }
 
-        val spreadAngle = PI.toFloat() / 12f // 15 degree spread
+        val spreadAngle = KnobsWeapons.pulseSpread.value
 
         // Centre-anchored: one bolt always travels down the aim line, whatever the count. The old
         // symmetric formula straddled the target on even counts — and since count is
@@ -82,7 +79,7 @@ class PulseCannon : Weapon(
                 vy = direction.y * speed,
                 projectileType = ProjectileType.BULLET,
                 projectileDamage = damage,
-                projectileLifetime = 2f
+                projectileLifetime = KnobsWeapons.pulseLifetime.value
             )
             projectile.isEnemyProjectile = firer.isEnemyFirer
             projectile.weaponId = id

@@ -36,6 +36,11 @@ import com.astroloop.game.input.InputSurface
 import com.astroloop.game.input.TouchController
 import com.astroloop.game.render.*
 import com.astroloop.game.system.*
+import com.astroloop.game.tuning.LoadoutApplier
+import com.astroloop.game.tuning.RunHooks
+import com.astroloop.game.tuning.RunLoadout
+import com.astroloop.game.tuning.RunSummary
+import com.astroloop.game.tuning.Tunables
 import com.astroloop.game.util.Collision2D
 import com.astroloop.game.util.Vector2
 import com.astroloop.game.weapon.weapons.EnergySaw
@@ -43,6 +48,8 @@ import com.astroloop.game.weapon.weapons.WarpSaw
 import kotlin.math.abs
 import kotlin.math.atan2
 import kotlin.math.cos
+import com.astroloop.game.tuning.KnobsWeapons
+import com.astroloop.game.tuning.KnobsPassives
 import kotlin.math.sign
 import kotlin.math.sin
 import kotlin.math.sqrt
@@ -51,12 +58,17 @@ class GameSurfaceView(
     context: Context,
     private val startingShipId: String = "ship_blue",
     private val startingPilotId: String = "pilot_medic",
+    private val loadout: RunLoadout? = null,
     private val onGameOver: (yenEarned: Int, fadeFromWhite: Boolean) -> Unit = { _, _ -> }
 ) : SurfaceView(context), SurfaceHolder.Callback, InputSurface {
 
     private var gameThread: GameThread? = null
     // internal, not private: `StickReadoutRetreatTest` poses a retreat and drives real frames.
     internal val state = GameState()
+    private var startMinute: Int = 0
+    private var runFinished = false
+    // Set by the first gameOver of a run: a second lethal hit in the same frame must not re-count it.
+    private var deathHandled = false
     private val touchController = TouchController()
 
     /** The controller's half of the movement input. Filled by InputRouter on the UI thread,
@@ -176,7 +188,7 @@ class GameSurfaceView(
         override fun isInRun(): Boolean = true
 
         override fun returnToHangar() {
-            onGameOver(0, false)
+            finishRun(0, false)
         }
 
         override fun closeMenu() {
@@ -762,6 +774,13 @@ class GameSurfaceView(
 
     private fun initializeGame() {
         IconCache.preload(context)
+        runFinished = false
+        deathHandled = false
+        try {
+            RunHooks.listener?.onRunStarted()
+        } catch (e: Throwable) {
+            e.printStackTrace()
+        }
 
         // Reset state
         state.reset()
@@ -933,6 +952,15 @@ class GameSurfaceView(
         // Recalculate stats after applying everything
         state.recalculateStats()
 
+        // A watching build's chosen loadout replaces the ship's and pilot's defaults.
+        if (loadout != null) {
+            LoadoutApplier.apply(loadout, state, weaponSystem)
+            startMinute = loadout.startMinute
+            ship.shieldCap = state.maxShieldCap
+            ship.shieldRegenDisabled = state.shieldRegenDisabled
+            ship.currentShield = minOf(ship.currentShield, ship.shieldCap)
+        }
+
         // Set up weapon/passive gating
         val unlockedWeapons = persistence.getUnlockedWeaponIds()
         val unlockedPassives = persistence.getUnlockedPassiveIds()
@@ -978,11 +1006,99 @@ class GameSurfaceView(
         state.isPostHorrorRun = persistence.isDesertCompleted() && !persistence.hasDesertGoodEnding()
 
         // Start playing immediately with starting loadout
+        state.runStartNanos = System.nanoTime()
+        state.tunablesVersionAtStart = Tunables.version
+        knobsVersionApplied = Tunables.version
         state.phase = GamePhase.PLAYING
         radioSystem.onCombatStart(state)
     }
 
+    /** Every way a run ends goes through here, so a watching build hears about all of them. */
+    internal fun finishRun(yenEarned: Int, fadeFromWhite: Boolean) {
+        if (runFinished) return
+        runFinished = true
+        // A watching build's listener must never be able to keep a run from ending.
+        try {
+            RunHooks.listener?.onRunEnded(
+                RunSummary.from(state, startingShipId, startingPilotId, startMinute, System.nanoTime(), loadout)
+            )
+        } catch (e: Throwable) {
+            e.printStackTrace()
+        }
+        onGameOver(yenEarned, fadeFromWhite)
+    }
+
+    /** Tunables.version the run last applied; a change means knobs were edited (in a watching build). */
+    private var knobsVersionApplied = 0
+
+    /** Re-applies what knobs shape once, on the game thread, after an edit. */
+    internal fun applyKnobChanges() {
+        state.recalculateStats()
+        ship.shieldCap = state.maxShieldCap
+        ship.shieldRegenDisabled = state.shieldRegenDisabled
+        ship.currentShield = minOf(ship.currentShield, ship.shieldCap)
+        weaponSystem.onKnobsChanged()
+    }
+
+    private fun drawTuneButton(canvas: Canvas) {
+        if (!tuneOffered()) return
+        val withQuit = quitOffered()
+        val r = PauseTuneButton.tuneRect(screenWidth, screenHeight, withQuit)
+        canvas.drawRoundRect(r, 16f, 16f, tuneBorderPaint)
+        canvas.drawText("TUNE", r.centerX(), r.top + 58f, tuneLabelPaint)
+        canvas.drawText("R1", r.centerX(), r.top + 98f, tuneHintPaint)
+        if (withQuit) {
+            val q = PauseTuneButton.quitRect(screenWidth, screenHeight)
+            canvas.drawRoundRect(q, 16f, 16f, tuneBorderPaint)
+            canvas.drawText("QUIT", q.centerX(), q.top + 58f, tuneLabelPaint)
+            canvas.drawText("L1", q.centerX(), q.top + 98f, tuneHintPaint)
+        }
+    }
+
+    private fun tuneOffered(): Boolean = RunHooks.listener?.tuneAvailable() == true
+
+    private fun quitOffered(): Boolean = tuneOffered() && RunHooks.listener?.quitAvailable() == true
+
+    /** Set by input on the UI thread; the game thread ends the run on its next paused frame. */
+    @Volatile private var quitRequested = false
+
+    /** Ends a watched run from the pause screen, through the same exit every run end takes. */
+    private fun quitRun() {
+        quitRequested = false
+        state.lastDamageSource = "quit"
+        finishRun(0, false)
+    }
+
+    private fun requestTune() {
+        val listener = RunHooks.listener ?: return
+        val host = context as? android.app.Activity ?: return
+        val weapons = LinkedHashMap(state.weaponLevels)
+        val passives = state.passiveStacks.keys.toList()
+        host.runOnUiThread { listener.onTuneRequested(host, weapons, passives) }
+    }
+
+    override fun onPage(delta: Int): Boolean {
+        if (!state.isPaused) return false
+        if (delta < 0 && quitOffered()) {
+            quitRequested = true
+            return true
+        }
+        if (tuneOffered()) {
+            requestTune()
+            return true
+        }
+        return false
+    }
+
     fun update(deltaTime: Float) {
+        state.frameCount++
+        if (state.firstTunedAtSeconds == null && Tunables.version != state.tunablesVersionAtStart) {
+            state.firstTunedAtSeconds = state.survivalTime
+        }
+        if (Tunables.version != knobsVersionApplied) {
+            knobsVersionApplied = Tunables.version
+            applyKnobChanges()
+        }
         // HUD fade on pause/death (runs before early returns so it animates during pause)
         val hudFadeTarget = if (state.isPaused || state.phase == GamePhase.DEATH_PLAY_OUT || state.phase == GamePhase.CRYSTAL_DEATH || state.phase == GamePhase.GAME_OVER || state.phase == GamePhase.DESERT_FAREWELL || state.phase == GamePhase.TIMELINE_SHIFT) 0f else 1f
         if (state.hudFadeAlpha != hudFadeTarget) {
@@ -1033,7 +1149,7 @@ class GameSurfaceView(
                     enemyExplosions.forEach { it.update(deltaTime) }
                     enemyExplosions.removeAll { !it.isActive }
                     if (corruptionDeathTimer <= 0f) {
-                        onGameOver(state.goldCollected, false)
+                        finishRun(state.goldCollected, false)
                     }
                 }
             }
@@ -1095,8 +1211,9 @@ class GameSurfaceView(
                 }
                 3 -> {
                     if (state.retreatTimer >= 1.5f) {
+                        if (runFinished) return
                         saveRunStats(includeDeath = false)
-                        onGameOver(state.goldCollected, false)
+                        finishRun(state.goldCollected, false)
                         return
                     }
                 }
@@ -1973,7 +2090,7 @@ class GameSurfaceView(
                 if (!isNonAstroCorruptionRun) ship.makeInvulnerable()
                 val revengeStacks = state.passiveStacks["revenge_protocol"] ?: 0
                 if (revengeStacks > 0) {
-                    state.revengeTimer = revengeStacks * 2f
+                    state.revengeTimer = revengeStacks * KnobsPassives.revengeSecondsPerStack.value
                     state.revengeActive = true
                 }
                 if (ship.health <= 0) {
@@ -2033,7 +2150,7 @@ class GameSurfaceView(
                             // Revenge Protocol
                             val revengeStacks = state.passiveStacks["revenge_protocol"] ?: 0
                             if (revengeStacks > 0) {
-                                state.revengeTimer = revengeStacks * 2f
+                                state.revengeTimer = revengeStacks * KnobsPassives.revengeSecondsPerStack.value
                                 state.revengeActive = true
                             }
 
@@ -2157,9 +2274,9 @@ class GameSurfaceView(
 
                 // Ion Orbiters / Frost Ring: silent against asteroids — they only sound on enemy hits (below, by request).
 
-                // Siphon Needles: heal 0.1 HP per hit
+                // Siphon Needles: heal per hit
                 if (projectile.weaponId == "siphon_needles") {
-                    ship.health = (ship.health + 0.1f).coerceAtMost(ship.maxHealth)
+                    ship.health = (ship.health + KnobsWeapons.siphonHealPerHit.value).coerceAtMost(ship.maxHealth)
                 }
 
                 // Add damage number
@@ -2255,9 +2372,9 @@ class GameSurfaceView(
                         projectileEffectsSystem.spawnBombletsFromCollision(projectile)
                     }
 
-                    // Siphon Needles: heal 0.1 HP per hit
+                    // Siphon Needles: heal per hit
                     if (projectile.weaponId == "siphon_needles") {
-                        ship.health = (ship.health + 0.1f).coerceAtMost(ship.maxHealth)
+                        ship.health = (ship.health + KnobsWeapons.siphonHealPerHit.value).coerceAtMost(ship.maxHealth)
                     }
 
                     // Phoenix Flare: suppress visual effects on pierce hits beyond the first to avoid frame spike
@@ -2419,7 +2536,7 @@ class GameSurfaceView(
                         // Revenge Protocol: trigger on ship damage
                         val revengeStacks = state.passiveStacks["revenge_protocol"] ?: 0
                         if (revengeStacks > 0) {
-                            state.revengeTimer = revengeStacks * 2f
+                            state.revengeTimer = revengeStacks * KnobsPassives.revengeSecondsPerStack.value
                             state.revengeActive = true
                         }
 
@@ -2479,7 +2596,7 @@ class GameSurfaceView(
                                 // Revenge Protocol: trigger on ship damage
                                 val revengeStacks = state.passiveStacks["revenge_protocol"] ?: 0
                                 if (revengeStacks > 0) {
-                                    state.revengeTimer = revengeStacks * 2f
+                                    state.revengeTimer = revengeStacks * KnobsPassives.revengeSecondsPerStack.value
                                     state.revengeActive = true
                                 }
 
@@ -2666,7 +2783,7 @@ class GameSurfaceView(
                 // Revenge Protocol: trigger on ship damage
                 val revengeStacks = state.passiveStacks["revenge_protocol"] ?: 0
                 if (revengeStacks > 0) {
-                    state.revengeTimer = revengeStacks * 2f
+                    state.revengeTimer = revengeStacks * KnobsPassives.revengeSecondsPerStack.value
                     state.revengeActive = true
                 }
 
@@ -2686,7 +2803,7 @@ class GameSurfaceView(
                     // Revenge re-armed by volatile splash as well
                     val revengeStacksVolatile = state.passiveStacks["revenge_protocol"] ?: 0
                     if (revengeStacksVolatile > 0) {
-                        state.revengeTimer = revengeStacksVolatile * 2f
+                        state.revengeTimer = revengeStacksVolatile * KnobsPassives.revengeSecondsPerStack.value
                         state.revengeActive = true
                     }
                     if (ship.health <= 0) {
@@ -2727,7 +2844,7 @@ class GameSurfaceView(
                         // Revenge Protocol: trigger on ship damage
                         val revengeStacksContact = state.passiveStacks["revenge_protocol"] ?: 0
                         if (revengeStacksContact > 0) {
-                            state.revengeTimer = revengeStacksContact * 2f
+                            state.revengeTimer = revengeStacksContact * KnobsPassives.revengeSecondsPerStack.value
                             state.revengeActive = true
                         }
 
@@ -3133,7 +3250,7 @@ class GameSurfaceView(
         )
         val revengeStacks = state.passiveStacks["revenge_protocol"] ?: 0
         if (revengeStacks > 0) {
-            state.revengeTimer = revengeStacks * 2f
+            state.revengeTimer = revengeStacks * KnobsPassives.revengeSecondsPerStack.value
             state.revengeActive = true
         }
         if (ship.health <= 0) handlePlayerDeath()
@@ -3453,7 +3570,7 @@ class GameSurfaceView(
                         // Revenge Protocol: trigger on ship damage
                         val revengeStacks = state.passiveStacks["revenge_protocol"] ?: 0
                         if (revengeStacks > 0) {
-                            state.revengeTimer = revengeStacks * 2f
+                            state.revengeTimer = revengeStacks * KnobsPassives.revengeSecondsPerStack.value
                             state.revengeActive = true
                         }
 
@@ -4919,8 +5036,9 @@ class GameSurfaceView(
             if (timelineShiftHoldTimer >= TIMELINE_SHIFT_HOLD_DURATION) {
                 SoundManager.stopAll()
                 SoundManager.volumeAmbient = 0.8f  // Restore default volume
+                if (runFinished) return
                 saveRunStats(includeDeath = false)
-                onGameOver(0, true)  // fadeFromWhite = true
+                finishRun(0, true)  // fadeFromWhite = true
             }
         }
     }
@@ -6392,6 +6510,7 @@ class GameSurfaceView(
                 isAntiAlias = true
             }
             canvas.drawText("PAUSED", screenWidth / 2f, screenHeight * CrystalRenderer.PAUSE_TEXT_THRESHOLD, textPaint)
+            drawTuneButton(canvas)
         }
     }
 
@@ -7674,8 +7793,7 @@ class GameSurfaceView(
             PersistenceManager(context).discoverWeapon(option.id)
         } else {
             state.addPassive(option.id)
-            val instantMaxPassives = setOf("glass_cannon", "phoenix_core", "duplicator_core", "extra_weapon_slot", "lucky_star")
-            if ((state.passiveStacks[option.id] ?: 0) >= GameConfig.PASSIVE_MAX_STACKS && option.id !in instantMaxPassives) {
+            if ((state.passiveStacks[option.id] ?: 0) >= GameConfig.PASSIVE_MAX_STACKS && option.id !in GameState.INSTANT_MAX_PASSIVES) {
                 radioSystem.onPassiveMaxed(state)
             }
             // Sync ship shield stats after passive changes (e.g., Glass Cannon)
@@ -7856,11 +7974,13 @@ class GameSurfaceView(
         crystalRenderer.update(deltaTime)
 
         if (crystalRenderer.isComplete) {
-            onGameOver(state.goldCollected, false)
+            finishRun(state.goldCollected, false)
         }
     }
 
     private fun gameOver(skipCrystal: Boolean = false) {
+        if (deathHandled) return
+        deathHandled = true
         // Hold the pieces past their lifetime so the crystal rewind has something to fly back
         // together. Opt-in per instance: enemy explosions never set this and are unaffected.
         shipExplosion.holdDebris = true
@@ -8447,7 +8567,7 @@ class GameSurfaceView(
                         val lap = if (rest.endsWith("_LAP2")) 2 else 1
                         val phase = rest.removeSuffix("_LAP2").toIntOrNull() ?: 0
                         CabinetDebugIntent.request(CabinetDebugIntent.Action.RECKONING, phase, lap)
-                        onGameOver(0, false)
+                        finishRun(0, false)
                     }
                 }
             }
@@ -8530,8 +8650,12 @@ class GameSurfaceView(
 
     /** The crystal pause overlay is story-gated: normal runs always, corruption only
      *  when flying as Astro (he carries the crystal), astro loop never — the other
-     *  cases get the plain PAUSED overlay in renderPaused(). */
-    private fun pauseUsesCrystal(): Boolean = !state.astroLoopMode && !isNonAstroCorruptionRun
+     *  cases get the plain PAUSED overlay in renderPaused(). A run that offers tuning
+     *  always gets the plain overlay, since that is where TUNE lives. */
+    private fun pauseUsesCrystal(): Boolean =
+        RunHooks.listener?.tuneAvailable() != true && !state.astroLoopMode && !isNonAstroCorruptionRun
+
+    fun isRunPaused(): Boolean = state.isPaused
 
     fun pause() {
         // Stop thread FIRST — prevents game thread from consuming hasTap and calling
@@ -8546,7 +8670,10 @@ class GameSurfaceView(
         // render()/update() iterate. Hold the render monitor so a still-running frame
         // can't observe a half-rebuilt list. Safe: nothing in here joins the thread.
         synchronized(holder) {
-            if (state.phase == GamePhase.PLAYING) {
+            if (state.isPaused) {
+                // Already paused (e.g. leaving the app from the pause screen): the
+                // first pause owns the beat-clock anchor and the crystal.
+            } else if (state.phase == GamePhase.PLAYING) {
                 state.isPaused = true
                 if (pauseUsesCrystal()) crystalRenderer.activatePause(screenWidth, screenHeight)
                 SoundManager.pause()
@@ -8575,6 +8702,7 @@ class GameSurfaceView(
                 pauseDebugHoldActive = false
                 pauseDebugHoldTimer = 0f
                 state.isPaused = false
+                quitRequested = false
                 state.debugMenuOpen = true
                 updateDebugStoryInfo()
                 return
@@ -8591,6 +8719,7 @@ class GameSurfaceView(
             // Resume when dissolve completes (crystal deactivates itself)
             if (!crystalRenderer.isActive) {
                 state.isPaused = false
+                quitRequested = false
                 pauseDebugHoldActive = false
                 pauseDebugHoldTimer = 0f
                 SoundManager.resume()
@@ -8598,14 +8727,53 @@ class GameSurfaceView(
             }
         } else {
             // Crystal not active (e.g., surface recreated) — tap to resume directly
-            if (touchController.consumeTap() || consumePadActivate()) {
-                state.isPaused = false
-                pauseDebugHoldActive = false
-                pauseDebugHoldTimer = 0f
-                SoundManager.resume()
-                SoundManager.beatClock.resumeFromPause(System.currentTimeMillis())
+            if (quitRequested && quitOffered()) {
+                quitRun()
+            } else if (touchController.consumeTap()) {
+                val x = touchController.lastTapX
+                val y = touchController.lastTapY
+                val withQuit = quitOffered()
+                if (withQuit && PauseTuneButton.hitQuit(x, y, screenWidth, screenHeight)) {
+                    quitRun()
+                } else if (tuneOffered() && PauseTuneButton.hitTune(x, y, screenWidth, screenHeight, withQuit)) {
+                    requestTune()
+                } else {
+                    resumeFromPlainPause()
+                }
+            } else if (consumePadActivate()) {
+                resumeFromPlainPause()
             }
         }
+    }
+
+    private fun resumeFromPlainPause() {
+        state.isPaused = false
+        quitRequested = false
+        pauseDebugHoldActive = false
+        pauseDebugHoldTimer = 0f
+        SoundManager.resume()
+        SoundManager.beatClock.resumeFromPause(System.currentTimeMillis())
+    }
+
+    private val tuneBorderPaint = Paint().apply {
+        color = android.graphics.Color.WHITE
+        style = Paint.Style.STROKE
+        strokeWidth = 4f
+        isAntiAlias = true
+    }
+    private val tuneLabelPaint = Paint().apply {
+        color = android.graphics.Color.WHITE
+        textSize = 44f
+        textAlign = Paint.Align.CENTER
+        typeface = FontManager.getDisplayBold()
+        isAntiAlias = true
+    }
+    private val tuneHintPaint = Paint().apply {
+        color = 0xFFAAAAAA.toInt()
+        textSize = 24f
+        textAlign = Paint.Align.CENTER
+        typeface = FontManager.getBold()
+        isAntiAlias = true
     }
 
     private fun renderPaused(canvas: Canvas) {
@@ -8623,6 +8791,7 @@ class GameSurfaceView(
                 isAntiAlias = true
             }
             canvas.drawText("PAUSED", screenWidth / 2f, screenHeight * CrystalRenderer.PAUSE_TEXT_THRESHOLD, textPaint)
+            drawTuneButton(canvas)
         } else {
             crystalRenderer.render(canvas, screenWidth, screenHeight)
         }
@@ -8660,6 +8829,11 @@ internal fun canPauseFromInput(phase: GamePhase, isPaused: Boolean, debugMenuOpe
 
 /** What a press of the pause button means right now. */
 internal enum class PauseVerb { PAUSE, RESUME, NOTHING }
+
+/** Audio restarts on activity resume unless the game view is showing a paused run:
+ *  that run's own resume path restarts it when the player taps. */
+internal fun shouldResumeAudio(isGameView: Boolean, runPaused: Boolean): Boolean =
+    !(isGameView && runPaused)
 
 /**
  * Pause is a toggle, because the button is labelled for one job and must do it both ways.

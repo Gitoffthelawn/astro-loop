@@ -4,6 +4,7 @@ import com.astroloop.game.core.Camera
 import com.astroloop.game.core.GameConfig
 import com.astroloop.game.core.GameState
 import com.astroloop.game.entity.*
+import com.astroloop.game.tuning.KnobsAsteroids
 import com.astroloop.game.util.Vector2
 
 class MovementSystem {
@@ -61,7 +62,7 @@ class MovementSystem {
                     ship.position.y - asteroid.position.y
                 )
                 val dist = toShip.length()
-                if (dist > 0 && dist < 600f) {
+                if (dist > 0 && dist < KnobsAsteroids.magneticPullRange.value) {
                     toShip.normalize()
                     asteroid.velocity.add(
                         toShip.x * pullStrength * deltaTime,

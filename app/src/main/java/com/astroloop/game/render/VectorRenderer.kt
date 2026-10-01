@@ -16,6 +16,7 @@ import com.astroloop.game.data.ShipDefinitions
 import com.astroloop.game.entity.*
 import com.astroloop.game.entity.LeechParticle
 import com.astroloop.game.entity.ReentryBurn
+import com.astroloop.game.system.BeamDamageSystem
 import com.astroloop.game.system.FleetSystem
 import kotlin.math.PI
 import kotlin.math.abs
@@ -1935,8 +1936,8 @@ class VectorRenderer(
     fun renderOblivionBeam(canvas: Canvas, shipX: Float, shipY: Float, rotation: Float, shipRadius: Float, color: Int) {
         val ax = shipX + kotlin.math.cos(rotation) * shipRadius
         val ay = shipY + kotlin.math.sin(rotation) * shipRadius
-        val bx = ax + kotlin.math.cos(rotation) * 1600f
-        val by = ay + kotlin.math.sin(rotation) * 1600f
+        val bx = ax + kotlin.math.cos(rotation) * BeamDamageSystem.BEAM_LENGTH
+        val by = ay + kotlin.math.sin(rotation) * BeamDamageSystem.BEAM_LENGTH
         // NOTE: %10000L keeps the float small enough for sin() precision — the raw millisecond
         // clock is around 1.7e12 and loses its fractional part entirely once cast to Float.
         val t = (System.currentTimeMillis() % 10000L) / 1000f

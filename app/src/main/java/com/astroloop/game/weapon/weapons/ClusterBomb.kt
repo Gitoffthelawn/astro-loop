@@ -10,16 +10,14 @@ import com.astroloop.game.entity.Firer
 import com.astroloop.game.util.Vector2
 import com.astroloop.game.data.ShipDefinitions
 import com.astroloop.game.weapon.Weapon
+import com.astroloop.game.tuning.KnobsWeapons
 
 class ClusterBomb : Weapon(
     id = "cluster_bomb",
     name = "Cluster Bomb"
 ) {
-    override val baseDamage = 60f
-    override val baseCooldown = 2f
+    override val knobs = KnobsWeapons.clusterBomb
     override val beatPhaseOffsetMs: Long = 1000L
-    override val baseProjectileSpeed = 200f
-    override val baseProjectileCount = 1
 
     override fun getDamage(state: GameState): Float {
         return baseDamage * state.damageMultiplier
@@ -33,10 +31,10 @@ class ClusterBomb : Weapon(
         return baseProjectileSpeed * state.projectileSpeedMultiplier
     }
 
-    fun getBombletCount(): Int = level + 1
+    fun getBombletCount(): Int = KnobsWeapons.clusterBomblets.value + (level - 1)
 
     private fun getExplosionRadius(state: GameState): Float =
-        80f * state.areaMultiplier
+        KnobsWeapons.clusterExplosionRadius.value * areaOf(state)
 
     override fun fire(
         firer: Firer,
@@ -52,7 +50,7 @@ class ClusterBomb : Weapon(
         val explosionRadius = getExplosionRadius(state)
 
         for (i in 0 until count) {
-            val offsetAngle = (i - (count - 1) / 2f) * 0.2f
+            val offsetAngle = (i - (count - 1) / 2f) * KnobsWeapons.clusterFan.value
             val angle = firer.rotation + offsetAngle
             val direction = Vector2.fromAngle(angle)
 
@@ -64,7 +62,7 @@ class ClusterBomb : Weapon(
                 vy = direction.y * speed,
                 projectileType = ProjectileType.TORPEDO,
                 projectileDamage = damage,
-                projectileLifetime = 6f
+                projectileLifetime = KnobsWeapons.clusterLifetime.value
             )
             projectile.isEnemyProjectile = firer.isEnemyFirer
             projectile.weaponId = id
@@ -72,14 +70,14 @@ class ClusterBomb : Weapon(
 
             projectile.explodeOnDeath = true
             projectile.explosionRadius = explosionRadius
-            projectile.explosionDamage = damage * 0.3f
+            projectile.explosionDamage = damage * KnobsWeapons.clusterExplosionFraction.value
 
             // Bomblet spawning data
             projectile.bombletCount = getBombletCount()
-            projectile.bombletDamage = damage * 0.3f
-            projectile.bombletExplosionRadius = explosionRadius * 0.6f
+            projectile.bombletDamage = damage * KnobsWeapons.clusterBombletFraction.value
+            projectile.bombletExplosionRadius = explosionRadius * KnobsWeapons.clusterBombletRadiusFraction.value
             projectile.hasFragments = true  // fragments are core identity, on from L1
-            projectile.fragmentDamage = damage * 0.15f
+            projectile.fragmentDamage = damage * KnobsWeapons.clusterFragmentFraction.value
 
             projectile.color = ShipDefinitions.getWeaponColor("cluster_bomb", state.isCorruptionRun)
         }

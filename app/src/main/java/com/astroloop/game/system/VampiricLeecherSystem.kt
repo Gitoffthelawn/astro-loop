@@ -6,6 +6,7 @@ import com.astroloop.game.entity.Asteroid
 import com.astroloop.game.entity.LeechParticle
 import com.astroloop.game.entity.Ship
 import kotlin.math.sqrt
+import com.astroloop.game.tuning.KnobsPassives
 
 class VampiricLeecherSystem(
     private val onAsteroidDestroyed: (Asteroid) -> Unit
@@ -53,7 +54,7 @@ class VampiricLeecherSystem(
 
         tickTimer -= deltaTime
         if (tickTimer <= 0f) {
-            tickTimer += TICK_INTERVAL
+            tickTimer += KnobsPassives.vampiricTick.value
             if (stacks > 0) tick(ship, asteroids, stacks)
         }
     }
@@ -73,25 +74,26 @@ class VampiricLeecherSystem(
      * before calling again.
      */
     private fun collectTargets(ship: Ship, asteroids: List<Asteroid>): List<Asteroid> {
+        val cap = KnobsPassives.vampiricMaxTargets.value
         targetScratch.clear()
         for (asteroid in asteroids) {
             if (!asteroid.isActive || asteroid.fragmentImmunityTimer > 0f) continue
             val dist = edgeDistance(ship, asteroid)
-            if (dist > LEECH_RANGE) continue
+            if (dist > KnobsPassives.vampiricRange.value) continue
 
             // Insert into the nearest-first scratch buffer, capped at MAX_TARGETS, instead of
             // collecting everything and sorting — that boxed every comparison and delegated to
             // Collections.sort's toArray/copy-back. At most MAX_TARGETS elements are ever held,
             // so the shift on insert/removeAt is cheap and allocation-free.
-            if (targetScratch.size < MAX_TARGETS) {
+            if (targetScratch.size < cap) {
                 var insertAt = targetScratch.size
                 while (insertAt > 0 && edgeDistance(ship, targetScratch[insertAt - 1]) > dist) insertAt--
                 targetScratch.add(insertAt, asteroid)
-            } else if (dist < edgeDistance(ship, targetScratch[MAX_TARGETS - 1])) {
-                var insertAt = MAX_TARGETS - 1
+            } else if (dist < edgeDistance(ship, targetScratch[cap - 1])) {
+                var insertAt = cap - 1
                 while (insertAt > 0 && edgeDistance(ship, targetScratch[insertAt - 1]) > dist) insertAt--
                 targetScratch.add(insertAt, asteroid)
-                targetScratch.removeAt(MAX_TARGETS)
+                targetScratch.removeAt(cap)
             }
         }
         return targetScratch
@@ -159,7 +161,7 @@ class VampiricLeecherSystem(
     private fun tick(ship: Ship, asteroids: List<Asteroid>, stacks: Int) {
         if (ship.health >= ship.maxHealth) return
 
-        val leech = LEECH_PER_STACK * stacks
+        val leech = KnobsPassives.vampiricLeechPerStack.value * stacks
         var totalHeal = 0f
 
         for (asteroid in collectTargets(ship, asteroids)) {

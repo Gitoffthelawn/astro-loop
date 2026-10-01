@@ -6,15 +6,13 @@ import com.astroloop.game.entity.EntityPool
 import com.astroloop.game.entity.Projectile
 import com.astroloop.game.entity.Firer
 import com.astroloop.game.weapon.Weapon
+import com.astroloop.game.tuning.KnobsWeapons
 
 class OblivionBeam : Weapon(
     id = "oblivion_beam",
     name = "Oblivion Beam"
 ) {
-    override val baseDamage = 18f     // per tick (10 ticks/sec); was 50 — heavy nerf
-    override val baseCooldown = 0.1f   // per-entity tick interval
-    override val baseProjectileSpeed = 0f
-    override val baseProjectileCount = 1
+    override val knobs = KnobsWeapons.oblivionBeam
 
     override fun getDamage(state: GameState): Float = baseDamage * state.damageMultiplier
 

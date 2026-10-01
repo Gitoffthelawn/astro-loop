@@ -1,5 +1,7 @@
 package com.astroloop.game.system
 
+import com.astroloop.game.tuning.KnobsWeapons
+
 import com.astroloop.game.core.GameState
 import com.astroloop.game.data.ShipDefinitions
 import com.astroloop.game.entity.Asteroid
@@ -28,9 +30,9 @@ class BeamDamageSystem(
     private val playGrindSound: () -> Unit
 ) {
     companion object {
-        const val BEAM_LENGTH = 1600f
-        const val BEAM_HALF_WIDTH = 10f
-        const val TICK_INTERVAL = 0.1f
+        val BEAM_LENGTH: Float get() = KnobsWeapons.beamLength.value
+        val BEAM_HALF_WIDTH: Float get() = KnobsWeapons.beamHalfWidth.value
+        val TICK_INTERVAL: Float get() = KnobsWeapons.oblivionBeam.cooldownSeconds
         const val SOUND_COOLDOWN = 0.15f
     }
 

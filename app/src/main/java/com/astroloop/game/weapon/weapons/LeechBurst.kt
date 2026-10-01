@@ -9,8 +9,8 @@ import com.astroloop.game.entity.Firer
 import com.astroloop.game.util.Vector2
 import com.astroloop.game.data.ShipDefinitions
 import com.astroloop.game.weapon.Weapon
-import kotlin.math.PI
 import kotlin.random.Random
+import com.astroloop.game.tuning.KnobsWeapons
 
 class LeechBurst : Weapon(
     id = "leech_burst",
@@ -23,13 +23,10 @@ class LeechBurst : Weapon(
          * An evolution that scattered wider than the weapon it replaced would be a downgrade, and
          * the two used to be kept in step by a comment alone.
          */
-        val SPREAD_CONE_RADIANS = ScatterShot.SPREAD_CONE_RADIANS
+        val SPREAD_CONE_RADIANS: Float get() = ScatterShot.SPREAD_CONE_RADIANS
     }
 
-    override val baseDamage = 12f
-    override val baseCooldown = 0.5f
-    override val baseProjectileSpeed = 550f
-    override val baseProjectileCount = 13
+    override val knobs = KnobsWeapons.leechBurst
 
     override fun fire(
         firer: Firer,
@@ -45,7 +42,7 @@ class LeechBurst : Weapon(
 
         // Read from ScatterShot rather than copied, so this cannot drift wider than the weapon it
         // evolves from — an evolution that scattered worse than its base would be a downgrade.
-        val spreadAngle = SPREAD_CONE_RADIANS * state.areaMultiplier
+        val spreadAngle = SPREAD_CONE_RADIANS * areaOf(state)
 
         for (i in 0 until count) {
             val angle = firer.rotation + (Random.nextFloat() - 0.5f) * spreadAngle
@@ -62,12 +59,12 @@ class LeechBurst : Weapon(
                 vy = direction.y * projectileSpeed,
                 projectileType = ProjectileType.BULLET,
                 projectileDamage = damage,
-                projectileLifetime = 1.5f
+                projectileLifetime = KnobsWeapons.leechLifetime.value
             )
             projectile.isEnemyProjectile = firer.isEnemyFirer
-            // weaponId set to "leech_burst" so the hit system can detect and apply healing (2 HP per hit)
+            // weaponId set to "leech_burst" so hit flashes and telemetry attribute it
             projectile.weaponId = "leech_burst"
-            projectile.radius = 3f
+            projectile.radius = KnobsWeapons.leechPelletRadius.value
             projectile.color = ShipDefinitions.getEvolutionColor("scatter_shot", state.isCorruptionRun)
         }
 

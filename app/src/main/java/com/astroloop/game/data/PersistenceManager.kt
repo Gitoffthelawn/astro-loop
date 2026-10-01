@@ -344,6 +344,8 @@ class PersistenceManager(context: Context) {
 
     fun getStoryStageCode(): Int = prefs.getInt("story_stage", 0)
     fun setStoryStageCode(code: Int) { prefs.edit().putInt("story_stage", code).apply() }
+    fun isLabSeeded(): Boolean = prefs.getBoolean("lab_seeded", false)
+    fun setLabSeeded() { prefs.edit().putBoolean("lab_seeded", true).apply() }
 
     fun getStoryLoop(): Int = prefs.getInt("story_loop", 1).coerceIn(1, 3)
     fun setStoryLoop(n: Int) { prefs.edit().putInt("story_loop", n.coerceIn(1, 3)).apply() }

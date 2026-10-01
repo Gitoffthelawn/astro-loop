@@ -9,20 +9,18 @@ import com.astroloop.game.entity.Firer
 import com.astroloop.game.util.Vector2
 import com.astroloop.game.data.ShipDefinitions
 import com.astroloop.game.weapon.Weapon
+import com.astroloop.game.tuning.KnobsWeapons
 
 class HunterKiller : Weapon(
     id = "hunter_killer",
     name = "Hunter-Killer"
 ) {
-    override val baseDamage = 60f
-    override val baseCooldown = 1.0f   // double the Cluster Bomb's 2.0s — clean beat-halving
+    override val knobs = KnobsWeapons.hunterKiller
     override val beatPhaseOffsetMs: Long = 1000L
-    override val baseProjectileSpeed = 200f
-    override val baseProjectileCount = 1
 
     override fun getDamage(state: GameState): Float = baseDamage * state.damageMultiplier
 
-    override fun getProjectileCount(state: GameState): Int = 1 + state.extraProjectiles
+    override fun getProjectileCount(state: GameState): Int = baseProjectileCount + state.extraProjectiles
 
     override fun fire(
         firer: Firer,
@@ -35,7 +33,7 @@ class HunterKiller : Weapon(
         val damage = getDamage(state)
         val speed = getProjectileSpeed(state)
         val count = getProjectileCount(state)
-        val explosionRadius = 80f * state.areaMultiplier * 1.4f   // mirrors maxed (L5) Cluster Bomb
+        val explosionRadius = KnobsWeapons.hunterExplosionRadius.value * areaOf(state) * 1.4f   // mirrors maxed (L5) Cluster Bomb
 
         val sortedTargets = targets
             .filter { it.isActive }
@@ -54,24 +52,24 @@ class HunterKiller : Weapon(
                 vy = direction.y * speed,
                 projectileType = ProjectileType.TORPEDO,   // TORPEDO homes via updateHoming and spawns bomblets
                 projectileDamage = damage,
-                projectileLifetime = 6f
+                projectileLifetime = KnobsWeapons.hunterLifetime.value
             )
             projectile.isEnemyProjectile = firer.isEnemyFirer
             projectile.weaponId = id
             projectile.radius = 12f
-            projectile.homingStrength = 3.5f
+            projectile.homingStrength = KnobsWeapons.hunterHoming.value
             projectile.target = sortedTargets.getOrNull(i % sortedTargets.size.coerceAtLeast(1))
 
             projectile.explodeOnDeath = true
             projectile.explosionRadius = explosionRadius
-            projectile.explosionDamage = damage * 0.3f
+            projectile.explosionDamage = damage * KnobsWeapons.hunterExplosionFraction.value
 
-            // Maxed cluster payload: 7 bomblets + fragments, L5 blast scale
-            projectile.bombletCount = 7
-            projectile.bombletDamage = damage * 0.3f
-            projectile.bombletExplosionRadius = explosionRadius * 0.6f
+            // Maxed cluster payload: bomblets + fragments, L5 blast scale
+            projectile.bombletCount = KnobsWeapons.hunterBomblets.value
+            projectile.bombletDamage = damage * KnobsWeapons.hunterBombletFraction.value
+            projectile.bombletExplosionRadius = explosionRadius * KnobsWeapons.hunterBombletRadiusFraction.value
             projectile.hasFragments = true
-            projectile.fragmentDamage = damage * 0.15f
+            projectile.fragmentDamage = damage * KnobsWeapons.hunterFragmentFraction.value
             projectile.color = ShipDefinitions.getEvolutionColor("cluster_bomb", state.isCorruptionRun)
         }
 

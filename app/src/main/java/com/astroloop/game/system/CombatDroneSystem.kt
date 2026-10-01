@@ -3,6 +3,7 @@ package com.astroloop.game.system
 import com.astroloop.game.core.GameState
 import com.astroloop.game.core.SoundManager
 import com.astroloop.game.data.PassiveDefinitions
+import com.astroloop.game.tuning.KnobsPassives
 import com.astroloop.game.entity.*
 import kotlin.math.atan2
 import kotlin.math.cos
@@ -91,25 +92,25 @@ class CombatDroneSystem(
         val baseAngle = atan2(direction.y, direction.x)
 
         if (state.droneEvolved) {
-            drone.fireRate = 2.0f
+            drone.fireRate = KnobsPassives.droneEvolvedFireRate.value
             val projectile = EntityPools.projectiles.obtain()
             projectile.initialize(
                 x = drone.position.x,
                 y = drone.position.y,
-                vx = cos(baseAngle) * 500f,
-                vy = sin(baseAngle) * 500f,
+                vx = cos(baseAngle) * KnobsPassives.droneEvolvedSpeed.value,
+                vy = sin(baseAngle) * KnobsPassives.droneEvolvedSpeed.value,
                 projectileType = ProjectileType.MISSILE,
-                projectileDamage = 45f,
+                projectileDamage = KnobsPassives.droneEvolvedDamage.value,
                 projectileLifetime = 4f
             )
             projectile.weaponId = "autonomous_ace"
             projectile.color = drone.themeColor
-            projectile.homingStrength = 2.5f
+            projectile.homingStrength = KnobsPassives.droneEvolvedHoming.value
             projectile.target = drone.currentTarget
         } else {
-            drone.fireRate = Drone.DEFAULT_FIRE_RATE
+            drone.fireRate = KnobsPassives.droneFireRate.value
             val isTb26 = drone.themeColor == PassiveDefinitions.DRONE_COLOR_TB26
-            val spreadAngle = 0.15f
+            val spreadAngle = KnobsPassives.droneSpread.value
             val offsets = if (isTb26) intArrayOf(-2, -1, 0, 1, 2) else intArrayOf(-1, 0, 1)
             for (offset in offsets) {
                 val angle = baseAngle + offset * spreadAngle
@@ -117,10 +118,10 @@ class CombatDroneSystem(
                 projectile.initialize(
                     x = drone.position.x,
                     y = drone.position.y,
-                    vx = cos(angle) * 450f,
-                    vy = sin(angle) * 450f,
+                    vx = cos(angle) * KnobsPassives.droneSpeed.value,
+                    vy = sin(angle) * KnobsPassives.droneSpeed.value,
                     projectileType = ProjectileType.BULLET,
-                    projectileDamage = 5f,
+                    projectileDamage = KnobsPassives.droneDamage.value,
                     projectileLifetime = 2f
                 )
                 projectile.weaponId = "tb26"

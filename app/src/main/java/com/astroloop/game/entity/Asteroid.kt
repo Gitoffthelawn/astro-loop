@@ -1,6 +1,8 @@
 package com.astroloop.game.entity
 
 import com.astroloop.game.core.GameConfig
+import com.astroloop.game.tuning.KnobsAsteroids
+import com.astroloop.game.tuning.KnobsField
 import com.astroloop.game.util.Vector2
 import kotlin.math.PI
 import kotlin.math.cos
@@ -51,17 +53,9 @@ class Asteroid : Entity() {
         trailPoints.removeAll { gameTime - it.timestamp > trailLifetime }
     }
 
-    fun getTrailLifetime(): Float = when (size) {
-        AsteroidSize.LARGE -> 4f
-        AsteroidSize.MEDIUM -> 2.5f
-        AsteroidSize.SMALL -> 1.5f
-    }
+    fun getTrailLifetime(): Float = KnobsAsteroids.size(size).trailLifetime.value
 
-    fun getTrailWidth(): Float = when (size) {
-        AsteroidSize.LARGE -> 12f
-        AsteroidSize.MEDIUM -> 6f
-        AsteroidSize.SMALL -> 3f
-    }
+    fun getTrailWidth(): Float = KnobsAsteroids.size(size).trailWidth.value
 
     /** Contact damage including the Astro Loop ramp — the number the ship actually takes. */
     fun getContactDamage(): Float = damage + damageBonus
@@ -76,11 +70,7 @@ class Asteroid : Entity() {
      */
     fun getDamageScale(): Float = getContactDamage() / BASE_CONTACT_DAMAGE
 
-    fun getTrailDamage(): Float = getDamageScale() * when (size) {
-        AsteroidSize.LARGE -> 15f
-        AsteroidSize.MEDIUM -> 8f
-        AsteroidSize.SMALL -> 3f
-    }
+    fun getTrailDamage(): Float = getDamageScale() * KnobsAsteroids.size(size).trailDamage.value
 
     fun initialize(
         x: Float,
@@ -93,39 +83,16 @@ class Asteroid : Entity() {
         size = asteroidSize
         type = asteroidType
 
-        // Set radius based on size
-        radius = when (size) {
-            AsteroidSize.LARGE -> GameConfig.ASTEROID_LARGE_SIZE
-            AsteroidSize.MEDIUM -> GameConfig.ASTEROID_MEDIUM_SIZE
-            AsteroidSize.SMALL -> GameConfig.ASTEROID_SMALL_SIZE
-        }
+        val sizeKnobs = KnobsAsteroids.size(size)
+        val typeKnobs = KnobsAsteroids.type(type)
 
-        // Set health based on type and size
-        val baseHealth = when (size) {
-            AsteroidSize.LARGE -> 50f
-            AsteroidSize.MEDIUM -> 25f
-            AsteroidSize.SMALL -> 10f
-        }
-        maxHealth = when (type) {
-            AsteroidType.METAL -> baseHealth * 2
-            else -> baseHealth
-        }
+        radius = sizeKnobs.radius.value
+        val baseHealth = sizeKnobs.hp.value
+        maxHealth = baseHealth * typeKnobs.hpMultiplier.value
         health = maxHealth
 
-        // Set speed based on type
-        val speedMultiplier = when (type) {
-            AsteroidType.ICE -> 1.5f
-            AsteroidType.METAL -> 0.6f
-            AsteroidType.MAGNETIC -> 0.4f
-            else -> 1f
-        }
-
-        val speed = GameConfig.ASTEROID_BASE_SPEED * speedMultiplier *
-            when (size) {
-                AsteroidSize.LARGE -> 0.8f
-                AsteroidSize.MEDIUM -> 1.2f
-                AsteroidSize.SMALL -> 1.6f
-            }
+        val speedMultiplier = typeKnobs.speedMultiplier.value
+        val speed = KnobsField.baseSpeed.value * speedMultiplier * sizeKnobs.speedFactor.value
 
         // Set velocity
         if (direction != null) {
@@ -199,8 +166,13 @@ class Asteroid : Entity() {
 
     fun getSplitCount(): Int {
         return when (type) {
-            AsteroidType.ICE -> Random.nextInt(3, 5)  // Shatters into many
-            else -> 2
+            AsteroidType.ICE -> {
+                // Ordered here so a tuning that crosses the two bounds still splits.
+                val a = KnobsAsteroids.iceSplitMin.value
+                val b = KnobsAsteroids.iceSplitMax.value
+                Random.nextInt(minOf(a, b), maxOf(a, b) + 1)  // shatters into many
+            }
+            else -> KnobsAsteroids.splitCount.value
         }
     }
 
@@ -214,7 +186,7 @@ class Asteroid : Entity() {
 
     fun getExplosionRadius(): Float {
         return if (type == AsteroidType.VOLATILE) {
-            radius * 3f
+            radius * KnobsAsteroids.volatileBlastRadiusFactor.value
         } else {
             0f
         }
@@ -222,7 +194,7 @@ class Asteroid : Entity() {
 
     fun getExplosionDamage(): Float {
         return if (type == AsteroidType.VOLATILE) {
-            getContactDamage() * 1.5f
+            getContactDamage() * KnobsAsteroids.volatileBlastDamageFactor.value
         } else {
             0f
         }
@@ -230,11 +202,7 @@ class Asteroid : Entity() {
 
     fun getMagneticPullStrength(): Float {
         return if (type == AsteroidType.MAGNETIC) {
-            250f * when (size) {
-                AsteroidSize.LARGE -> 1.5f
-                AsteroidSize.MEDIUM -> 1f
-                AsteroidSize.SMALL -> 0.5f
-            }
+            KnobsAsteroids.magneticPullStrength.value * KnobsAsteroids.size(size).magneticPullFactor.value
         } else {
             0f
         }
@@ -259,7 +227,7 @@ class Asteroid : Entity() {
         trailPoints.clear()
         lastTrailTime = 0f
         fragmentImmunityTimer = 0f
-        damage = BASE_CONTACT_DAMAGE
+        damage = KnobsField.contactDamage.value
         damageBonus = 0f
     }
 }

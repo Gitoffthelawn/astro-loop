@@ -2,8 +2,10 @@ package com.astroloop.game.system
 
 import com.astroloop.game.core.Camera
 import com.astroloop.game.core.GameConfig
+import com.astroloop.game.tuning.KnobsField
 import com.astroloop.game.core.GameState
 import com.astroloop.game.entity.*
+import com.astroloop.game.tuning.KnobsAsteroids
 import com.astroloop.game.util.Vector2
 import kotlin.math.PI
 import kotlin.math.pow
@@ -31,8 +33,8 @@ class SpawnSystem(
         fun asteroidCount(mult: Float): Int = mult.roundToInt().coerceIn(1, 3)
 
         fun asteroidSpeedFactor(survivalTime: Float, mult: Float): Float {
-            val speedMod = 1f + (survivalTime / 60f) * GameConfig.DIFFICULTY_SPEED_INCREASE
-            return (speedMod * mult).coerceAtMost(GameConfig.ASTEROID_MAX_SPEED_FACTOR)
+            val speedMod = 1f + (survivalTime / 60f) * KnobsField.speedGrowth.value
+            return (speedMod * mult).coerceAtMost(KnobsField.maxSpeedFactor.value)
         }
 
         /**
@@ -54,8 +56,8 @@ class SpawnSystem(
         fun asteroidHealthFactor(survivalTime: Float, astroLoopMode: Boolean): Float {
             if (!astroLoopMode) return 1f
             val minutes = survivalTime / 60f
-            if (minutes <= HEALTH_RAMP_START_MINUTES) return 1f
-            val doublings = (minutes - HEALTH_RAMP_START_MINUTES) / HEALTH_RAMP_DOUBLING_MINUTES
+            if (minutes <= KnobsField.healthRampStart.value) return 1f
+            val doublings = (minutes - KnobsField.healthRampStart.value) / KnobsField.healthRampDoubling.value
             return 2f.pow(doublings)
         }
 
@@ -84,9 +86,9 @@ class SpawnSystem(
         fun asteroidDamageBonus(survivalTime: Float, astroLoopMode: Boolean): Float {
             if (!astroLoopMode) return 0f
             val minutes = survivalTime / 60f
-            if (minutes <= DAMAGE_RAMP_START_MINUTES) return 0f
-            return ((minutes - DAMAGE_RAMP_START_MINUTES) * DAMAGE_RAMP_PER_MINUTE)
-                .coerceAtMost(DAMAGE_RAMP_MAX_BONUS)
+            if (minutes <= KnobsField.damageRampStart.value) return 0f
+            return ((minutes - KnobsField.damageRampStart.value) * KnobsField.damageRampPerMinute.value)
+                .coerceAtMost(KnobsField.damageRampMax.value)
         }
     }
 
@@ -119,9 +121,9 @@ class SpawnSystem(
     }
 
     private fun getSpawnRate(state: GameState): Float {
-        val baseRate = GameConfig.ASTEROID_INITIAL_SPAWN_RATE
-        val reduction = state.survivalTime / 60f * GameConfig.DIFFICULTY_SPAWN_RATE_INCREASE
-        var rate = (baseRate - reduction).coerceAtLeast(GameConfig.ASTEROID_MIN_SPAWN_RATE)
+        val baseRate = KnobsField.spawnInterval.value
+        val reduction = state.survivalTime / 60f * KnobsField.spawnIntervalDecay.value
+        var rate = (baseRate - reduction).coerceAtLeast(KnobsField.spawnIntervalMin.value)
         // Halve asteroid spawns during corruption run — focus on crew encounters
         if (state.hasCrystalPowers) {
             rate *= 2f
@@ -188,37 +190,16 @@ class SpawnSystem(
     }
 
     private fun getRandomAsteroidType(survivalTime: Float): AsteroidType {
-        val availableTypes = mutableListOf(AsteroidType.ROCK)
-
-        if (survivalTime >= GameConfig.UNLOCK_ICE_ASTEROIDS) {
-            availableTypes.add(AsteroidType.ICE)
-        }
-        if (survivalTime >= GameConfig.UNLOCK_METAL_ASTEROIDS) {
-            availableTypes.add(AsteroidType.METAL)
-        }
-        if (survivalTime >= GameConfig.UNLOCK_VOLATILE_ASTEROIDS) {
-            availableTypes.add(AsteroidType.VOLATILE)
-        }
-        if (survivalTime >= GameConfig.UNLOCK_MAGNETIC_ASTEROIDS) {
-            availableTypes.add(AsteroidType.MAGNETIC)
-        }
-        if (survivalTime >= GameConfig.UNLOCK_TRAIL_ASTEROIDS) {
-            availableTypes.add(AsteroidType.TRAIL)
+        val availableTypes = AsteroidType.values().filter { type ->
+            val unlock = KnobsAsteroids.type(type).unlockSeconds
+            unlock == null || survivalTime >= unlock.value
         }
 
         // Weight toward basic rock type
-        val weights = availableTypes.map { type ->
-            when (type) {
-                AsteroidType.ROCK -> 5
-                AsteroidType.ICE -> 3
-                AsteroidType.METAL -> 2
-                AsteroidType.VOLATILE -> 2
-                AsteroidType.MAGNETIC -> 1
-                AsteroidType.TRAIL -> 2
-            }
-        }
+        val weights = availableTypes.map { KnobsAsteroids.type(it).spawnWeight.value }
 
         val totalWeight = weights.sum()
+        if (totalWeight <= 0) return AsteroidType.ROCK
         var random = Random.nextInt(totalWeight)
 
         for ((index, weight) in weights.withIndex()) {
@@ -283,6 +264,6 @@ class SpawnSystem(
     }
 
     fun reset() {
-        spawnTimer = GameConfig.ASTEROID_INITIAL_SPAWN_RATE
+        spawnTimer = KnobsField.spawnInterval.value
     }
 }

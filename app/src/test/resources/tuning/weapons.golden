@@ -1,0 +1,980 @@
+[pulse_cannon L1]
+damage=15.0 cooldown=0.5 count=1 speed=600.0 area=1.0 phase=0
+proj pulse_cannon type=BULLET dmg=15.0 life=2.0 r=4.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+[pulse_cannon L2]
+damage=15.0 cooldown=0.5 count=2 speed=600.0 area=1.0 phase=0
+proj pulse_cannon type=BULLET dmg=15.0 life=2.0 r=4.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj pulse_cannon type=BULLET dmg=15.0 life=2.0 r=4.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+[pulse_cannon L3]
+damage=15.0 cooldown=0.5 count=3 speed=600.0 area=1.0 phase=0
+proj pulse_cannon type=BULLET dmg=15.0 life=2.0 r=4.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj pulse_cannon type=BULLET dmg=15.0 life=2.0 r=4.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj pulse_cannon type=BULLET dmg=15.0 life=2.0 r=4.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+[pulse_cannon L4]
+damage=15.0 cooldown=0.5 count=4 speed=600.0 area=1.0 phase=0
+proj pulse_cannon type=BULLET dmg=15.0 life=2.0 r=4.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj pulse_cannon type=BULLET dmg=15.0 life=2.0 r=4.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj pulse_cannon type=BULLET dmg=15.0 life=2.0 r=4.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj pulse_cannon type=BULLET dmg=15.0 life=2.0 r=4.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+[pulse_cannon L5]
+damage=15.0 cooldown=0.5 count=5 speed=600.0 area=1.0 phase=0
+proj pulse_cannon type=BULLET dmg=15.0 life=2.0 r=4.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj pulse_cannon type=BULLET dmg=15.0 life=2.0 r=4.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj pulse_cannon type=BULLET dmg=15.0 life=2.0 r=4.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj pulse_cannon type=BULLET dmg=15.0 life=2.0 r=4.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj pulse_cannon type=BULLET dmg=15.0 life=2.0 r=4.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+[energy_saw L1]
+damage=8.0 cooldown=0.1 count=1 speed=0.0 area=1.0 phase=0
+saw disc=20.0 reach=80.0 tick=0.1
+[energy_saw L2]
+damage=9.0 cooldown=0.1 count=1 speed=0.0 area=1.0 phase=0
+saw disc=28.0 reach=90.0 tick=0.1
+[energy_saw L3]
+damage=10.0 cooldown=0.1 count=1 speed=0.0 area=1.0 phase=0
+saw disc=36.0 reach=100.0 tick=0.1
+[energy_saw L4]
+damage=11.0 cooldown=0.1 count=1 speed=0.0 area=1.0 phase=0
+saw disc=45.0 reach=112.0 tick=0.1
+[energy_saw L5]
+damage=12.0 cooldown=0.1 count=1 speed=0.0 area=1.0 phase=0
+saw disc=55.0 reach=125.0 tick=0.1
+[scatter_shot L1]
+damage=10.0 cooldown=1.0 count=5 speed=500.0 area=1.0 phase=500
+proj scatter_shot type=BULLET dmg=10.0 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj scatter_shot type=BULLET dmg=10.0 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj scatter_shot type=BULLET dmg=10.0 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj scatter_shot type=BULLET dmg=10.0 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj scatter_shot type=BULLET dmg=10.0 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+[scatter_shot L2]
+damage=10.0 cooldown=1.0 count=7 speed=500.0 area=1.0 phase=500
+proj scatter_shot type=BULLET dmg=10.0 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj scatter_shot type=BULLET dmg=10.0 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj scatter_shot type=BULLET dmg=10.0 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj scatter_shot type=BULLET dmg=10.0 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj scatter_shot type=BULLET dmg=10.0 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj scatter_shot type=BULLET dmg=10.0 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj scatter_shot type=BULLET dmg=10.0 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+[scatter_shot L3]
+damage=10.0 cooldown=1.0 count=9 speed=500.0 area=1.0 phase=500
+proj scatter_shot type=BULLET dmg=10.0 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj scatter_shot type=BULLET dmg=10.0 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj scatter_shot type=BULLET dmg=10.0 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj scatter_shot type=BULLET dmg=10.0 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj scatter_shot type=BULLET dmg=10.0 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj scatter_shot type=BULLET dmg=10.0 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj scatter_shot type=BULLET dmg=10.0 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj scatter_shot type=BULLET dmg=10.0 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj scatter_shot type=BULLET dmg=10.0 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+[scatter_shot L4]
+damage=10.0 cooldown=1.0 count=11 speed=500.0 area=1.0 phase=500
+proj scatter_shot type=BULLET dmg=10.0 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj scatter_shot type=BULLET dmg=10.0 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj scatter_shot type=BULLET dmg=10.0 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj scatter_shot type=BULLET dmg=10.0 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj scatter_shot type=BULLET dmg=10.0 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj scatter_shot type=BULLET dmg=10.0 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj scatter_shot type=BULLET dmg=10.0 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj scatter_shot type=BULLET dmg=10.0 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj scatter_shot type=BULLET dmg=10.0 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj scatter_shot type=BULLET dmg=10.0 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj scatter_shot type=BULLET dmg=10.0 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+[scatter_shot L5]
+damage=10.0 cooldown=1.0 count=13 speed=500.0 area=1.0 phase=500
+proj scatter_shot type=BULLET dmg=10.0 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj scatter_shot type=BULLET dmg=10.0 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj scatter_shot type=BULLET dmg=10.0 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj scatter_shot type=BULLET dmg=10.0 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj scatter_shot type=BULLET dmg=10.0 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj scatter_shot type=BULLET dmg=10.0 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj scatter_shot type=BULLET dmg=10.0 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj scatter_shot type=BULLET dmg=10.0 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj scatter_shot type=BULLET dmg=10.0 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj scatter_shot type=BULLET dmg=10.0 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj scatter_shot type=BULLET dmg=10.0 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj scatter_shot type=BULLET dmg=10.0 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj scatter_shot type=BULLET dmg=10.0 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+[homing_missiles L1]
+damage=35.0 cooldown=1.0 count=1 speed=350.0 area=1.0 phase=250
+proj homing_missiles type=MISSILE dmg=35.0 life=4.0 r=6.0 pierce=false/1 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=3.5 orbitR=0.0 visualOnly=false fuse=false
+[homing_missiles L2]
+damage=35.0 cooldown=1.0 count=2 speed=350.0 area=1.0 phase=250
+proj homing_missiles type=MISSILE dmg=35.0 life=4.0 r=6.0 pierce=false/1 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=3.5 orbitR=0.0 visualOnly=false fuse=false
+proj homing_missiles type=MISSILE dmg=35.0 life=4.0 r=6.0 pierce=false/1 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=3.5 orbitR=0.0 visualOnly=false fuse=false
+[homing_missiles L3]
+damage=35.0 cooldown=1.0 count=3 speed=350.0 area=1.0 phase=250
+proj homing_missiles type=MISSILE dmg=35.0 life=4.0 r=6.0 pierce=false/1 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=3.5 orbitR=0.0 visualOnly=false fuse=false
+proj homing_missiles type=MISSILE dmg=35.0 life=4.0 r=6.0 pierce=false/1 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=3.5 orbitR=0.0 visualOnly=false fuse=false
+proj homing_missiles type=MISSILE dmg=35.0 life=4.0 r=6.0 pierce=false/1 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=3.5 orbitR=0.0 visualOnly=false fuse=false
+[homing_missiles L4]
+damage=35.0 cooldown=1.0 count=4 speed=350.0 area=1.0 phase=250
+proj homing_missiles type=MISSILE dmg=35.0 life=4.0 r=6.0 pierce=false/1 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=3.5 orbitR=0.0 visualOnly=false fuse=false
+proj homing_missiles type=MISSILE dmg=35.0 life=4.0 r=6.0 pierce=false/1 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=3.5 orbitR=0.0 visualOnly=false fuse=false
+proj homing_missiles type=MISSILE dmg=35.0 life=4.0 r=6.0 pierce=false/1 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=3.5 orbitR=0.0 visualOnly=false fuse=false
+proj homing_missiles type=MISSILE dmg=35.0 life=4.0 r=6.0 pierce=false/1 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=3.5 orbitR=0.0 visualOnly=false fuse=false
+[homing_missiles L5]
+damage=35.0 cooldown=1.0 count=5 speed=350.0 area=1.0 phase=250
+proj homing_missiles type=MISSILE dmg=35.0 life=4.0 r=6.0 pierce=false/1 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=3.5 orbitR=0.0 visualOnly=false fuse=false
+proj homing_missiles type=MISSILE dmg=35.0 life=4.0 r=6.0 pierce=false/1 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=3.5 orbitR=0.0 visualOnly=false fuse=false
+proj homing_missiles type=MISSILE dmg=35.0 life=4.0 r=6.0 pierce=false/1 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=3.5 orbitR=0.0 visualOnly=false fuse=false
+proj homing_missiles type=MISSILE dmg=35.0 life=4.0 r=6.0 pierce=false/1 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=3.5 orbitR=0.0 visualOnly=false fuse=false
+proj homing_missiles type=MISSILE dmg=35.0 life=4.0 r=6.0 pierce=false/1 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=3.5 orbitR=0.0 visualOnly=false fuse=false
+[ion_orbiters L1]
+damage=19.0 cooldown=4.0 count=2 speed=0.0 area=1.0 phase=0
+proj ion_orbiters type=ORBITER dmg=19.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=70.0 visualOnly=false fuse=false
+proj ion_orbiters type=ORBITER dmg=19.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=70.0 visualOnly=false fuse=false
+[ion_orbiters L2]
+damage=19.0 cooldown=4.0 count=3 speed=0.0 area=1.0 phase=0
+proj ion_orbiters type=ORBITER dmg=19.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=85.0 visualOnly=false fuse=false
+proj ion_orbiters type=ORBITER dmg=19.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=85.0 visualOnly=false fuse=false
+proj ion_orbiters type=ORBITER dmg=19.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=85.0 visualOnly=false fuse=false
+[ion_orbiters L3]
+damage=19.0 cooldown=4.0 count=4 speed=0.0 area=1.0 phase=0
+proj ion_orbiters type=ORBITER dmg=19.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=100.0 visualOnly=false fuse=false
+proj ion_orbiters type=ORBITER dmg=19.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=100.0 visualOnly=false fuse=false
+proj ion_orbiters type=ORBITER dmg=19.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=100.0 visualOnly=false fuse=false
+proj ion_orbiters type=ORBITER dmg=19.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=100.0 visualOnly=false fuse=false
+[ion_orbiters L4]
+damage=19.0 cooldown=4.0 count=5 speed=0.0 area=1.0 phase=0
+proj ion_orbiters type=ORBITER dmg=19.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=105.0 visualOnly=false fuse=false
+proj ion_orbiters type=ORBITER dmg=19.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=105.0 visualOnly=false fuse=false
+proj ion_orbiters type=ORBITER dmg=19.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=105.0 visualOnly=false fuse=false
+proj ion_orbiters type=ORBITER dmg=19.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=105.0 visualOnly=false fuse=false
+proj ion_orbiters type=ORBITER dmg=19.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=105.0 visualOnly=false fuse=false
+[ion_orbiters L5]
+damage=19.0 cooldown=4.0 count=6 speed=0.0 area=1.0 phase=0
+proj ion_orbiters type=ORBITER dmg=19.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=110.0 visualOnly=false fuse=false
+proj ion_orbiters type=ORBITER dmg=19.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=110.0 visualOnly=false fuse=false
+proj ion_orbiters type=ORBITER dmg=19.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=110.0 visualOnly=false fuse=false
+proj ion_orbiters type=ORBITER dmg=19.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=110.0 visualOnly=false fuse=false
+proj ion_orbiters type=ORBITER dmg=19.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=110.0 visualOnly=false fuse=false
+proj ion_orbiters type=ORBITER dmg=19.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=110.0 visualOnly=false fuse=false
+[railgun L1]
+damage=80.0 cooldown=1.5 count=1 speed=2000.0 area=1.0 phase=0
+rail pierce=10 r=4.0 w=3.0
+proj railgun type=BULLET dmg=80.0 life=3.0 r=4.0 pierce=true/10 len=20.0 w=3.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+[railgun L2]
+damage=80.0 cooldown=1.5 count=1 speed=2000.0 area=1.0 phase=0
+rail pierce=10 r=5.5 w=5.0
+proj railgun type=BULLET dmg=80.0 life=3.0 r=5.5 pierce=true/10 len=20.0 w=5.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+[railgun L3]
+damage=80.0 cooldown=1.5 count=1 speed=2000.0 area=1.0 phase=0
+rail pierce=10 r=7.0 w=7.0
+proj railgun type=BULLET dmg=80.0 life=3.0 r=7.0 pierce=true/10 len=20.0 w=7.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+[railgun L4]
+damage=80.0 cooldown=1.5 count=1 speed=2000.0 area=1.0 phase=0
+rail pierce=10 r=8.5 w=9.0
+proj railgun type=BULLET dmg=80.0 life=3.0 r=8.5 pierce=true/10 len=20.0 w=9.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+[railgun L5]
+damage=80.0 cooldown=1.5 count=1 speed=2000.0 area=1.0 phase=0
+rail pierce=10 r=10.0 w=11.0
+proj railgun type=BULLET dmg=80.0 life=3.0 r=10.0 pierce=true/10 len=20.0 w=11.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+[space_mines L1]
+damage=60.0 cooldown=2.0 count=1 speed=0.0 area=1.0 phase=1500
+proj space_mines type=MINE dmg=60.0 life=30.0 r=12.0 pierce=false/1 len=10.0 w=10.0 boom=true exR=40.0 exD=60.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+[space_mines L2]
+damage=60.0 cooldown=2.0 count=1 speed=0.0 area=1.0 phase=1500
+proj space_mines type=MINE dmg=60.0 life=30.0 r=12.0 pierce=false/1 len=10.0 w=10.0 boom=true exR=80.0 exD=60.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+[space_mines L3]
+damage=60.0 cooldown=2.0 count=2 speed=0.0 area=1.0 phase=1500
+proj space_mines type=MINE dmg=60.0 life=30.0 r=12.0 pierce=false/1 len=10.0 w=10.0 boom=true exR=80.0 exD=60.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj space_mines type=MINE dmg=60.0 life=30.0 r=12.0 pierce=false/1 len=10.0 w=10.0 boom=true exR=80.0 exD=60.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+[space_mines L4]
+damage=60.0 cooldown=2.0 count=2 speed=0.0 area=1.0 phase=1500
+proj space_mines type=MINE dmg=60.0 life=30.0 r=12.0 pierce=false/1 len=10.0 w=10.0 boom=true exR=110.0 exD=60.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj space_mines type=MINE dmg=60.0 life=30.0 r=12.0 pierce=false/1 len=10.0 w=10.0 boom=true exR=110.0 exD=60.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+[space_mines L5]
+damage=60.0 cooldown=2.0 count=3 speed=0.0 area=1.0 phase=1500
+proj space_mines type=MINE dmg=60.0 life=30.0 r=12.0 pierce=false/1 len=10.0 w=10.0 boom=true exR=110.0 exD=60.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj space_mines type=MINE dmg=60.0 life=30.0 r=12.0 pierce=false/1 len=10.0 w=10.0 boom=true exR=110.0 exD=60.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj space_mines type=MINE dmg=60.0 life=30.0 r=12.0 pierce=false/1 len=10.0 w=10.0 boom=true exR=110.0 exD=60.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+[solar_storm L1]
+damage=29.0 cooldown=2.0 count=1 speed=0.0 area=1.0 phase=500
+proj solar_storm type=LIGHTNING dmg=29.0 life=0.4 r=60.0 pierce=false/1 len=15.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+[solar_storm L2]
+damage=29.0 cooldown=2.0 count=1 speed=0.0 area=1.0 phase=500
+proj solar_storm type=LIGHTNING dmg=29.0 life=0.4 r=60.0 pierce=false/1 len=15.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj solar_storm type=LIGHTNING dmg=29.0 life=0.4 r=60.0 pierce=false/1 len=15.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+[solar_storm L3]
+damage=29.0 cooldown=2.0 count=2 speed=0.0 area=1.0 phase=500
+proj solar_storm type=LIGHTNING dmg=29.0 life=0.4 r=60.0 pierce=false/1 len=15.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj solar_storm type=LIGHTNING dmg=29.0 life=0.4 r=60.0 pierce=false/1 len=15.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj solar_storm type=LIGHTNING dmg=29.0 life=0.4 r=60.0 pierce=false/1 len=15.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+[solar_storm L4]
+damage=29.0 cooldown=2.0 count=3 speed=0.0 area=1.0 phase=500
+proj solar_storm type=LIGHTNING dmg=29.0 life=0.4 r=60.0 pierce=false/1 len=15.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj solar_storm type=LIGHTNING dmg=29.0 life=0.4 r=60.0 pierce=false/1 len=15.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj solar_storm type=LIGHTNING dmg=29.0 life=0.4 r=60.0 pierce=false/1 len=15.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+[solar_storm L5]
+damage=29.0 cooldown=2.0 count=4 speed=0.0 area=1.0 phase=500
+proj solar_storm type=LIGHTNING dmg=29.0 life=0.4 r=60.0 pierce=false/1 len=15.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj solar_storm type=LIGHTNING dmg=29.0 life=0.4 r=60.0 pierce=false/1 len=15.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj solar_storm type=LIGHTNING dmg=29.0 life=0.4 r=60.0 pierce=false/1 len=15.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+[nova_blast L1]
+damage=40.0 cooldown=4.0 count=1 speed=0.0 area=1.0 phase=2000
+nova radius=180.0
+proj nova_blast type=PLASMA dmg=40.0 life=0.3 r=60.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj nova_blast type=PLASMA dmg=40.0 life=0.3 r=60.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj nova_blast type=PLASMA dmg=40.0 life=0.3 r=60.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj nova_blast type=PLASMA dmg=40.0 life=0.3 r=60.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj nova_blast type=PLASMA dmg=40.0 life=0.3 r=60.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj nova_blast type=PLASMA dmg=40.0 life=0.3 r=60.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj nova_blast type=PLASMA dmg=40.0 life=0.3 r=60.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj nova_blast type=PLASMA dmg=40.0 life=0.3 r=60.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+[nova_blast L2]
+damage=40.0 cooldown=4.0 count=1 speed=0.0 area=1.0 phase=2000
+nova radius=234.0
+proj nova_blast type=PLASMA dmg=40.0 life=0.3 r=78.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj nova_blast type=PLASMA dmg=40.0 life=0.3 r=78.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj nova_blast type=PLASMA dmg=40.0 life=0.3 r=78.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj nova_blast type=PLASMA dmg=40.0 life=0.3 r=78.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj nova_blast type=PLASMA dmg=40.0 life=0.3 r=78.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj nova_blast type=PLASMA dmg=40.0 life=0.3 r=78.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj nova_blast type=PLASMA dmg=40.0 life=0.3 r=78.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj nova_blast type=PLASMA dmg=40.0 life=0.3 r=78.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+[nova_blast L3]
+damage=40.0 cooldown=4.0 count=2 speed=0.0 area=1.0 phase=2000
+nova radius=281.0
+proj nova_blast type=PLASMA dmg=40.0 life=0.3 r=93.666664 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj nova_blast type=PLASMA dmg=40.0 life=0.3 r=93.666664 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj nova_blast type=PLASMA dmg=40.0 life=0.3 r=93.666664 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj nova_blast type=PLASMA dmg=40.0 life=0.3 r=93.666664 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj nova_blast type=PLASMA dmg=40.0 life=0.3 r=93.666664 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj nova_blast type=PLASMA dmg=40.0 life=0.3 r=93.666664 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj nova_blast type=PLASMA dmg=40.0 life=0.3 r=93.666664 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj nova_blast type=PLASMA dmg=40.0 life=0.3 r=93.666664 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+[nova_blast L4]
+damage=40.0 cooldown=4.0 count=3 speed=0.0 area=1.0 phase=2000
+nova radius=316.0
+proj nova_blast type=PLASMA dmg=40.0 life=0.3 r=105.333336 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj nova_blast type=PLASMA dmg=40.0 life=0.3 r=105.333336 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj nova_blast type=PLASMA dmg=40.0 life=0.3 r=105.333336 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj nova_blast type=PLASMA dmg=40.0 life=0.3 r=105.333336 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj nova_blast type=PLASMA dmg=40.0 life=0.3 r=105.333336 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj nova_blast type=PLASMA dmg=40.0 life=0.3 r=105.333336 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj nova_blast type=PLASMA dmg=40.0 life=0.3 r=105.333336 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj nova_blast type=PLASMA dmg=40.0 life=0.3 r=105.333336 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+[nova_blast L5]
+damage=40.0 cooldown=4.0 count=4 speed=0.0 area=1.0 phase=2000
+nova radius=351.0
+proj nova_blast type=PLASMA dmg=40.0 life=0.3 r=117.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj nova_blast type=PLASMA dmg=40.0 life=0.3 r=117.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj nova_blast type=PLASMA dmg=40.0 life=0.3 r=117.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj nova_blast type=PLASMA dmg=40.0 life=0.3 r=117.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj nova_blast type=PLASMA dmg=40.0 life=0.3 r=117.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj nova_blast type=PLASMA dmg=40.0 life=0.3 r=117.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj nova_blast type=PLASMA dmg=40.0 life=0.3 r=117.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj nova_blast type=PLASMA dmg=40.0 life=0.3 r=117.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+[needle_gun L1]
+damage=5.0 cooldown=0.25 count=3 speed=800.0 area=1.0 phase=0
+proj needle_gun type=BULLET dmg=5.0 life=2.0 r=4.0 pierce=true/3 len=14.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj needle_gun type=BULLET dmg=5.0 life=2.0 r=4.0 pierce=true/3 len=14.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj needle_gun type=BULLET dmg=5.0 life=2.0 r=4.0 pierce=true/3 len=14.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+[needle_gun L2]
+damage=5.0 cooldown=0.25 count=4 speed=800.0 area=1.0 phase=0
+proj needle_gun type=BULLET dmg=5.0 life=2.0 r=4.0 pierce=true/3 len=14.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj needle_gun type=BULLET dmg=5.0 life=2.0 r=4.0 pierce=true/3 len=14.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj needle_gun type=BULLET dmg=5.0 life=2.0 r=4.0 pierce=true/3 len=14.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj needle_gun type=BULLET dmg=5.0 life=2.0 r=4.0 pierce=true/3 len=14.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+[needle_gun L3]
+damage=5.0 cooldown=0.25 count=5 speed=800.0 area=1.0 phase=0
+proj needle_gun type=BULLET dmg=5.0 life=2.0 r=4.0 pierce=true/3 len=14.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj needle_gun type=BULLET dmg=5.0 life=2.0 r=4.0 pierce=true/3 len=14.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj needle_gun type=BULLET dmg=5.0 life=2.0 r=4.0 pierce=true/3 len=14.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj needle_gun type=BULLET dmg=5.0 life=2.0 r=4.0 pierce=true/3 len=14.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj needle_gun type=BULLET dmg=5.0 life=2.0 r=4.0 pierce=true/3 len=14.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+[needle_gun L4]
+damage=5.0 cooldown=0.25 count=6 speed=800.0 area=1.0 phase=0
+proj needle_gun type=BULLET dmg=5.0 life=2.0 r=4.0 pierce=true/3 len=14.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj needle_gun type=BULLET dmg=5.0 life=2.0 r=4.0 pierce=true/3 len=14.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj needle_gun type=BULLET dmg=5.0 life=2.0 r=4.0 pierce=true/3 len=14.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj needle_gun type=BULLET dmg=5.0 life=2.0 r=4.0 pierce=true/3 len=14.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj needle_gun type=BULLET dmg=5.0 life=2.0 r=4.0 pierce=true/3 len=14.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj needle_gun type=BULLET dmg=5.0 life=2.0 r=4.0 pierce=true/3 len=14.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+[needle_gun L5]
+damage=5.0 cooldown=0.25 count=7 speed=800.0 area=1.0 phase=0
+proj needle_gun type=BULLET dmg=5.0 life=2.0 r=4.0 pierce=true/3 len=14.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj needle_gun type=BULLET dmg=5.0 life=2.0 r=4.0 pierce=true/3 len=14.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj needle_gun type=BULLET dmg=5.0 life=2.0 r=4.0 pierce=true/3 len=14.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj needle_gun type=BULLET dmg=5.0 life=2.0 r=4.0 pierce=true/3 len=14.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj needle_gun type=BULLET dmg=5.0 life=2.0 r=4.0 pierce=true/3 len=14.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj needle_gun type=BULLET dmg=5.0 life=2.0 r=4.0 pierce=true/3 len=14.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj needle_gun type=BULLET dmg=5.0 life=2.0 r=4.0 pierce=true/3 len=14.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+[cluster_bomb L1]
+damage=60.0 cooldown=2.0 count=1 speed=200.0 area=1.0 phase=1000
+cluster bomblets=2
+proj cluster_bomb type=TORPEDO dmg=60.0 life=6.0 r=12.0 pierce=false/1 len=16.0 w=6.0 boom=true exR=80.0 exD=18.0 bomblets=2 bD=18.0 bR=48.0 frag=true/9.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+[cluster_bomb L2]
+damage=60.0 cooldown=2.0 count=1 speed=200.0 area=1.0 phase=1000
+cluster bomblets=3
+proj cluster_bomb type=TORPEDO dmg=60.0 life=6.0 r=12.0 pierce=false/1 len=16.0 w=6.0 boom=true exR=80.0 exD=18.0 bomblets=3 bD=18.0 bR=48.0 frag=true/9.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+[cluster_bomb L3]
+damage=60.0 cooldown=2.0 count=1 speed=200.0 area=1.0 phase=1000
+cluster bomblets=4
+proj cluster_bomb type=TORPEDO dmg=60.0 life=6.0 r=12.0 pierce=false/1 len=16.0 w=6.0 boom=true exR=80.0 exD=18.0 bomblets=4 bD=18.0 bR=48.0 frag=true/9.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+[cluster_bomb L4]
+damage=60.0 cooldown=2.0 count=1 speed=200.0 area=1.0 phase=1000
+cluster bomblets=5
+proj cluster_bomb type=TORPEDO dmg=60.0 life=6.0 r=12.0 pierce=false/1 len=16.0 w=6.0 boom=true exR=80.0 exD=18.0 bomblets=5 bD=18.0 bR=48.0 frag=true/9.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+[cluster_bomb L5]
+damage=60.0 cooldown=2.0 count=1 speed=200.0 area=1.0 phase=1000
+cluster bomblets=6
+proj cluster_bomb type=TORPEDO dmg=60.0 life=6.0 r=12.0 pierce=false/1 len=16.0 w=6.0 boom=true exR=80.0 exD=18.0 bomblets=6 bD=18.0 bR=48.0 frag=true/9.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+[flak_cannon L1]
+damage=44.0 cooldown=1.0 count=1 speed=400.0 area=1.0 phase=0
+proj flak_cannon type=FLAK dmg=44.0 life=1.5 r=6.0 pierce=false/1 len=8.0 w=4.0 boom=true exR=60.0 exD=30.8 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=true
+[flak_cannon L2]
+damage=44.0 cooldown=1.0 count=2 speed=400.0 area=1.0 phase=0
+proj flak_cannon type=FLAK dmg=44.0 life=1.5 r=6.0 pierce=false/1 len=8.0 w=4.0 boom=true exR=60.0 exD=30.8 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=true
+proj flak_cannon type=FLAK dmg=44.0 life=1.5 r=6.0 pierce=false/1 len=8.0 w=4.0 boom=true exR=60.0 exD=30.8 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=true
+[flak_cannon L3]
+damage=44.0 cooldown=1.0 count=3 speed=400.0 area=1.0 phase=0
+proj flak_cannon type=FLAK dmg=44.0 life=1.5 r=6.0 pierce=false/1 len=8.0 w=4.0 boom=true exR=60.0 exD=30.8 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=true
+proj flak_cannon type=FLAK dmg=44.0 life=1.5 r=6.0 pierce=false/1 len=8.0 w=4.0 boom=true exR=60.0 exD=30.8 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=true
+proj flak_cannon type=FLAK dmg=44.0 life=1.5 r=6.0 pierce=false/1 len=8.0 w=4.0 boom=true exR=60.0 exD=30.8 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=true
+[flak_cannon L4]
+damage=44.0 cooldown=1.0 count=4 speed=400.0 area=1.0 phase=0
+proj flak_cannon type=FLAK dmg=44.0 life=1.5 r=6.0 pierce=false/1 len=8.0 w=4.0 boom=true exR=60.0 exD=30.8 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=true
+proj flak_cannon type=FLAK dmg=44.0 life=1.5 r=6.0 pierce=false/1 len=8.0 w=4.0 boom=true exR=60.0 exD=30.8 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=true
+proj flak_cannon type=FLAK dmg=44.0 life=1.5 r=6.0 pierce=false/1 len=8.0 w=4.0 boom=true exR=60.0 exD=30.8 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=true
+proj flak_cannon type=FLAK dmg=44.0 life=1.5 r=6.0 pierce=false/1 len=8.0 w=4.0 boom=true exR=60.0 exD=30.8 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=true
+[flak_cannon L5]
+damage=44.0 cooldown=1.0 count=5 speed=400.0 area=1.0 phase=0
+proj flak_cannon type=FLAK dmg=44.0 life=1.5 r=6.0 pierce=false/1 len=8.0 w=4.0 boom=true exR=60.0 exD=30.8 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=true
+proj flak_cannon type=FLAK dmg=44.0 life=1.5 r=6.0 pierce=false/1 len=8.0 w=4.0 boom=true exR=60.0 exD=30.8 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=true
+proj flak_cannon type=FLAK dmg=44.0 life=1.5 r=6.0 pierce=false/1 len=8.0 w=4.0 boom=true exR=60.0 exD=30.8 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=true
+proj flak_cannon type=FLAK dmg=44.0 life=1.5 r=6.0 pierce=false/1 len=8.0 w=4.0 boom=true exR=60.0 exD=30.8 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=true
+proj flak_cannon type=FLAK dmg=44.0 life=1.5 r=6.0 pierce=false/1 len=8.0 w=4.0 boom=true exR=60.0 exD=30.8 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=true
+[storm_cannon L1]
+damage=18.0 cooldown=0.25 count=3 speed=700.0 area=1.0 phase=0
+proj storm_cannon type=BULLET dmg=18.0 life=2.0 r=4.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj storm_cannon type=BULLET dmg=18.0 life=2.0 r=4.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj storm_cannon type=BULLET dmg=18.0 life=2.0 r=4.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+[storm_cannon L2]
+damage=23.4 cooldown=0.25 count=3 speed=700.0 area=1.0 phase=0
+proj storm_cannon type=BULLET dmg=23.4 life=2.0 r=4.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj storm_cannon type=BULLET dmg=23.4 life=2.0 r=4.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj storm_cannon type=BULLET dmg=23.4 life=2.0 r=4.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+[storm_cannon L3]
+damage=23.4 cooldown=0.25 count=4 speed=700.0 area=1.0 phase=0
+proj storm_cannon type=BULLET dmg=23.4 life=2.0 r=4.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj storm_cannon type=BULLET dmg=23.4 life=2.0 r=4.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj storm_cannon type=BULLET dmg=23.4 life=2.0 r=4.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj storm_cannon type=BULLET dmg=23.4 life=2.0 r=4.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+[storm_cannon L4]
+damage=27.9 cooldown=0.25 count=5 speed=700.0 area=1.0 phase=0
+proj storm_cannon type=BULLET dmg=27.9 life=2.0 r=4.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj storm_cannon type=BULLET dmg=27.9 life=2.0 r=4.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj storm_cannon type=BULLET dmg=27.9 life=2.0 r=4.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj storm_cannon type=BULLET dmg=27.9 life=2.0 r=4.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj storm_cannon type=BULLET dmg=27.9 life=2.0 r=4.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+[storm_cannon L5]
+damage=27.9 cooldown=0.25 count=6 speed=700.0 area=1.0 phase=0
+proj storm_cannon type=BULLET dmg=27.9 life=2.0 r=4.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj storm_cannon type=BULLET dmg=27.9 life=2.0 r=4.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj storm_cannon type=BULLET dmg=27.9 life=2.0 r=4.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj storm_cannon type=BULLET dmg=27.9 life=2.0 r=4.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj storm_cannon type=BULLET dmg=27.9 life=2.0 r=4.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj storm_cannon type=BULLET dmg=27.9 life=2.0 r=4.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+[warp_saw L1]
+damage=15.0 cooldown=0.1 count=1 speed=0.0 area=1.0 phase=0
+warp disc=55.0 reach=125.0 leash=600.0 roam=450.0 warp=0.3
+[warp_saw L2]
+damage=15.0 cooldown=0.1 count=1 speed=0.0 area=1.0 phase=0
+warp disc=55.0 reach=125.0 leash=600.0 roam=450.0 warp=0.3
+[warp_saw L3]
+damage=15.0 cooldown=0.1 count=1 speed=0.0 area=1.0 phase=0
+warp disc=55.0 reach=125.0 leash=600.0 roam=450.0 warp=0.3
+[warp_saw L4]
+damage=15.0 cooldown=0.1 count=1 speed=0.0 area=1.0 phase=0
+warp disc=55.0 reach=125.0 leash=600.0 roam=450.0 warp=0.3
+[warp_saw L5]
+damage=15.0 cooldown=0.1 count=1 speed=0.0 area=1.0 phase=0
+warp disc=55.0 reach=125.0 leash=600.0 roam=450.0 warp=0.3
+[leech_burst L1]
+damage=12.0 cooldown=0.5 count=13 speed=550.0 area=1.0 phase=0
+proj leech_burst type=BULLET dmg=12.0 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj leech_burst type=BULLET dmg=12.0 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj leech_burst type=BULLET dmg=12.0 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj leech_burst type=BULLET dmg=12.0 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj leech_burst type=BULLET dmg=12.0 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj leech_burst type=BULLET dmg=12.0 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj leech_burst type=BULLET dmg=12.0 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj leech_burst type=BULLET dmg=12.0 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj leech_burst type=BULLET dmg=12.0 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj leech_burst type=BULLET dmg=12.0 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj leech_burst type=BULLET dmg=12.0 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj leech_burst type=BULLET dmg=12.0 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj leech_burst type=BULLET dmg=12.0 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+[leech_burst L2]
+damage=15.599999 cooldown=0.5 count=13 speed=550.0 area=1.0 phase=0
+proj leech_burst type=BULLET dmg=15.599999 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj leech_burst type=BULLET dmg=15.599999 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj leech_burst type=BULLET dmg=15.599999 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj leech_burst type=BULLET dmg=15.599999 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj leech_burst type=BULLET dmg=15.599999 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj leech_burst type=BULLET dmg=15.599999 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj leech_burst type=BULLET dmg=15.599999 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj leech_burst type=BULLET dmg=15.599999 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj leech_burst type=BULLET dmg=15.599999 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj leech_burst type=BULLET dmg=15.599999 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj leech_burst type=BULLET dmg=15.599999 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj leech_burst type=BULLET dmg=15.599999 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj leech_burst type=BULLET dmg=15.599999 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+[leech_burst L3]
+damage=15.599999 cooldown=0.5 count=14 speed=550.0 area=1.0 phase=0
+proj leech_burst type=BULLET dmg=15.599999 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj leech_burst type=BULLET dmg=15.599999 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj leech_burst type=BULLET dmg=15.599999 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj leech_burst type=BULLET dmg=15.599999 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj leech_burst type=BULLET dmg=15.599999 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj leech_burst type=BULLET dmg=15.599999 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj leech_burst type=BULLET dmg=15.599999 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj leech_burst type=BULLET dmg=15.599999 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj leech_burst type=BULLET dmg=15.599999 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj leech_burst type=BULLET dmg=15.599999 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj leech_burst type=BULLET dmg=15.599999 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj leech_burst type=BULLET dmg=15.599999 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj leech_burst type=BULLET dmg=15.599999 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj leech_burst type=BULLET dmg=15.599999 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+[leech_burst L4]
+damage=18.599998 cooldown=0.5 count=15 speed=550.0 area=1.0 phase=0
+proj leech_burst type=BULLET dmg=18.599998 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj leech_burst type=BULLET dmg=18.599998 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj leech_burst type=BULLET dmg=18.599998 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj leech_burst type=BULLET dmg=18.599998 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj leech_burst type=BULLET dmg=18.599998 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj leech_burst type=BULLET dmg=18.599998 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj leech_burst type=BULLET dmg=18.599998 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj leech_burst type=BULLET dmg=18.599998 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj leech_burst type=BULLET dmg=18.599998 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj leech_burst type=BULLET dmg=18.599998 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj leech_burst type=BULLET dmg=18.599998 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj leech_burst type=BULLET dmg=18.599998 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj leech_burst type=BULLET dmg=18.599998 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj leech_burst type=BULLET dmg=18.599998 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj leech_burst type=BULLET dmg=18.599998 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+[leech_burst L5]
+damage=18.599998 cooldown=0.5 count=16 speed=550.0 area=1.0 phase=0
+proj leech_burst type=BULLET dmg=18.599998 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj leech_burst type=BULLET dmg=18.599998 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj leech_burst type=BULLET dmg=18.599998 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj leech_burst type=BULLET dmg=18.599998 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj leech_burst type=BULLET dmg=18.599998 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj leech_burst type=BULLET dmg=18.599998 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj leech_burst type=BULLET dmg=18.599998 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj leech_burst type=BULLET dmg=18.599998 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj leech_burst type=BULLET dmg=18.599998 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj leech_burst type=BULLET dmg=18.599998 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj leech_burst type=BULLET dmg=18.599998 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj leech_burst type=BULLET dmg=18.599998 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj leech_burst type=BULLET dmg=18.599998 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj leech_burst type=BULLET dmg=18.599998 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj leech_burst type=BULLET dmg=18.599998 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj leech_burst type=BULLET dmg=18.599998 life=1.5 r=3.0 pierce=false/1 len=8.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+[autonomous_ace L1]
+damage=45.0 cooldown=1.0 count=5 speed=500.0 area=1.0 phase=0
+proj autonomous_ace type=MISSILE dmg=45.0 life=4.0 r=6.0 pierce=false/1 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=2.5 orbitR=0.0 visualOnly=false fuse=false
+proj autonomous_ace type=MISSILE dmg=45.0 life=4.0 r=6.0 pierce=false/1 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=2.5 orbitR=0.0 visualOnly=false fuse=false
+proj autonomous_ace type=MISSILE dmg=45.0 life=4.0 r=6.0 pierce=false/1 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=2.5 orbitR=0.0 visualOnly=false fuse=false
+proj autonomous_ace type=MISSILE dmg=45.0 life=4.0 r=6.0 pierce=false/1 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=2.5 orbitR=0.0 visualOnly=false fuse=false
+proj autonomous_ace type=MISSILE dmg=45.0 life=4.0 r=6.0 pierce=false/1 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=2.5 orbitR=0.0 visualOnly=false fuse=false
+[autonomous_ace L2]
+damage=58.499996 cooldown=1.0 count=5 speed=500.0 area=1.0 phase=0
+proj autonomous_ace type=MISSILE dmg=58.499996 life=4.0 r=6.0 pierce=false/1 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=2.5 orbitR=0.0 visualOnly=false fuse=false
+proj autonomous_ace type=MISSILE dmg=58.499996 life=4.0 r=6.0 pierce=false/1 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=2.5 orbitR=0.0 visualOnly=false fuse=false
+proj autonomous_ace type=MISSILE dmg=58.499996 life=4.0 r=6.0 pierce=false/1 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=2.5 orbitR=0.0 visualOnly=false fuse=false
+proj autonomous_ace type=MISSILE dmg=58.499996 life=4.0 r=6.0 pierce=false/1 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=2.5 orbitR=0.0 visualOnly=false fuse=false
+proj autonomous_ace type=MISSILE dmg=58.499996 life=4.0 r=6.0 pierce=false/1 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=2.5 orbitR=0.0 visualOnly=false fuse=false
+[autonomous_ace L3]
+damage=58.499996 cooldown=1.0 count=5 speed=500.0 area=1.0 phase=0
+proj autonomous_ace type=MISSILE dmg=58.499996 life=4.0 r=6.0 pierce=false/1 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=2.5 orbitR=0.0 visualOnly=false fuse=false
+proj autonomous_ace type=MISSILE dmg=58.499996 life=4.0 r=6.0 pierce=false/1 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=2.5 orbitR=0.0 visualOnly=false fuse=false
+proj autonomous_ace type=MISSILE dmg=58.499996 life=4.0 r=6.0 pierce=false/1 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=2.5 orbitR=0.0 visualOnly=false fuse=false
+proj autonomous_ace type=MISSILE dmg=58.499996 life=4.0 r=6.0 pierce=false/1 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=2.5 orbitR=0.0 visualOnly=false fuse=false
+proj autonomous_ace type=MISSILE dmg=58.499996 life=4.0 r=6.0 pierce=false/1 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=2.5 orbitR=0.0 visualOnly=false fuse=false
+[autonomous_ace L4]
+damage=69.75 cooldown=1.0 count=5 speed=500.0 area=1.0 phase=0
+proj autonomous_ace type=MISSILE dmg=69.75 life=4.0 r=6.0 pierce=false/1 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=2.5 orbitR=0.0 visualOnly=false fuse=false
+proj autonomous_ace type=MISSILE dmg=69.75 life=4.0 r=6.0 pierce=false/1 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=2.5 orbitR=0.0 visualOnly=false fuse=false
+proj autonomous_ace type=MISSILE dmg=69.75 life=4.0 r=6.0 pierce=false/1 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=2.5 orbitR=0.0 visualOnly=false fuse=false
+proj autonomous_ace type=MISSILE dmg=69.75 life=4.0 r=6.0 pierce=false/1 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=2.5 orbitR=0.0 visualOnly=false fuse=false
+proj autonomous_ace type=MISSILE dmg=69.75 life=4.0 r=6.0 pierce=false/1 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=2.5 orbitR=0.0 visualOnly=false fuse=false
+[autonomous_ace L5]
+damage=69.75 cooldown=1.0 count=5 speed=500.0 area=1.0 phase=0
+proj autonomous_ace type=MISSILE dmg=69.75 life=4.0 r=6.0 pierce=false/1 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=2.5 orbitR=0.0 visualOnly=false fuse=false
+proj autonomous_ace type=MISSILE dmg=69.75 life=4.0 r=6.0 pierce=false/1 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=2.5 orbitR=0.0 visualOnly=false fuse=false
+proj autonomous_ace type=MISSILE dmg=69.75 life=4.0 r=6.0 pierce=false/1 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=2.5 orbitR=0.0 visualOnly=false fuse=false
+proj autonomous_ace type=MISSILE dmg=69.75 life=4.0 r=6.0 pierce=false/1 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=2.5 orbitR=0.0 visualOnly=false fuse=false
+proj autonomous_ace type=MISSILE dmg=69.75 life=4.0 r=6.0 pierce=false/1 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=2.5 orbitR=0.0 visualOnly=false fuse=false
+[frost_ring L1]
+damage=20.0 cooldown=2.0 count=18 speed=0.0 area=1.0 phase=0
+proj frost_ring type=ORBITER dmg=20.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=110.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=20.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=110.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=20.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=110.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=20.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=110.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=20.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=110.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=20.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=110.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=20.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=225.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=20.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=225.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=20.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=225.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=20.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=225.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=20.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=225.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=20.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=225.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=20.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=225.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=20.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=225.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=20.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=225.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=20.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=225.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=20.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=225.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=20.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=225.0 visualOnly=false fuse=false
+[frost_ring L2]
+damage=26.0 cooldown=2.0 count=18 speed=0.0 area=1.0 phase=0
+proj frost_ring type=ORBITER dmg=26.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=110.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=26.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=110.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=26.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=110.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=26.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=110.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=26.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=110.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=26.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=110.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=26.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=225.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=26.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=225.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=26.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=225.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=26.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=225.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=26.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=225.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=26.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=225.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=26.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=225.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=26.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=225.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=26.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=225.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=26.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=225.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=26.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=225.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=26.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=225.0 visualOnly=false fuse=false
+[frost_ring L3]
+damage=26.0 cooldown=2.0 count=19 speed=0.0 area=1.0 phase=0
+proj frost_ring type=ORBITER dmg=26.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=110.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=26.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=110.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=26.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=110.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=26.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=110.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=26.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=110.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=26.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=110.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=26.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=225.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=26.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=225.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=26.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=225.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=26.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=225.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=26.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=225.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=26.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=225.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=26.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=225.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=26.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=225.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=26.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=225.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=26.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=225.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=26.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=225.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=26.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=225.0 visualOnly=false fuse=false
+[frost_ring L4]
+damage=31.0 cooldown=2.0 count=20 speed=0.0 area=1.0 phase=0
+proj frost_ring type=ORBITER dmg=31.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=110.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=31.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=110.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=31.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=110.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=31.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=110.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=31.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=110.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=31.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=110.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=31.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=225.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=31.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=225.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=31.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=225.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=31.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=225.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=31.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=225.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=31.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=225.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=31.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=225.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=31.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=225.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=31.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=225.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=31.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=225.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=31.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=225.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=31.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=225.0 visualOnly=false fuse=false
+[frost_ring L5]
+damage=31.0 cooldown=2.0 count=21 speed=0.0 area=1.0 phase=0
+proj frost_ring type=ORBITER dmg=31.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=110.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=31.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=110.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=31.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=110.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=31.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=110.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=31.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=110.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=31.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=110.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=31.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=225.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=31.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=225.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=31.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=225.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=31.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=225.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=31.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=225.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=31.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=225.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=31.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=225.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=31.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=225.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=31.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=225.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=31.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=225.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=31.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=225.0 visualOnly=false fuse=false
+proj frost_ring type=ORBITER dmg=31.0 life=999.0 r=10.0 pierce=true/1000 len=6.0 w=6.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=225.0 visualOnly=false fuse=false
+[oblivion_beam L1]
+damage=18.0 cooldown=0.1 count=1 speed=0.0 area=1.0 phase=0
+[oblivion_beam L2]
+damage=18.0 cooldown=0.1 count=1 speed=0.0 area=1.0 phase=0
+[oblivion_beam L3]
+damage=18.0 cooldown=0.1 count=2 speed=0.0 area=1.0 phase=0
+[oblivion_beam L4]
+damage=18.0 cooldown=0.1 count=3 speed=0.0 area=1.0 phase=0
+[oblivion_beam L5]
+damage=18.0 cooldown=0.1 count=4 speed=0.0 area=1.0 phase=0
+[jackpot_mines L1]
+damage=90.0 cooldown=2.0 count=3 speed=0.0 area=1.0 phase=0
+proj jackpot_mines type=MINE dmg=90.0 life=30.0 r=12.0 pierce=false/1 len=10.0 w=10.0 boom=true exR=80.0 exD=90.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj jackpot_mines type=MINE dmg=90.0 life=30.0 r=12.0 pierce=false/1 len=10.0 w=10.0 boom=true exR=80.0 exD=90.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj jackpot_mines type=MINE dmg=90.0 life=30.0 r=12.0 pierce=false/1 len=10.0 w=10.0 boom=true exR=80.0 exD=90.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+[jackpot_mines L2]
+damage=116.99999 cooldown=2.0 count=3 speed=0.0 area=1.0 phase=0
+proj jackpot_mines type=MINE dmg=116.99999 life=30.0 r=12.0 pierce=false/1 len=10.0 w=10.0 boom=true exR=80.0 exD=116.99999 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj jackpot_mines type=MINE dmg=116.99999 life=30.0 r=12.0 pierce=false/1 len=10.0 w=10.0 boom=true exR=80.0 exD=116.99999 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj jackpot_mines type=MINE dmg=116.99999 life=30.0 r=12.0 pierce=false/1 len=10.0 w=10.0 boom=true exR=80.0 exD=116.99999 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+[jackpot_mines L3]
+damage=116.99999 cooldown=2.0 count=3 speed=0.0 area=1.0 phase=0
+proj jackpot_mines type=MINE dmg=116.99999 life=30.0 r=12.0 pierce=false/1 len=10.0 w=10.0 boom=true exR=80.0 exD=116.99999 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj jackpot_mines type=MINE dmg=116.99999 life=30.0 r=12.0 pierce=false/1 len=10.0 w=10.0 boom=true exR=80.0 exD=116.99999 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj jackpot_mines type=MINE dmg=116.99999 life=30.0 r=12.0 pierce=false/1 len=10.0 w=10.0 boom=true exR=80.0 exD=116.99999 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+[jackpot_mines L4]
+damage=139.5 cooldown=2.0 count=3 speed=0.0 area=1.0 phase=0
+proj jackpot_mines type=MINE dmg=139.5 life=30.0 r=12.0 pierce=false/1 len=10.0 w=10.0 boom=true exR=80.0 exD=139.5 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj jackpot_mines type=MINE dmg=139.5 life=30.0 r=12.0 pierce=false/1 len=10.0 w=10.0 boom=true exR=80.0 exD=139.5 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj jackpot_mines type=MINE dmg=139.5 life=30.0 r=12.0 pierce=false/1 len=10.0 w=10.0 boom=true exR=80.0 exD=139.5 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+[jackpot_mines L5]
+damage=139.5 cooldown=2.0 count=3 speed=0.0 area=1.0 phase=0
+proj jackpot_mines type=MINE dmg=139.5 life=30.0 r=12.0 pierce=false/1 len=10.0 w=10.0 boom=true exR=80.0 exD=139.5 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj jackpot_mines type=MINE dmg=139.5 life=30.0 r=12.0 pierce=false/1 len=10.0 w=10.0 boom=true exR=80.0 exD=139.5 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj jackpot_mines type=MINE dmg=139.5 life=30.0 r=12.0 pierce=false/1 len=10.0 w=10.0 boom=true exR=80.0 exD=139.5 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+[phoenix_flare L1]
+damage=50.0 cooldown=2.0 count=8 speed=0.0 area=1.0 phase=0
+proj phoenix_flare type=PLASMA dmg=50.0 life=0.6 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=50.0 life=0.6 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=50.0 life=0.6 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=50.0 life=0.6 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=50.0 life=0.6 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=50.0 life=0.6 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=50.0 life=0.6 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=50.0 life=0.6 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=50.0 life=0.65 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=50.0 life=0.65 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=50.0 life=0.65 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=50.0 life=0.65 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=50.0 life=0.65 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=50.0 life=0.65 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=50.0 life=0.65 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=50.0 life=0.65 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=50.0 life=0.7 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=50.0 life=0.7 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=50.0 life=0.7 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=50.0 life=0.7 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=50.0 life=0.7 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=50.0 life=0.7 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=50.0 life=0.7 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=50.0 life=0.7 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+[phoenix_flare L2]
+damage=65.0 cooldown=2.0 count=8 speed=0.0 area=1.0 phase=0
+proj phoenix_flare type=PLASMA dmg=65.0 life=0.6 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=65.0 life=0.6 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=65.0 life=0.6 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=65.0 life=0.6 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=65.0 life=0.6 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=65.0 life=0.6 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=65.0 life=0.6 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=65.0 life=0.6 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=65.0 life=0.65 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=65.0 life=0.65 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=65.0 life=0.65 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=65.0 life=0.65 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=65.0 life=0.65 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=65.0 life=0.65 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=65.0 life=0.65 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=65.0 life=0.65 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=65.0 life=0.7 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=65.0 life=0.7 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=65.0 life=0.7 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=65.0 life=0.7 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=65.0 life=0.7 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=65.0 life=0.7 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=65.0 life=0.7 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=65.0 life=0.7 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+[phoenix_flare L3]
+damage=65.0 cooldown=2.0 count=9 speed=0.0 area=1.0 phase=0
+proj phoenix_flare type=PLASMA dmg=65.0 life=0.6 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=65.0 life=0.6 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=65.0 life=0.6 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=65.0 life=0.6 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=65.0 life=0.6 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=65.0 life=0.6 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=65.0 life=0.6 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=65.0 life=0.6 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=65.0 life=0.65 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=65.0 life=0.65 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=65.0 life=0.65 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=65.0 life=0.65 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=65.0 life=0.65 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=65.0 life=0.65 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=65.0 life=0.65 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=65.0 life=0.65 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=65.0 life=0.7 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=65.0 life=0.7 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=65.0 life=0.7 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=65.0 life=0.7 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=65.0 life=0.7 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=65.0 life=0.7 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=65.0 life=0.7 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=65.0 life=0.7 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+[phoenix_flare L4]
+damage=77.5 cooldown=2.0 count=10 speed=0.0 area=1.0 phase=0
+proj phoenix_flare type=PLASMA dmg=77.5 life=0.6 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=77.5 life=0.6 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=77.5 life=0.6 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=77.5 life=0.6 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=77.5 life=0.6 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=77.5 life=0.6 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=77.5 life=0.6 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=77.5 life=0.6 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=77.5 life=0.65 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=77.5 life=0.65 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=77.5 life=0.65 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=77.5 life=0.65 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=77.5 life=0.65 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=77.5 life=0.65 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=77.5 life=0.65 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=77.5 life=0.65 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=77.5 life=0.7 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=77.5 life=0.7 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=77.5 life=0.7 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=77.5 life=0.7 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=77.5 life=0.7 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=77.5 life=0.7 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=77.5 life=0.7 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=77.5 life=0.7 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+[phoenix_flare L5]
+damage=77.5 cooldown=2.0 count=11 speed=0.0 area=1.0 phase=0
+proj phoenix_flare type=PLASMA dmg=77.5 life=0.6 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=77.5 life=0.6 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=77.5 life=0.6 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=77.5 life=0.6 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=77.5 life=0.6 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=77.5 life=0.6 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=77.5 life=0.6 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=77.5 life=0.6 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=77.5 life=0.65 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=77.5 life=0.65 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=77.5 life=0.65 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=77.5 life=0.65 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=77.5 life=0.65 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=77.5 life=0.65 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=77.5 life=0.65 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=77.5 life=0.65 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=77.5 life=0.7 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=77.5 life=0.7 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=77.5 life=0.7 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=77.5 life=0.7 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=77.5 life=0.7 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=77.5 life=0.7 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=77.5 life=0.7 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj phoenix_flare type=PLASMA dmg=77.5 life=0.7 r=35.0 pierce=true/20 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+[lingering_nova L1]
+damage=30.0 cooldown=4.0 count=1 speed=0.0 area=1.0 phase=0
+lingering radius=360.0
+proj lingering_nova type=PLASMA dmg=0.0 life=4.0 r=40.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=true fuse=false
+proj lingering_nova type=PLASMA dmg=30.0 life=0.3 r=120.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj lingering_nova type=PLASMA dmg=30.0 life=0.3 r=120.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj lingering_nova type=PLASMA dmg=30.0 life=0.3 r=120.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj lingering_nova type=PLASMA dmg=30.0 life=0.3 r=120.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj lingering_nova type=PLASMA dmg=30.0 life=0.3 r=120.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj lingering_nova type=PLASMA dmg=30.0 life=0.3 r=120.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj lingering_nova type=PLASMA dmg=30.0 life=0.3 r=120.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj lingering_nova type=PLASMA dmg=30.0 life=0.3 r=120.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj lingering_nova type=PLASMA dmg=30.0 life=0.3 r=120.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj lingering_nova type=PLASMA dmg=30.0 life=0.3 r=120.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj lingering_nova type=PLASMA dmg=30.0 life=0.3 r=120.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj lingering_nova type=PLASMA dmg=30.0 life=0.3 r=120.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj lingering_nova type=PLASMA dmg=30.0 life=0.3 r=120.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj lingering_nova type=PLASMA dmg=30.0 life=0.3 r=120.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj lingering_nova type=PLASMA dmg=30.0 life=0.3 r=120.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj lingering_nova type=PLASMA dmg=30.0 life=0.3 r=120.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+[lingering_nova L2]
+damage=39.0 cooldown=4.0 count=1 speed=0.0 area=1.0 phase=0
+lingering radius=360.0
+proj lingering_nova type=PLASMA dmg=0.0 life=4.0 r=40.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=true fuse=false
+proj lingering_nova type=PLASMA dmg=39.0 life=0.3 r=120.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj lingering_nova type=PLASMA dmg=39.0 life=0.3 r=120.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj lingering_nova type=PLASMA dmg=39.0 life=0.3 r=120.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj lingering_nova type=PLASMA dmg=39.0 life=0.3 r=120.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj lingering_nova type=PLASMA dmg=39.0 life=0.3 r=120.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj lingering_nova type=PLASMA dmg=39.0 life=0.3 r=120.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj lingering_nova type=PLASMA dmg=39.0 life=0.3 r=120.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj lingering_nova type=PLASMA dmg=39.0 life=0.3 r=120.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj lingering_nova type=PLASMA dmg=39.0 life=0.3 r=120.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj lingering_nova type=PLASMA dmg=39.0 life=0.3 r=120.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj lingering_nova type=PLASMA dmg=39.0 life=0.3 r=120.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj lingering_nova type=PLASMA dmg=39.0 life=0.3 r=120.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj lingering_nova type=PLASMA dmg=39.0 life=0.3 r=120.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj lingering_nova type=PLASMA dmg=39.0 life=0.3 r=120.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj lingering_nova type=PLASMA dmg=39.0 life=0.3 r=120.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj lingering_nova type=PLASMA dmg=39.0 life=0.3 r=120.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+[lingering_nova L3]
+damage=39.0 cooldown=4.0 count=2 speed=0.0 area=1.0 phase=0
+lingering radius=360.0
+proj lingering_nova type=PLASMA dmg=0.0 life=4.0 r=40.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=true fuse=false
+proj lingering_nova type=PLASMA dmg=39.0 life=0.3 r=120.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj lingering_nova type=PLASMA dmg=39.0 life=0.3 r=120.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj lingering_nova type=PLASMA dmg=39.0 life=0.3 r=120.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj lingering_nova type=PLASMA dmg=39.0 life=0.3 r=120.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj lingering_nova type=PLASMA dmg=39.0 life=0.3 r=120.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj lingering_nova type=PLASMA dmg=39.0 life=0.3 r=120.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj lingering_nova type=PLASMA dmg=39.0 life=0.3 r=120.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj lingering_nova type=PLASMA dmg=39.0 life=0.3 r=120.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj lingering_nova type=PLASMA dmg=39.0 life=0.3 r=120.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj lingering_nova type=PLASMA dmg=39.0 life=0.3 r=120.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj lingering_nova type=PLASMA dmg=39.0 life=0.3 r=120.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj lingering_nova type=PLASMA dmg=39.0 life=0.3 r=120.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj lingering_nova type=PLASMA dmg=39.0 life=0.3 r=120.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj lingering_nova type=PLASMA dmg=39.0 life=0.3 r=120.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj lingering_nova type=PLASMA dmg=39.0 life=0.3 r=120.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj lingering_nova type=PLASMA dmg=39.0 life=0.3 r=120.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+[lingering_nova L4]
+damage=46.5 cooldown=4.0 count=3 speed=0.0 area=1.0 phase=0
+lingering radius=360.0
+proj lingering_nova type=PLASMA dmg=0.0 life=4.0 r=40.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=true fuse=false
+proj lingering_nova type=PLASMA dmg=46.5 life=0.3 r=120.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj lingering_nova type=PLASMA dmg=46.5 life=0.3 r=120.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj lingering_nova type=PLASMA dmg=46.5 life=0.3 r=120.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj lingering_nova type=PLASMA dmg=46.5 life=0.3 r=120.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj lingering_nova type=PLASMA dmg=46.5 life=0.3 r=120.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj lingering_nova type=PLASMA dmg=46.5 life=0.3 r=120.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj lingering_nova type=PLASMA dmg=46.5 life=0.3 r=120.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj lingering_nova type=PLASMA dmg=46.5 life=0.3 r=120.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj lingering_nova type=PLASMA dmg=46.5 life=0.3 r=120.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj lingering_nova type=PLASMA dmg=46.5 life=0.3 r=120.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj lingering_nova type=PLASMA dmg=46.5 life=0.3 r=120.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj lingering_nova type=PLASMA dmg=46.5 life=0.3 r=120.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj lingering_nova type=PLASMA dmg=46.5 life=0.3 r=120.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj lingering_nova type=PLASMA dmg=46.5 life=0.3 r=120.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj lingering_nova type=PLASMA dmg=46.5 life=0.3 r=120.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj lingering_nova type=PLASMA dmg=46.5 life=0.3 r=120.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+[lingering_nova L5]
+damage=46.5 cooldown=4.0 count=4 speed=0.0 area=1.0 phase=0
+lingering radius=360.0
+proj lingering_nova type=PLASMA dmg=0.0 life=4.0 r=40.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=true fuse=false
+proj lingering_nova type=PLASMA dmg=46.5 life=0.3 r=120.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj lingering_nova type=PLASMA dmg=46.5 life=0.3 r=120.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj lingering_nova type=PLASMA dmg=46.5 life=0.3 r=120.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj lingering_nova type=PLASMA dmg=46.5 life=0.3 r=120.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj lingering_nova type=PLASMA dmg=46.5 life=0.3 r=120.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj lingering_nova type=PLASMA dmg=46.5 life=0.3 r=120.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj lingering_nova type=PLASMA dmg=46.5 life=0.3 r=120.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj lingering_nova type=PLASMA dmg=46.5 life=0.3 r=120.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj lingering_nova type=PLASMA dmg=46.5 life=0.3 r=120.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj lingering_nova type=PLASMA dmg=46.5 life=0.3 r=120.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj lingering_nova type=PLASMA dmg=46.5 life=0.3 r=120.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj lingering_nova type=PLASMA dmg=46.5 life=0.3 r=120.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj lingering_nova type=PLASMA dmg=46.5 life=0.3 r=120.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj lingering_nova type=PLASMA dmg=46.5 life=0.3 r=120.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj lingering_nova type=PLASMA dmg=46.5 life=0.3 r=120.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj lingering_nova type=PLASMA dmg=46.5 life=0.3 r=120.0 pierce=true/1000 len=12.0 w=4.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+[siphon_needles L1]
+damage=9.0 cooldown=0.25 count=7 speed=900.0 area=1.0 phase=0
+proj siphon_needles type=BULLET dmg=9.0 life=2.0 r=4.0 pierce=true/1 len=14.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj siphon_needles type=BULLET dmg=9.0 life=2.0 r=4.0 pierce=true/1 len=14.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj siphon_needles type=BULLET dmg=9.0 life=2.0 r=4.0 pierce=true/1 len=14.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj siphon_needles type=BULLET dmg=9.0 life=2.0 r=4.0 pierce=true/1 len=14.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj siphon_needles type=BULLET dmg=9.0 life=2.0 r=4.0 pierce=true/1 len=14.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj siphon_needles type=BULLET dmg=9.0 life=2.0 r=4.0 pierce=true/1 len=14.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj siphon_needles type=BULLET dmg=9.0 life=2.0 r=4.0 pierce=true/1 len=14.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+[siphon_needles L2]
+damage=11.7 cooldown=0.25 count=7 speed=900.0 area=1.0 phase=0
+proj siphon_needles type=BULLET dmg=11.7 life=2.0 r=4.0 pierce=true/1 len=14.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj siphon_needles type=BULLET dmg=11.7 life=2.0 r=4.0 pierce=true/1 len=14.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj siphon_needles type=BULLET dmg=11.7 life=2.0 r=4.0 pierce=true/1 len=14.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj siphon_needles type=BULLET dmg=11.7 life=2.0 r=4.0 pierce=true/1 len=14.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj siphon_needles type=BULLET dmg=11.7 life=2.0 r=4.0 pierce=true/1 len=14.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj siphon_needles type=BULLET dmg=11.7 life=2.0 r=4.0 pierce=true/1 len=14.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj siphon_needles type=BULLET dmg=11.7 life=2.0 r=4.0 pierce=true/1 len=14.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+[siphon_needles L3]
+damage=11.7 cooldown=0.25 count=8 speed=900.0 area=1.0 phase=0
+proj siphon_needles type=BULLET dmg=11.7 life=2.0 r=4.0 pierce=true/1 len=14.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj siphon_needles type=BULLET dmg=11.7 life=2.0 r=4.0 pierce=true/1 len=14.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj siphon_needles type=BULLET dmg=11.7 life=2.0 r=4.0 pierce=true/1 len=14.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj siphon_needles type=BULLET dmg=11.7 life=2.0 r=4.0 pierce=true/1 len=14.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj siphon_needles type=BULLET dmg=11.7 life=2.0 r=4.0 pierce=true/1 len=14.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj siphon_needles type=BULLET dmg=11.7 life=2.0 r=4.0 pierce=true/1 len=14.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj siphon_needles type=BULLET dmg=11.7 life=2.0 r=4.0 pierce=true/1 len=14.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj siphon_needles type=BULLET dmg=11.7 life=2.0 r=4.0 pierce=true/1 len=14.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+[siphon_needles L4]
+damage=13.95 cooldown=0.25 count=9 speed=900.0 area=1.0 phase=0
+proj siphon_needles type=BULLET dmg=13.95 life=2.0 r=4.0 pierce=true/1 len=14.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj siphon_needles type=BULLET dmg=13.95 life=2.0 r=4.0 pierce=true/1 len=14.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj siphon_needles type=BULLET dmg=13.95 life=2.0 r=4.0 pierce=true/1 len=14.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj siphon_needles type=BULLET dmg=13.95 life=2.0 r=4.0 pierce=true/1 len=14.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj siphon_needles type=BULLET dmg=13.95 life=2.0 r=4.0 pierce=true/1 len=14.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj siphon_needles type=BULLET dmg=13.95 life=2.0 r=4.0 pierce=true/1 len=14.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj siphon_needles type=BULLET dmg=13.95 life=2.0 r=4.0 pierce=true/1 len=14.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj siphon_needles type=BULLET dmg=13.95 life=2.0 r=4.0 pierce=true/1 len=14.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj siphon_needles type=BULLET dmg=13.95 life=2.0 r=4.0 pierce=true/1 len=14.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+[siphon_needles L5]
+damage=13.95 cooldown=0.25 count=10 speed=900.0 area=1.0 phase=0
+proj siphon_needles type=BULLET dmg=13.95 life=2.0 r=4.0 pierce=true/1 len=14.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj siphon_needles type=BULLET dmg=13.95 life=2.0 r=4.0 pierce=true/1 len=14.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj siphon_needles type=BULLET dmg=13.95 life=2.0 r=4.0 pierce=true/1 len=14.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj siphon_needles type=BULLET dmg=13.95 life=2.0 r=4.0 pierce=true/1 len=14.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj siphon_needles type=BULLET dmg=13.95 life=2.0 r=4.0 pierce=true/1 len=14.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj siphon_needles type=BULLET dmg=13.95 life=2.0 r=4.0 pierce=true/1 len=14.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj siphon_needles type=BULLET dmg=13.95 life=2.0 r=4.0 pierce=true/1 len=14.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj siphon_needles type=BULLET dmg=13.95 life=2.0 r=4.0 pierce=true/1 len=14.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj siphon_needles type=BULLET dmg=13.95 life=2.0 r=4.0 pierce=true/1 len=14.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+proj siphon_needles type=BULLET dmg=13.95 life=2.0 r=4.0 pierce=true/1 len=14.0 w=2.0 boom=false exR=0.0 exD=0.0 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=false
+[hunter_killer L1]
+damage=60.0 cooldown=1.0 count=1 speed=200.0 area=1.0 phase=1000
+proj hunter_killer type=TORPEDO dmg=60.0 life=6.0 r=12.0 pierce=false/1 len=16.0 w=6.0 boom=true exR=112.0 exD=18.0 bomblets=7 bD=18.0 bR=67.200005 frag=true/9.0 homing=3.5 orbitR=0.0 visualOnly=false fuse=false
+[hunter_killer L2]
+damage=60.0 cooldown=1.0 count=1 speed=200.0 area=1.0 phase=1000
+proj hunter_killer type=TORPEDO dmg=60.0 life=6.0 r=12.0 pierce=false/1 len=16.0 w=6.0 boom=true exR=112.0 exD=18.0 bomblets=7 bD=18.0 bR=67.200005 frag=true/9.0 homing=3.5 orbitR=0.0 visualOnly=false fuse=false
+[hunter_killer L3]
+damage=60.0 cooldown=1.0 count=1 speed=200.0 area=1.0 phase=1000
+proj hunter_killer type=TORPEDO dmg=60.0 life=6.0 r=12.0 pierce=false/1 len=16.0 w=6.0 boom=true exR=112.0 exD=18.0 bomblets=7 bD=18.0 bR=67.200005 frag=true/9.0 homing=3.5 orbitR=0.0 visualOnly=false fuse=false
+[hunter_killer L4]
+damage=60.0 cooldown=1.0 count=1 speed=200.0 area=1.0 phase=1000
+proj hunter_killer type=TORPEDO dmg=60.0 life=6.0 r=12.0 pierce=false/1 len=16.0 w=6.0 boom=true exR=112.0 exD=18.0 bomblets=7 bD=18.0 bR=67.200005 frag=true/9.0 homing=3.5 orbitR=0.0 visualOnly=false fuse=false
+[hunter_killer L5]
+damage=60.0 cooldown=1.0 count=1 speed=200.0 area=1.0 phase=1000
+proj hunter_killer type=TORPEDO dmg=60.0 life=6.0 r=12.0 pierce=false/1 len=16.0 w=6.0 boom=true exR=112.0 exD=18.0 bomblets=7 bD=18.0 bR=67.200005 frag=true/9.0 homing=3.5 orbitR=0.0 visualOnly=false fuse=false
+[flak_barrage L1]
+damage=25.0 cooldown=0.5 count=5 speed=450.0 area=1.0 phase=0
+proj flak_barrage type=FLAK dmg=25.0 life=1.5 r=6.0 pierce=false/1 len=8.0 w=4.0 boom=true exR=60.0 exD=17.5 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=true
+proj flak_barrage type=FLAK dmg=25.0 life=1.5 r=6.0 pierce=false/1 len=8.0 w=4.0 boom=true exR=60.0 exD=17.5 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=true
+proj flak_barrage type=FLAK dmg=25.0 life=1.5 r=6.0 pierce=false/1 len=8.0 w=4.0 boom=true exR=60.0 exD=17.5 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=true
+proj flak_barrage type=FLAK dmg=25.0 life=1.5 r=6.0 pierce=false/1 len=8.0 w=4.0 boom=true exR=60.0 exD=17.5 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=true
+proj flak_barrage type=FLAK dmg=25.0 life=1.5 r=6.0 pierce=false/1 len=8.0 w=4.0 boom=true exR=60.0 exD=17.5 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=true
+[flak_barrage L2]
+damage=32.5 cooldown=0.5 count=5 speed=450.0 area=1.0 phase=0
+proj flak_barrage type=FLAK dmg=32.5 life=1.5 r=6.0 pierce=false/1 len=8.0 w=4.0 boom=true exR=60.0 exD=22.75 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=true
+proj flak_barrage type=FLAK dmg=32.5 life=1.5 r=6.0 pierce=false/1 len=8.0 w=4.0 boom=true exR=60.0 exD=22.75 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=true
+proj flak_barrage type=FLAK dmg=32.5 life=1.5 r=6.0 pierce=false/1 len=8.0 w=4.0 boom=true exR=60.0 exD=22.75 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=true
+proj flak_barrage type=FLAK dmg=32.5 life=1.5 r=6.0 pierce=false/1 len=8.0 w=4.0 boom=true exR=60.0 exD=22.75 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=true
+proj flak_barrage type=FLAK dmg=32.5 life=1.5 r=6.0 pierce=false/1 len=8.0 w=4.0 boom=true exR=60.0 exD=22.75 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=true
+[flak_barrage L3]
+damage=32.5 cooldown=0.5 count=6 speed=450.0 area=1.0 phase=0
+proj flak_barrage type=FLAK dmg=32.5 life=1.5 r=6.0 pierce=false/1 len=8.0 w=4.0 boom=true exR=60.0 exD=22.75 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=true
+proj flak_barrage type=FLAK dmg=32.5 life=1.5 r=6.0 pierce=false/1 len=8.0 w=4.0 boom=true exR=60.0 exD=22.75 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=true
+proj flak_barrage type=FLAK dmg=32.5 life=1.5 r=6.0 pierce=false/1 len=8.0 w=4.0 boom=true exR=60.0 exD=22.75 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=true
+proj flak_barrage type=FLAK dmg=32.5 life=1.5 r=6.0 pierce=false/1 len=8.0 w=4.0 boom=true exR=60.0 exD=22.75 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=true
+proj flak_barrage type=FLAK dmg=32.5 life=1.5 r=6.0 pierce=false/1 len=8.0 w=4.0 boom=true exR=60.0 exD=22.75 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=true
+proj flak_barrage type=FLAK dmg=32.5 life=1.5 r=6.0 pierce=false/1 len=8.0 w=4.0 boom=true exR=60.0 exD=22.75 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=true
+[flak_barrage L4]
+damage=38.75 cooldown=0.5 count=7 speed=450.0 area=1.0 phase=0
+proj flak_barrage type=FLAK dmg=38.75 life=1.5 r=6.0 pierce=false/1 len=8.0 w=4.0 boom=true exR=60.0 exD=27.125 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=true
+proj flak_barrage type=FLAK dmg=38.75 life=1.5 r=6.0 pierce=false/1 len=8.0 w=4.0 boom=true exR=60.0 exD=27.125 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=true
+proj flak_barrage type=FLAK dmg=38.75 life=1.5 r=6.0 pierce=false/1 len=8.0 w=4.0 boom=true exR=60.0 exD=27.125 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=true
+proj flak_barrage type=FLAK dmg=38.75 life=1.5 r=6.0 pierce=false/1 len=8.0 w=4.0 boom=true exR=60.0 exD=27.125 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=true
+proj flak_barrage type=FLAK dmg=38.75 life=1.5 r=6.0 pierce=false/1 len=8.0 w=4.0 boom=true exR=60.0 exD=27.125 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=true
+proj flak_barrage type=FLAK dmg=38.75 life=1.5 r=6.0 pierce=false/1 len=8.0 w=4.0 boom=true exR=60.0 exD=27.125 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=true
+proj flak_barrage type=FLAK dmg=38.75 life=1.5 r=6.0 pierce=false/1 len=8.0 w=4.0 boom=true exR=60.0 exD=27.125 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=true
+[flak_barrage L5]
+damage=38.75 cooldown=0.5 count=8 speed=450.0 area=1.0 phase=0
+proj flak_barrage type=FLAK dmg=38.75 life=1.5 r=6.0 pierce=false/1 len=8.0 w=4.0 boom=true exR=60.0 exD=27.125 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=true
+proj flak_barrage type=FLAK dmg=38.75 life=1.5 r=6.0 pierce=false/1 len=8.0 w=4.0 boom=true exR=60.0 exD=27.125 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=true
+proj flak_barrage type=FLAK dmg=38.75 life=1.5 r=6.0 pierce=false/1 len=8.0 w=4.0 boom=true exR=60.0 exD=27.125 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=true
+proj flak_barrage type=FLAK dmg=38.75 life=1.5 r=6.0 pierce=false/1 len=8.0 w=4.0 boom=true exR=60.0 exD=27.125 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=true
+proj flak_barrage type=FLAK dmg=38.75 life=1.5 r=6.0 pierce=false/1 len=8.0 w=4.0 boom=true exR=60.0 exD=27.125 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=true
+proj flak_barrage type=FLAK dmg=38.75 life=1.5 r=6.0 pierce=false/1 len=8.0 w=4.0 boom=true exR=60.0 exD=27.125 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=true
+proj flak_barrage type=FLAK dmg=38.75 life=1.5 r=6.0 pierce=false/1 len=8.0 w=4.0 boom=true exR=60.0 exD=27.125 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=true
+proj flak_barrage type=FLAK dmg=38.75 life=1.5 r=6.0 pierce=false/1 len=8.0 w=4.0 boom=true exR=60.0 exD=27.125 bomblets=0 bD=0.0 bR=0.0 frag=false/0.0 homing=0.0 orbitR=0.0 visualOnly=false fuse=true

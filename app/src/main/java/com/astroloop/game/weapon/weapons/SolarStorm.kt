@@ -5,20 +5,18 @@ import com.astroloop.game.core.GameState
 import com.astroloop.game.entity.*
 import com.astroloop.game.data.ShipDefinitions
 import com.astroloop.game.weapon.Weapon
+import com.astroloop.game.tuning.KnobsWeapons
 
 class SolarStorm : Weapon(
     id = "solar_storm",
     name = "Solar Storm"
 ) {
-    override val baseDamage = 29f
-    override val baseCooldown = 2.0f
+    override val knobs = KnobsWeapons.solarStorm
     override val beatPhaseOffsetMs: Long = 500L
-    override val baseProjectileSpeed = 0f
-    override val baseProjectileCount = 1
 
     override fun getDamage(state: GameState): Float = baseDamage * state.damageMultiplier
 
-    private fun getTargetCount(): Int = level
+    private fun getTargetCount(): Int = baseProjectileCount + (level - 1)
 
     override fun fire(
         firer: Firer,

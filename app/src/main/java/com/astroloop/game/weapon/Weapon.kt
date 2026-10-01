@@ -3,6 +3,7 @@ package com.astroloop.game.weapon
 import com.astroloop.game.core.GameState
 import com.astroloop.game.entity.EntityPools
 import com.astroloop.game.entity.Firer
+import com.astroloop.game.tuning.WeaponKnobs
 
 abstract class Weapon(
     val id: String,
@@ -13,11 +14,17 @@ abstract class Weapon(
     var beatSynced: Boolean = false
     open val beatPhaseOffsetMs: Long = 0L
 
+    /** This weapon's knobs in the tuning registry; the base stats below read through them. */
+    abstract val knobs: WeaponKnobs
+
     // Base stats (before level scaling)
-    abstract val baseDamage: Float
-    abstract val baseCooldown: Float
-    abstract val baseProjectileSpeed: Float
-    abstract val baseProjectileCount: Int
+    open val baseDamage: Float get() = knobs.damage.value
+    open val baseCooldown: Float get() = knobs.cooldownSeconds
+    open val baseProjectileSpeed: Float get() = knobs.projectileSpeed
+    open val baseProjectileCount: Int get() = knobs.projectileCount
+
+    /** The area multiplier from passives, scaled by this weapon's own area knob. */
+    protected fun areaOf(state: GameState): Float = state.areaMultiplier * knobs.areaScale
 
     // Get scaled stats based on level.
     // Levels that add a projectile (3 and 5) get no damage bonus;
@@ -48,7 +55,7 @@ abstract class Weapon(
     }
 
     open fun getArea(state: GameState): Float {
-        return 1f * state.areaMultiplier
+        return areaOf(state)
     }
 
     fun update(deltaTime: Float) {

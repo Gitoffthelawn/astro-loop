@@ -173,7 +173,6 @@ class DebugMenuRenderer {
     private val marginX = 16f
     private val buttonGap = 8f
 
-    private val instantMaxPassives = setOf("glass_cannon", "phoenix_core", "duplicator_core", "extra_weapon_slot")
 
     fun initialize(width: Float, height: Float) {
         screenWidth = width
@@ -945,7 +944,7 @@ class DebugMenuRenderer {
                 val passiveId = passives[i].id
                 val currentStacks = state.getPassiveStacks(passiveId)
 
-                if (instantMaxPassives.contains(passiveId)) {
+                if (GameState.INSTANT_MAX_PASSIVES.contains(passiveId)) {
                     if (currentStacks > 0) {
                         state.passiveStacks.remove(passiveId)
                     } else {

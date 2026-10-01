@@ -1,5 +1,7 @@
 package com.astroloop.game.core
 
+import com.astroloop.game.tuning.KnobsDrops
+import com.astroloop.game.tuning.KnobsPassives
 import com.astroloop.game.data.WeaponDefinitions
 import com.astroloop.game.entity.Entity
 
@@ -64,6 +66,27 @@ class GameState {
     var telemetryCritsThisMinute = 0
     var telemetryPowerupsCollected = mutableMapOf<String, Int>()
     var telemetryDodges = 0
+
+    // Telemetry: per-run totals, folded in from the per-minute maps as each minute resets
+    private val runDamageByWeaponFolded = mutableMapOf<String, Float>()
+    private val runDamageTakenByFolded = mutableMapOf<String, Float>()
+
+    /** Frames updated this run and when it started, for the Lab report's frame rate. */
+    var frameCount: Long = 0L
+    var runStartNanos: Long = 0L
+
+    /** Survival time at which a knob was first changed during this run; null for a clean run. */
+    var firstTunedAtSeconds: Float? = null
+    var tunablesVersionAtStart: Int = 0
+
+    fun runDamageByWeapon(): Map<String, Float> = merged(runDamageByWeaponFolded, telemetryDamageByWeapon)
+    fun runDamageTakenBy(): Map<String, Float> = merged(runDamageTakenByFolded, telemetryDamageTakenBy)
+
+    private fun merged(a: Map<String, Float>, b: Map<String, Float>): Map<String, Float> {
+        val out = HashMap(a)
+        for ((k, v) in b) out[k] = (out[k] ?: 0f) + v
+        return out
+    }
 
     // Telemetry: per-run counters (reset on run start)
     var telemetrySnapshotTimer = 0f
@@ -253,6 +276,8 @@ class GameState {
     // Astro Loop mode (endless pure-asteroid run)
     var astroLoopMode: Boolean = false
     var astroLoopEvolutionUsed: Boolean = false
+    /** Survival seconds before evolutions become available. */
+    var evolutionTimeGateSeconds: Float = 480f
 
     // Crystal powers (Astro corruption run)
     var hasCrystalPowers: Boolean = false
@@ -367,7 +392,7 @@ class GameState {
         GameConfig.POWERUP_MAGNET_BASE_RANGE * pickupRangeMultiplier * getMagnetRangeMultiplier()
 
     /** Cryo Field's slow radius. Same single-source rule as [getPickupRange]. */
-    fun getCryoRadius(): Float = GameConfig.CRYO_BASE_RADIUS * cryoRadiusMultiplier
+    fun getCryoRadius(): Float = KnobsPassives.cryoBaseRadius.value * cryoRadiusMultiplier
 
     fun reset() {
         phase = GamePhase.PLAYING
@@ -419,6 +444,7 @@ class GameState {
         isCorruptionRun = false
         astroLoopMode = false
         astroLoopEvolutionUsed = false
+        evolutionTimeGateSeconds = 480f
         storyLoop = 1  // will be overwritten by GameSurfaceView.initialize()
         hasCrystalPowers = false
         crystalAfterimages.clear()
@@ -516,6 +542,10 @@ class GameState {
     }
 
     fun resetTelemetry() {
+        runDamageByWeaponFolded.clear()
+        runDamageTakenByFolded.clear()
+        frameCount = 0L
+        firstTunedAtSeconds = null
         telemetryDamageByWeapon.clear()
         telemetryDamageTakenBy.clear()
         telemetryCritsThisMinute = 0
@@ -535,6 +565,8 @@ class GameState {
     }
 
     fun resetTelemetryMinuteCounters() {
+        for ((k, v) in telemetryDamageByWeapon) runDamageByWeaponFolded[k] = (runDamageByWeaponFolded[k] ?: 0f) + v
+        for ((k, v) in telemetryDamageTakenBy) runDamageTakenByFolded[k] = (runDamageTakenByFolded[k] ?: 0f) + v
         telemetryDamageByWeapon.clear()
         telemetryDamageTakenBy.clear()
         telemetryCritsThisMinute = 0
@@ -559,7 +591,15 @@ class GameState {
          * to 1.0 and booleans to false — no field overrides needed.
          */
         fun createNeutral(): GameState = GameState()
+
+        /** Passives that jump to full stacks on first pickup. */
+        val INSTANT_MAX_PASSIVES: Set<String> =
+            setOf("glass_cannon", "phoenix_core", "duplicator_core", "extra_weapon_slot", "lucky_star")
     }
+
+    /** The passive id [passiveId] really is for the active pilot (Astro's drone is tb26). */
+    fun resolvePassiveId(passiveId: String): String =
+        if (passiveId == "combat_drone" && activePilotId == "pilot_astro") "tb26" else passiveId
 
     fun addWeapon(weaponId: String): Boolean {
         val currentLevel = weaponLevels[weaponId] ?: 0
@@ -572,12 +612,11 @@ class GameState {
     }
 
     fun addPassive(passiveId: String): Boolean {
-        val resolvedId = if (passiveId == "combat_drone" && activePilotId == "pilot_astro") "tb26" else passiveId
+        val resolvedId = resolvePassiveId(passiveId)
         val currentStacks = passiveStacks[resolvedId] ?: 0
         if (currentStacks < GameConfig.PASSIVE_MAX_STACKS) {
             // Instant-max passives go to full stacks immediately when first picked
-            val instantMaxPassives = setOf("glass_cannon", "phoenix_core", "duplicator_core", "extra_weapon_slot", "lucky_star")
-            if (instantMaxPassives.contains(resolvedId) && currentStacks == 0) {
+            if (INSTANT_MAX_PASSIVES.contains(resolvedId) && currentStacks == 0) {
                 passiveStacks[resolvedId] = GameConfig.PASSIVE_MAX_STACKS
             } else {
                 passiveStacks[resolvedId] = currentStacks + 1
@@ -662,17 +701,17 @@ class GameState {
         passiveStacks.forEach { (passiveId, stacks) ->
             when (passiveId) {
                 "nano_repair" -> {
-                    healthRegen += 0.4f * stacks
+                    healthRegen += KnobsPassives.nanoRegenPerStack.value * stacks
                 }
                 "duplicator_core" -> {
                     // +1 projectile total (instant-max, binary effect)
-                    extraProjectiles += 1
+                    extraProjectiles += KnobsPassives.duplicatorExtraProjectiles.value
                 }
                 "magnet_field" -> {
-                    pickupRangeMultiplier += 0.3f * stacks
+                    pickupRangeMultiplier += KnobsPassives.magnetRangePerStack.value * stacks
                 }
                 "phoenix_core" -> {
-                    extraLives = 1
+                    extraLives = KnobsPassives.phoenixExtraLives.value
                 }
                 "extra_weapon_slot" -> {
                     hasExtraWeaponSlot = true
@@ -686,22 +725,22 @@ class GameState {
                     hasDrone = droneCount > 0
                 }
                 "momentum_drive" -> {
-                    momentumDamageBonus = 0.08f * stacks
+                    momentumDamageBonus = KnobsPassives.momentumDamagePerStack.value * stacks
                 }
                 "cryo_field" -> {
-                    cryoSlowPercent = 0.5f  // Flat 50% slow
-                    cryoRadiusMultiplier = 1f + 0.25f * stacks  // +25% radius per stack
+                    cryoSlowPercent = KnobsPassives.cryoSlow.value  // flat, not per stack
+                    cryoRadiusMultiplier = 1f + KnobsPassives.cryoRadiusPerStack.value * stacks
                 }
                 "lucky_star" -> {
                     hasLuckyStar = true
-                    dropRateMultiplier += 0.50f  // +50% upgrade drop rate
+                    dropRateMultiplier += KnobsPassives.luckyDropBonus.value
                 }
                 "revenge_protocol" -> {
                     // Fire rate burst handled in WeaponSystem; no stat to set here
                     Unit
                 }
                 "glass_cannon" -> {
-                    damageMultiplier += 1.00f  // Flat +100%, not per-stack
+                    damageMultiplier += KnobsPassives.glassDamageBonus.value  // flat, not per stack
                     maxShieldCap = 0f
                     shieldRegenDisabled = true
                 }
@@ -766,17 +805,19 @@ class GameState {
     val weaponCounters: MutableMap<String, Int> = mutableMapOf()
 
     fun getAsteroidDropChance(): Float {
-        val initial  = if (astroLoopMode) GameConfig.ASTRO_LOOP_UPGRADE_DROP_INITIAL  else GameConfig.ASTEROID_UPGRADE_DROP_INITIAL
-        val baseline = if (astroLoopMode) GameConfig.ASTRO_LOOP_UPGRADE_DROP_BASELINE else GameConfig.ASTEROID_UPGRADE_DROP_BASELINE
-        val reduction = asteroidUpgradesCollected * GameConfig.ASTEROID_UPGRADE_DROP_DECREASE
+        val initial  = if (astroLoopMode) KnobsDrops.initialChance.value  else GameConfig.ASTEROID_UPGRADE_DROP_INITIAL
+        val baseline = if (astroLoopMode) KnobsDrops.baselineChance.value else GameConfig.ASTEROID_UPGRADE_DROP_BASELINE
+        val decrease = if (astroLoopMode) KnobsDrops.decayPerPickup.value else GameConfig.ASTEROID_UPGRADE_DROP_DECREASE
+        val reduction = asteroidUpgradesCollected * decrease
         val baseChance = (initial - reduction).coerceAtLeast(baseline)
         return baseChance * GameConfig.SALVAGE_BASE_RATE * getSalvageMultiplier()
     }
 
     fun isEarlyGameDropRate(): Boolean {
-        val initial  = if (astroLoopMode) GameConfig.ASTRO_LOOP_UPGRADE_DROP_INITIAL  else GameConfig.ASTEROID_UPGRADE_DROP_INITIAL
-        val baseline = if (astroLoopMode) GameConfig.ASTRO_LOOP_UPGRADE_DROP_BASELINE else GameConfig.ASTEROID_UPGRADE_DROP_BASELINE
-        val reduction = asteroidUpgradesCollected * GameConfig.ASTEROID_UPGRADE_DROP_DECREASE
+        val initial  = if (astroLoopMode) KnobsDrops.initialChance.value  else GameConfig.ASTEROID_UPGRADE_DROP_INITIAL
+        val baseline = if (astroLoopMode) KnobsDrops.baselineChance.value else GameConfig.ASTEROID_UPGRADE_DROP_BASELINE
+        val decrease = if (astroLoopMode) KnobsDrops.decayPerPickup.value else GameConfig.ASTEROID_UPGRADE_DROP_DECREASE
+        val reduction = asteroidUpgradesCollected * decrease
         val baseChance = (initial - reduction).coerceAtLeast(baseline)
         return baseChance > baseline
     }

@@ -10,23 +10,20 @@ import com.astroloop.game.util.Vector2
 import com.astroloop.game.core.GameConfig
 import com.astroloop.game.data.ShipDefinitions
 import com.astroloop.game.weapon.Weapon
-import kotlin.math.PI
 import kotlin.random.Random
+import com.astroloop.game.tuning.KnobsWeapons
 
 class FlakCannon : Weapon(
     id = "flak_cannon",
     name = "Flak Cannon"
 ) {
-    override val baseDamage = 44f
-    override val baseCooldown = 1.0f
-    override val baseProjectileSpeed = 400f
-    override val baseProjectileCount = 1
+    override val knobs = KnobsWeapons.flakCannon
 
     override fun getDamage(state: GameState): Float = baseDamage * state.damageMultiplier
 
-    override fun getProjectileCount(state: GameState): Int = level + state.extraProjectiles
+    override fun getProjectileCount(state: GameState): Int = baseProjectileCount + (level - 1) + state.extraProjectiles
 
-    private fun getExplosionRadius(state: GameState): Float = 60f * state.areaMultiplier
+    private fun getExplosionRadius(state: GameState): Float = KnobsWeapons.flakExplosionRadius.value * areaOf(state)
 
     override fun fire(
         firer: Firer,
@@ -42,8 +39,8 @@ class FlakCannon : Weapon(
         val explosionRadius = getExplosionRadius(state)
 
         for (i in 0 until count) {
-            val spreadAngle = (i - (count - 1) / 2f) * 0.15f
-            val angle = firer.rotation + spreadAngle + (Random.nextFloat() - 0.5f) * 0.1f
+            val spreadAngle = (i - (count - 1) / 2f) * KnobsWeapons.flakSpread.value
+            val angle = firer.rotation + spreadAngle + (Random.nextFloat() - 0.5f) * KnobsWeapons.flakJitter.value
             val direction = Vector2.fromAngle(angle)
 
             val projectile = projectilePool.obtain()
@@ -54,14 +51,14 @@ class FlakCannon : Weapon(
                 vy = direction.y * speed,
                 projectileType = ProjectileType.FLAK,
                 projectileDamage = damage,
-                projectileLifetime = 1.5f // Explodes after traveling a bit
+                projectileLifetime = KnobsWeapons.flakFuse.value // Explodes after traveling a bit
             )
             projectile.isEnemyProjectile = firer.isEnemyFirer
             projectile.weaponId = id
-            projectile.radius = 6f
+            projectile.radius = KnobsWeapons.flakShellRadius.value
             projectile.explodeOnDeath = true
             projectile.explosionRadius = explosionRadius
-            projectile.explosionDamage = damage * 0.7f
+            projectile.explosionDamage = damage * KnobsWeapons.flakExplosionFraction.value
             projectile.proximityFuse = true
             projectile.color = ShipDefinitions.getWeaponColor("flak_cannon", state.isCorruptionRun)
         }

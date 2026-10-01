@@ -10,19 +10,17 @@ import com.astroloop.game.util.Vector2
 import com.astroloop.game.data.ShipDefinitions
 import com.astroloop.game.weapon.Weapon
 import kotlin.math.PI
+import com.astroloop.game.tuning.KnobsWeapons
 
 class StormCannon : Weapon(
     id = "storm_cannon",
     name = "Storm Cannon"
 ) {
-    override val baseDamage = 18f
-    override val baseCooldown = 0.25f
-    override val baseProjectileSpeed = 700f
-    override val baseProjectileCount = 3
+    override val knobs = KnobsWeapons.stormCannon
 
     // Spiral state — persists across shots so the pattern rotates continuously
     private var spiralAngle: Float = 0f
-    private val spiralStep = PI.toFloat() / 6f  // 30 degrees per shot
+    private val spiralStep: Float get() = KnobsWeapons.stormSpiralStep.value
 
     override fun fire(
         firer: Firer,
@@ -51,7 +49,7 @@ class StormCannon : Weapon(
                 vy = direction.y * speed,
                 projectileType = ProjectileType.BULLET,
                 projectileDamage = damage,
-                projectileLifetime = 2f
+                projectileLifetime = KnobsWeapons.stormLifetime.value
             )
             projectile.isEnemyProjectile = firer.isEnemyFirer
             projectile.weaponId = id

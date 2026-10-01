@@ -9,31 +9,30 @@ import com.astroloop.game.entity.Firer
 import com.astroloop.game.weapon.Weapon
 import kotlin.math.cos
 import kotlin.math.sin
+import com.astroloop.game.tuning.KnobsWeapons
+import com.astroloop.game.tuning.forLevel
 
 class EnergySaw : Weapon(
     id = "energy_saw",
     name = "Energy Saw"
 ) {
-    override val baseDamage = 8f
-    override val baseCooldown = 0.1f  // Damage tick rate
-    override val baseProjectileSpeed = 0f
-    override val baseProjectileCount = 1
+    override val knobs = KnobsWeapons.energySaw
 
     // One blade that grows with level — radius and reach scale together
     val discRadius: Float
-        get() = when (level) { 1 -> 20f; 2 -> 28f; 3 -> 36f; 4 -> 45f; else -> 55f }
+        get() = KnobsWeapons.sawDiscRadius.forLevel(level)
 
     val reach: Float
-        get() = when (level) { 1 -> 80f; 2 -> 90f; 3 -> 100f; 4 -> 112f; else -> 125f }
+        get() = KnobsWeapons.sawReach.forLevel(level)
 
     fun getDiscCount(): Int = 1
 
     fun getTickRate(): Float = baseCooldown
 
     override fun getDamage(state: GameState): Float {
-        // Damage grows only mildly (8 -> 12) against a fixed 0.1s tick rate, so
-        // single-target asteroid TTK stays roughly flat — the level-up buys coverage
-        val perLevel = when (level) { 1 -> 8f; 2 -> 9f; 3 -> 10f; 4 -> 11f; else -> 12f }
+        // Damage grows only mildly per level against a fixed tick, so single-target
+        // asteroid TTK stays roughly flat — the level-up buys coverage
+        val perLevel = baseDamage + (level.coerceIn(1, 5) - 1) * KnobsWeapons.sawDamagePerLevel.value
         return perLevel * state.damageMultiplier
     }
 

@@ -212,7 +212,7 @@ class UpgradeSystem(
 
     fun getEligibleEvolutions(state: GameState): List<UpgradeOption> {
         if (state.astroLoopMode) {
-            if (state.survivalTime < 480f || state.astroLoopEvolutionUsed) return emptyList()
+            if (state.survivalTime < state.evolutionTimeGateSeconds || state.astroLoopEvolutionUsed) return emptyList()
         }
         val evolutions = mutableListOf<UpgradeOption>()
         for ((weaponId, level) in state.weaponLevels) {

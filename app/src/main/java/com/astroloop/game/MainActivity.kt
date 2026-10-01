@@ -11,6 +11,7 @@ import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import com.astroloop.game.core.GameSurfaceView
+import com.astroloop.game.core.shouldResumeAudio
 import com.astroloop.game.core.SoundManager
 import com.astroloop.game.core.StoryStateManager
 import com.astroloop.game.data.PersistenceManager
@@ -20,8 +21,16 @@ import com.astroloop.game.input.InputRouter
 import com.astroloop.game.input.InputSurface
 import com.astroloop.game.input.shouldPauseOnDisconnect
 import com.astroloop.game.render.FontManager
+import com.astroloop.game.tuning.RunLoadout
 
 class MainActivity : ComponentActivity() {
+
+    companion object {
+        /** An encoded RunLoadout. With it, this activity plays that one run and then finishes. */
+        const val EXTRA_LOADOUT = "com.astroloop.game.EXTRA_LOADOUT"
+    }
+
+    private var directLoadout: RunLoadout? = null
 
     private var hangarView: HangarSurfaceView? = null
     private var gameView: GameSurfaceView? = null
@@ -100,7 +109,17 @@ class MainActivity : ComponentActivity() {
         persistence.healDesertGoodEnding()
         SoundManager.activeSet = StoryStateManager.stageMusicSet(persistence)
 
-        showHangar()
+        when (val d = directLoadoutFrom(intent, BuildConfig.LAB)) {
+            is DirectLoadout.Invalid -> {
+                android.util.Log.w("AstroLoop", "Undecodable EXTRA_LOADOUT; finishing instead of opening the hangar")
+                finish()
+                return
+            }
+            is DirectLoadout.Run -> directLoadout = d.loadout
+            is DirectLoadout.None -> directLoadout = null
+        }
+        val direct = directLoadout
+        if (direct != null) launchGame(direct.shipId, direct.pilotId) else showHangar()
 
         // Fullscreen immersive mode (must be after setContentView)
         setupFullscreen()
@@ -128,7 +147,7 @@ class MainActivity : ComponentActivity() {
     private fun launchGame(shipId: String, pilotId: String) {
         hangarView?.pause()
 
-        gameView = GameSurfaceView(this, shipId, pilotId) { yenEarned, fadeFromWhite ->
+        gameView = GameSurfaceView(this, shipId, pilotId, directLoadout) { yenEarned, fadeFromWhite ->
             // Bank the payout HERE, before the hop to the UI thread.
             //
             // This runs on the game thread, inside GameThread's catch(Throwable), whereas
@@ -144,7 +163,7 @@ class MainActivity : ComponentActivity() {
             // list; stage 3 moved the ending into the cabinet, which never routes through here.)
             if (yenEarned > 0) PersistenceManager(this).addYen(yenEarned)
             runOnUiThread {
-                returnToHangar(yenEarned, fadeFromWhite)
+                if (directLoadout != null) endDirectRun() else returnToHangar(yenEarned, fadeFromWhite)
             }
         }
         setContentView(gameView)
@@ -153,6 +172,14 @@ class MainActivity : ComponentActivity() {
         gameView?.resume()
         SoundManager.startCombatMusic(this)
         setupFullscreen()
+    }
+
+    /** A direct run hands back to whoever launched it instead of opening the hangar. */
+    private fun endDirectRun() {
+        gameView?.pause()
+        gameView = null
+        SoundManager.stopCombatMusic()
+        window.decorView.post { if (!isFinishing && !isDestroyed) finish() }
     }
 
     private fun returnToHangar(yenEarned: Int, fadeFromWhite: Boolean = false) {
@@ -283,7 +310,10 @@ class MainActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
-        SoundManager.resume()
+        val gameShowing = currentView == gameView
+        if (shouldResumeAudio(gameShowing, gameShowing && gameView?.isRunPaused() == true)) {
+            SoundManager.resume()
+        }
         if (currentView == hangarView) {
             hangarView?.resume()
         } else {
@@ -311,4 +341,19 @@ class MainActivity : ComponentActivity() {
         if (inputRouter.onMotion(event)) return true
         return super.onGenericMotionEvent(event)
     }
+}
+
+/** What the launching intent asks for. */
+internal sealed class DirectLoadout {
+    object None : DirectLoadout()
+    object Invalid : DirectLoadout()
+    data class Run(val loadout: RunLoadout) : DirectLoadout()
+}
+
+/** Only the Lab acts on [MainActivity.EXTRA_LOADOUT]; the shipped game never does. */
+internal fun directLoadoutFrom(intent: android.content.Intent?, isLab: Boolean): DirectLoadout {
+    if (!isLab) return DirectLoadout.None
+    val raw = intent?.getStringExtra(MainActivity.EXTRA_LOADOUT) ?: return DirectLoadout.None
+    val decoded = RunLoadout.decode(raw) ?: return DirectLoadout.Invalid
+    return DirectLoadout.Run(decoded)
 }

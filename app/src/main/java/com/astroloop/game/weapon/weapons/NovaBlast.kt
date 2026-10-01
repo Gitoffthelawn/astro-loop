@@ -11,16 +11,15 @@ import com.astroloop.game.util.Vector2
 import com.astroloop.game.data.ShipDefinitions
 import com.astroloop.game.weapon.Weapon
 import kotlin.math.PI
+import com.astroloop.game.tuning.KnobsWeapons
+import com.astroloop.game.tuning.forLevel
 
 class NovaBlast : Weapon(
     id = "nova_blast",
     name = "Nova Blast"
 ) {
-    override val baseDamage = 40f
-    override val baseCooldown = 4f
+    override val knobs = KnobsWeapons.novaBlast
     override val beatPhaseOffsetMs: Long = 2000L
-    override val baseProjectileSpeed = 0f
-    override val baseProjectileCount = 1
 
     override fun getDamage(state: GameState): Float = baseDamage * state.damageMultiplier
 
@@ -37,14 +36,8 @@ class NovaBlast : Weapon(
          * verbatim: any level past 5 clamps to the top rung.
          */
         fun blastRadiusFor(level: Int, areaMultiplier: Float): Float {
-            val base = when (level) {
-                1 -> 180f
-                2 -> 234f
-                3 -> 281f
-                4 -> 316f
-                else -> 351f
-            }
-            return base * areaMultiplier
+            val base = KnobsWeapons.novaBlastRadius.forLevel(level)
+            return base * areaMultiplier * KnobsWeapons.novaBlast.areaScale
         }
     }
 
