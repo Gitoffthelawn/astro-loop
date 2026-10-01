@@ -5,6 +5,8 @@ import android.os.Bundle
 import android.widget.Button
 import androidx.activity.ComponentActivity
 import com.astroloop.game.MainActivity
+import com.astroloop.game.core.SoundManager
+import com.astroloop.game.data.PersistenceManager
 import com.astroloop.game.data.PilotDefinitions
 import com.astroloop.game.data.ShipDefinitions
 import com.astroloop.game.render.FontManager
@@ -44,7 +46,7 @@ class LabActivity : ComponentActivity() {
         }
     }
 
-    private fun render() {
+    private fun render(focusTag: String? = null) {
         box.removeAllViews()
         box.addView(LabUi.text(this, 28f, bold = true).apply { text = "Astro Loop Lab" })
 
@@ -72,6 +74,28 @@ class LabActivity : ComponentActivity() {
 
         box.addView(LabUi.button(this, "Last results") { open(ResultsActivity::class.java) }
             .apply { isEnabled = LabSession.lastReport != null })
+
+        val mode = PersistenceManager(this).getAudioMode()
+        val music = LabAudio.musicOn(mode)
+        val effects = LabAudio.effectsOn(mode)
+        val audioRow = LabUi.row(this)
+        audioRow.addView(half(LabUi.button(this, "Music: ${onOff(music)}") {
+            setAudio(LabAudio.modeFor(!music, effects), "audio-music")
+        }.apply { tag = "audio-music" }))
+        audioRow.addView(half(LabUi.button(this, "Effects: ${onOff(effects)}") {
+            setAudio(LabAudio.modeFor(music, !effects), "audio-effects")
+        }.apply { tag = "audio-effects" }))
+        box.addView(audioRow)
+
+        if (focusTag != null) box.findViewWithTag<android.view.View>(focusTag)?.requestFocus()
+    }
+
+    private fun onOff(on: Boolean) = if (on) "On" else "Off"
+
+    private fun setAudio(mode: com.astroloop.game.core.AudioMode, focusTag: String) {
+        PersistenceManager(this).setAudioMode(mode)
+        SoundManager.applyAudioMode(mode)
+        render(focusTag)
     }
 
     /** Opens a Lab screen once; a second tap before Home resumes is ignored, as it is for Launch. */
